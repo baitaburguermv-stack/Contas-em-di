@@ -100,17 +100,30 @@ input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid
 .seg button{font:inherit;font-size:.85rem;font-weight:600;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .note{font-size:.8rem;color:var(--muted)}
-.voz{display:flex;flex-direction:column;gap:8px}
-.voz-bar{display:flex;gap:8px;align-items:center}
-.voz-bar input{flex:1;font-size:16px}
-.mic{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
+.assist{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.assist-start{display:flex;align-items:center;gap:14px;width:100%;background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:14px 16px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;text-align:left}
+.assist-start svg{width:26px;height:26px;flex:none}
+.assist-start small{display:block;font-weight:500;font-size:.8rem;opacity:.85}
+.assist-top{display:flex;justify-content:space-between;align-items:center}
+.assist-q{font-family:var(--display);font-weight:600;font-size:1.25rem;line-height:1.25;margin:0;text-wrap:balance}
+.assist-ex{margin:0;font-size:.85rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-weight:600;font-size:.9rem;padding:10px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.resp{display:flex;gap:8px;align-items:center}
+.resp input{flex:1;font-size:16px}
+.mic{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
 .mic svg{width:22px;height:22px}
 .mic.on{background:var(--out);animation:pulso 1s ease-in-out infinite}
 @keyframes pulso{50%{transform:scale(1.08)}}
-.voz .note{margin:0}
-.entendi{background:var(--accent-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
-.entendi b{font-family:var(--display);font-weight:600}
-.entendi.erro{background:var(--out-soft)}
+.ouvindo{font-size:.85rem;color:var(--out);font-weight:600;margin:0}
+.resumo-voz{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:12px 14px}
+.resumo-voz div{display:flex;justify-content:space-between;gap:12px}
+.resumo-voz span{color:var(--muted)}
+.resumo-voz b{text-align:right;overflow-wrap:anywhere}
+.passos{display:flex;gap:4px}
+.passos i{width:22px;height:4px;border-radius:2px;background:var(--line)}
+.passos i.on{background:var(--accent)}
 .backup{border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
 .backup p{margin:0;font-size:.82rem;color:var(--muted)}
 .prog{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
@@ -135,14 +148,7 @@ input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid
 <div class="prog"><div class="bar"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
 <div class="saldo"><span class="eyebrow" id="sMes">Saldo previsto</span><strong class="num" id="sSaldo">—</strong></div>
 </section>
-<section class="voz" aria-label="Comando de voz">
-<form class="voz-bar" id="vozForm" novalidate>
-<input id="vozTxt" autocomplete="off" enterkeyhint="send" placeholder="Fale ou escreva o que aconteceu">
-<button type="button" class="mic" id="vozMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
-</form>
-<p class="note" id="vozDica">Exemplos: "aluguel 1200 todo dia 10", "luz 180 dia 15", "recebo 800 toda sexta", "gastei 50 no mercado", "paguei a luz 172".</p>
-<div id="vozRes"></div>
-</section>
+<section id="assist" aria-label="Assistente de voz" aria-live="polite"></section>
 <section id="alertsWrap" hidden>
 <div class="alerts" id="alerts" aria-live="polite"></div>
 </section>
@@ -264,7 +270,7 @@ $("sEnt").textContent=brl(entPrev);$("sEntR").textContent=`${brl(entReal)} receb
 $("sSai").textContent=brl(saiPrev);$("sSaiR").textContent=`${brl(saiReal)} pago`;
 $("sFalta").textContent=brl(falta);
 $("pBar").style.width=(nTotal?Math.round(nPagas/nTotal*100):0)+"%";
-$("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}`:"Cadastre suas contas para acompanhar o mês";
+$("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}`:(itens.length?`Nenhuma conta a pagar em ${MESES[m]}`:"Cadastre suas contas para acompanhar o mês");
 const saldo=entPrev-saiPrev;
 $("sSaldo").textContent=brl(saldo);$("sSaldo").className="num "+(saldo<0?"c-out":"c-in");
 $("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
@@ -420,93 +426,139 @@ let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clear
 function render(){resumo();renderAvisos();renderLista()}
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 const SEMANA={domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
-const PARADAS=new Set("paguei pago paga pagar quitei acertei recebi recebo receber recebido recebe gastei gasto gastos gasta comprei compra ganho ganhei vendi faturei entra entrou entrada saida sai saiu reais real rs r$ centavos todo toda todos todas dia dias vence vencimento venceu de do da dos das no na nos nas o a os as um uma com pra para pro por em e que mes mensal mensais semanal semana fixo fixa fixos variavel media cada ontem hoje feira feiras mil valor minha meu minhas meus foi ao aos as sobre referente conta".split(" "));
-const RX_PAGO=/\b(paguei|quitei|acertei|ja paguei|pago hoje)\b/, RX_RECEBI=/\b(recebi|entrou|caiu)\b/;
-const RX_GASTO=/\b(gastei|comprei|gasto|paguei)\b/, RX_ENTRADA=/\b(recebo|recebi|receber|entra|entrou|entrada|ganho|ganhei|venda|vendas|vendi|salario|faturei|faturamento|caiu)\b/;
-const RX_VAR=/\b(variavel|varia|media|luz|agua|energia|cartao|gas)\b/;
-function interpretar(frase){
-let t=" "+norm(frase).replace(/[!?;:"]/g," ")+" ";
-let dia=null,dow=null,quandoAvulso=null,valor=null;
-t=t.replace(/\b(?:todo|todos|no|nos|vence|vencimento|para)?\s*(?:o\s+)?dia\s+(\d{1,2})\b/,(m,d)=>{dia=+d;return " "});
-t=t.replace(/\b(?:toda|todas|nas?|as|aos?|todo|todos)?\s*(domingo|segunda|terca|quarta|quinta|sexta|sabado)s?(?:[-\s]feiras?)?\b/,(m,d)=>{dow=SEMANA[d];return " "});
-if(/\bontem\b/.test(t))quandoAvulso=-1;
-t=t.replace(/r\$\s*/g," ");
-const mv=t.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(\s*mil)?(?:\s*e\s*(\d{1,3}))?/);
-if(mv){let n=parseFloat(mv[1].replace(/\./g,"")+(mv[2]?"."+mv[2]:""));if(mv[3]){n*=1000;if(mv[4])n+= +mv[4]}valor=Math.round(n*100)/100;t=t.replace(mv[0]," ")}
-const pal=norm(frase).replace(/r\$/g," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
-const orig=String(frase).replace(/r\$/gi," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
-const forte=i=>{const n=pal[i]||norm(orig[i]);return n&&!PARADAS.has(n)&&!/^\d/.test(n)&&!(n in SEMANA)&&!/^(terca|segunda|quarta|quinta|sexta)-?feira$/.test(n)};
-const idx=orig.map((w,i)=>i).filter(forte);
-const nomeTok=[];
-if(idx.length){for(let i=idx[0];i<=idx[idx.length-1];i++){const n=pal[i]||norm(orig[i]);if(forte(i)||(/^(de|do|da|dos|das|e)$/.test(n)&&forte(i+1)))nomeTok.push(orig[i])}}
-let nome=nomeTok.join(" ").trim();
-if(!nome&&/\bconta\b/.test(norm(frase)))nome="";
-nome=nome?nome[0].toUpperCase()+nome.slice(1):"";
-const tn=" "+norm(frase)+" ";
-let melhor=null,score=0;
-for(const it of itens){if(it.tipo==="avulso")continue;
-const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2&&!PARADAS.has(w));if(!ws.length)continue;
-const hit=ws.filter(w=>tn.includes(" "+w)).length/ws.length;if(hit>score){score=hit;melhor=it}}
-const criar=dia!==null||dow!==null;
-if(melhor&&score>=0.5&&(RX_PAGO.test(tn)||RX_RECEBI.test(tn)||!criar)){
-return {acao:"pagar",item:melhor,valor:valor??melhor.valor};
+const NUM_PAL={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
+function lerValor(txt){
+let t=norm(txt).replace(/r\$\s*/g," ").replace(/\breais?\b/g," ");
+const m=t.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(\s*mil)?(?:\s*e\s*(\d{1,3}))?/);
+if(m){let n=parseFloat(m[1].replace(/\./g,"")+(m[2]?"."+m[2]:""));if(m[3]){n*=1000;if(m[4])n+= +m[4]}return Math.round(n*100)/100}
+let total=0,parcial=0,achou=false;
+for(const w of t.split(/[\s,-]+/)){if(w==="mil"){total+=(parcial||1)*1000;parcial=0;achou=true}else if(w in NUM_PAL){parcial+=NUM_PAL[w];achou=true}}
+return achou?total+parcial:null;
 }
-if(dow!==null) return {acao:"criar",tipo:"semanal",sentido:RX_ENTRADA.test(tn)?"entrada":"saida",dia:dow,nome,valor};
-if(dia!==null&&!/\b(gastei|comprei)\b/.test(tn)) return {acao:"criar",tipo:RX_VAR.test(tn)?"variavel":"fixo",dia:Math.min(31,Math.max(1,dia)),nome,valor};
-const d=hoje();if(quandoAvulso)d.setDate(d.getDate()+quandoAvulso);else if(dia!==null)d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));
-return {acao:"criar",tipo:"avulso",sentido:RX_ENTRADA.test(tn)?"entrada":"saida",data:ymd(d),nome,valor};
+function lerDia(txt){const t=norm(txt);const m=t.match(/\d{1,2}/);let n=m?+m[0]:null;if(n==null){for(const w of t.split(/\s+/))if(w in NUM_PAL)n=(n||0)+NUM_PAL[w];if(/\bprimeiro\b/.test(t))n=1}return n>=1&&n<=31?n:null}
+function lerSemana(txt){const t=norm(txt);for(const k in SEMANA)if(t.includes(k))return SEMANA[k];return null}
+const TIPOS=[["fixo","Gasto fixo","todo mês, mesmo valor"],["variavel","Gasto variável","todo mês, valor muda"],["semanal-entrada","Entrada semanal","dinheiro que entra toda semana"],["semanal-saida","Saída semanal","gasto de toda semana"],["avulso-saida","Gasto avulso","só uma vez"],["avulso-entrada","Entrada avulsa","dinheiro que entrou uma vez"],["pagar","Marcar como pago","de uma conta já cadastrada"]];
+function lerTipo(txt){
+const t=norm(txt);
+if(/\b(marcar|paguei|pago|quitei|ja paguei|recebi)\b/.test(t)&&!/\b(avuls|semana)/.test(t))return "pagar";
+const ent=/(entrada|entra|recebo|receb|ganho|ganhei|venda)/.test(t);
+if(/variav|muda/.test(t))return "variavel";
+if(/fix/.test(t))return "fixo";
+if(/seman/.test(t))return ent?"semanal-entrada":"semanal-saida";
+if(/avuls|uma vez|extra/.test(t))return ent?"avulso-entrada":"avulso-saida";
+if(/\bsaida\b/.test(t))return "semanal-saida";
+if(ent)return "avulso-entrada";
+if(/gasto|gastei|compra/.test(t))return "avulso-saida";
+return null;
 }
-const TIPO_NOME={fixo:"Gasto fixo mensal",variavel:"Gasto variável mensal"};
-function descrever(r){
-if(r.acao==="pagar"){const ent=isEntrada(r.item),s=status(r.item);return `${ent?"Recebido":"Pago"}: <b>${esc(r.item.nome)}</b> · ${brl(r.valor)} <span class="note">(${dm(s.data)})</span>`}
-let tipo=r.tipo==="semanal"?(r.sentido==="entrada"?"Entrada semanal":"Saída semanal"):r.tipo==="avulso"?(r.sentido==="entrada"?"Entrada avulsa":"Gasto avulso"):TIPO_NOME[r.tipo];
-let q=r.tipo==="semanal"?`toda ${DIAS[r.dia]}`:r.tipo==="avulso"?dm(fromYmd(r.data)):`todo dia ${r.dia}`;
-return `${tipo}: <b>${esc(r.nome||"sem nome")}</b> · ${r.valor!=null?brl(r.valor):"sem valor"} · ${q}`;
+function acharConta(txt){
+const t=" "+norm(txt)+" ";let melhor=null,score=0;
+for(const it of itens){if(it.tipo==="avulso")continue;const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2);if(!ws.length)continue;
+const s=ws.filter(w=>t.includes(w)).length/ws.length;if(s>score){score=s;melhor=it}}
+return score>=0.5?melhor:null;
 }
-let vozPend=null;
-function mostrarEntendi(r){
-vozPend=r;const box=$("vozRes");
-if(r.acao==="criar"&&(r.valor==null||!r.nome)){
-box.innerHTML=`<div class="entendi erro"><span>${r.valor==null?"Não peguei o valor.":"Não peguei o nome da conta."} Entendi até aqui: ${descrever(r)}</span>
-<div class="inline"><button class="btn primary" type="button" data-v="corrigir">Completar</button><button class="btn ghost" type="button" data-v="cancelar">Cancelar</button></div></div>`;return}
-box.innerHTML=`<div class="entendi"><span>Entendi: ${descrever(r)}</span>
-<div class="inline"><button class="btn primary" type="button" data-v="ok">Confirmar</button><button class="btn" type="button" data-v="corrigir">Corrigir</button><button class="btn ghost" type="button" data-v="cancelar">Cancelar</button></div></div>`;
-}
-function abrirFormNovo(pre){
-editando=null;
-form={nome:"",valor:"",tipo:"fixo",sentido:"saida",dia:10,data:ymd(hoje()),...pre};
-if(form.valor==null)form.valor="";if(form.nome==null)form.nome="";
-renderForm();$("fab").hidden=true;window.scrollTo({top:0,behavior:"smooth"});
-}
-$("vozRes").addEventListener("click",async e=>{
-const b=e.target.closest("button");if(!b||!vozPend)return;const r=vozPend,v=b.dataset.v;
-if(v==="cancelar"){vozPend=null;$("vozRes").innerHTML="";return}
-if(v==="corrigir"){vozPend=null;$("vozRes").innerHTML="";
-if(r.acao==="pagar"){aberto=r.item.id;setAba(r.item.tipo);render();return}
-const {acao,...pre}=r;abrirFormNovo(pre);return}
-try{
-if(r.acao==="pagar"){const s=status(r.item);await marcarPago(r.item,ymd(s.data),r.valor);toast(isEntrada(r.item)?"Marcado como recebido":"Marcado como pago")}
-else{const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:r.nome,valor:r.valor,tipo:r.tipo};
-if(r.tipo==="avulso")it.data=r.data;else{it.dia=r.dia;it.criado=ymd(hoje())}
-if(r.tipo==="semanal"||r.tipo==="avulso")it.sentido=r.sentido;
-await salvarItem(it);setAba(it.tipo);toast("Conta adicionada")}
-vozPend=null;$("vozRes").innerHTML="";$("vozTxt").value="";render();
-}catch(x){toast("Não consegui salvar. Tente de novo.")}
-});
-$("vozForm").addEventListener("submit",e=>{e.preventDefault();const t=$("vozTxt").value.trim();if(!t){toast("Fale ou escreva algo primeiro");return}$("vozTxt").blur();mostrarEntendi(interpretar(t))});
+let A=null,ouvindo=null,porVoz=false;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let ouvindo=null;
-function dicaTeclado(){$("vozTxt").focus();toast("Toque no microfone do teclado para falar")}
-$("vozMic").addEventListener("click",()=>{
+function passosDe(a){if(!a.tipo)return["tipo"];if(a.tipo==="pagar")return["tipo","conta","valor","fim"];return["tipo","nome","valor","quando","fim"]}
+function tipoLabel(k){return (TIPOS.find(x=>x[0]===k)||[,""])[1]}
+function iniciarAssist(){A={passo:"tipo",erro:""};renderAssist()}
+function fecharAssist(){pararMic();A=null;renderAssist()}
+const MIC_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+function renderAssist(){
+const box=$("assist");
+if(!A){box.className="";box.innerHTML=`<button class="assist-start" type="button" data-a="iniciar">${MIC_SVG}<span>Falar com o app<small>Eu pergunto passo a passo e tu responde falando ou tocando</small></span></button>`;return}
+box.className="assist";
+const ps=passosDe(A),i=ps.indexOf(A.passo);
+let q="",ex="",chips="",campo="",extra="";
+const inp=(mode,ph,val)=>`<div class="resp"><input id="aTxt" inputmode="${mode}" placeholder="${ph}" value="${esc(val??"")}" autocomplete="off" enterkeyhint="next"><button class="mic${ouvindo?" on":""}" type="button" data-a="mic" aria-label="Responder falando">${MIC_SVG}</button></div>`;
+if(A.passo==="tipo"){q="O que tu quer registrar?";ex='Toca numa opção ou fala, por exemplo: "gasto fixo".';
+chips=TIPOS.map(([k,l])=>`<button class="chip${A.tipo===k?" sel":""}" type="button" data-a="tipo" data-v="${k}">${l}</button>`).join("");campo=inp("text","Ou escreve aqui","")}
+else if(A.passo==="nome"){q=A.tipo.endsWith("entrada")?"De onde vem esse dinheiro?":"Qual o nome dessa conta?";
+ex=A.tipo==="fixo"?'Fala só o nome. Ex.: "aluguel", "internet".':A.tipo==="variavel"?'Fala só o nome. Ex.: "luz", "água", "cartão".':A.tipo.endsWith("entrada")?'Fala só o nome. Ex.: "vendas", "salário".':'Fala só o nome. Ex.: "mercado", "gasolina".';
+campo=inp("text","Nome",A.nome)}
+else if(A.passo==="conta"){q="Qual conta tu pagou ou recebeu?";ex="Toca na conta ou fala o nome dela.";
+const rec=itens.filter(it=>it.tipo!=="avulso");
+chips=rec.length?rec.map(it=>`<button class="chip${A.item&&A.item.id===it.id?" sel":""}" type="button" data-a="conta" data-v="${it.id}">${esc(it.nome)}</button>`).join(""):'<span class="assist-ex">Ainda não tem conta cadastrada. Volta e escolhe outro tipo.</span>';
+campo=rec.length?inp("text","Nome da conta",""):""}
+else if(A.passo==="valor"){q=A.tipo==="pagar"?"Qual valor foi?":A.tipo==="variavel"?"Quanto costuma vir, mais ou menos?":"Qual o valor?";ex='Fala só o número. Ex.: "150" ou "1.200".';
+if(A.tipo==="pagar"&&A.item)chips=`<button class="chip" type="button" data-a="valor" data-v="${A.item.valor}">Usar ${brl(A.item.valor)}</button>`;
+campo=inp("decimal","0,00",A.valor!=null?fmtInput(A.valor):"")}
+else if(A.passo==="quando"){
+if(A.tipo.startsWith("semanal")){q="Em que dia da semana?";ex='Toca no dia ou fala, por exemplo: "sexta".';
+chips=[1,2,3,4,5,6,0].map(d=>`<button class="chip${A.dia===d?" sel":""}" type="button" data-a="semana" data-v="${d}">${DIAS[d][0].toUpperCase()+DIAS[d].slice(1)}</button>`).join("");campo=inp("text","Dia da semana","")}
+else if(A.tipo.startsWith("avulso")){q="Quando foi?";ex="Toca em hoje, ontem ou escolhe a data.";
+const h=ymd(hoje()),o=(()=>{const d=hoje();d.setDate(d.getDate()-1);return ymd(d)})();
+chips=`<button class="chip${A.data===h?" sel":""}" type="button" data-a="data" data-v="${h}">Hoje</button><button class="chip${A.data===o?" sel":""}" type="button" data-a="data" data-v="${o}">Ontem</button>`;
+campo=`<input id="aData" type="date" value="${esc(A.data||h)}">`}
+else{q="Que dia do mês vence?";ex='Fala só o dia. Ex.: "10".';
+chips=[5,10,15,20,25].map(d=>`<button class="chip${A.dia===d?" sel":""}" type="button" data-a="diames" data-v="${d}">Dia ${d}</button>`).join("");campo=inp("numeric","1 a 31",A.dia??"")}}
+else if(A.passo==="fim"){q="Confere se está certo:";
+const linhas=A.tipo==="pagar"?[["Conta",esc(A.item.nome)],["Valor",brl(A.valor)],["Vencimento",dm(status(A.item).data)]]
+:[["Tipo",tipoLabel(A.tipo)],["Nome",esc(A.nome)],["Valor",brl(A.valor)],[A.tipo.startsWith("avulso")?"Data":"Quando",A.tipo.startsWith("semanal")?"Toda "+DIAS[A.dia]:A.tipo.startsWith("avulso")?dm(fromYmd(A.data)):"Todo dia "+A.dia]];
+extra=`<div class="resumo-voz">${linhas.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`}
+const fim=A.passo==="fim";
+box.innerHTML=`<div class="assist-top"><div class="passos">${ps.length>1?ps.map((p,j)=>`<i class="${j<=i?"on":""}"></i>`).join(""):""}</div><button class="btn ghost" type="button" data-a="cancelar">Cancelar</button></div>
+<p class="assist-q">${q}</p>${ex?`<p class="assist-ex">${ex}</p>`:""}
+${chips?`<div class="chips">${chips}</div>`:""}${campo}${extra}
+${ouvindo?'<p class="ouvindo">Ouvindo… pode falar</p>':""}
+${A.erro?`<p class="err">${A.erro}</p>`:""}
+<div class="inline">${i>0?'<button class="btn" type="button" data-a="voltar">Voltar</button>':""}${fim?'<button class="btn primary" type="button" data-a="salvar">Salvar</button>':(A.passo!=="tipo"?'<button class="btn primary" type="button" data-a="proximo">Próximo</button>':"")}</div>`;
+}
+function avancar(){const ps=passosDe(A);A.passo=ps[ps.indexOf(A.passo)+1];A.erro="";renderAssist();if(porVoz&&SR&&A.passo!=="fim")setTimeout(()=>ouvir(true),350)}
+function responder(txt){
+if(!A)return;txt=String(txt||"").trim();
+if(!txt){A.erro="Fala ou escreve a resposta primeiro.";renderAssist();return}
+const p=A.passo;
+if(p==="tipo"){const k=lerTipo(txt);if(!k){A.erro='Não entendi. Toca numa das opções ou fala, por exemplo: "gasto fixo".';renderAssist();return}escolherTipo(k);return}
+if(p==="nome"){let n=txt.replace(/^(o|a|os|as|de|do|da|é|e)\s+/i,"").trim();n=n[0].toUpperCase()+n.slice(1);A.nome=n;avancar();return}
+if(p==="conta"){const it=acharConta(txt);if(!it){A.erro="Não achei essa conta. Toca no nome dela.";renderAssist();return}A.item=it;A.valor=null;avancar();return}
+if(p==="valor"){const v=lerValor(txt);if(v==null){A.erro='Não entendi o valor. Fala só o número, por exemplo "150".';renderAssist();return}A.valor=v;avancar();return}
+if(p==="quando"){
+if(A.tipo.startsWith("semanal")){const d=lerSemana(txt);if(d==null){A.erro='Não entendi o dia. Fala, por exemplo, "sexta".';renderAssist();return}A.dia=d;avancar();return}
+if(A.tipo.startsWith("avulso")){const t=norm(txt),d=hoje();if(/ontem/.test(t))d.setDate(d.getDate()-1);else if(/^\d{4}-\d{2}-\d{2}$/.test(txt)){A.data=txt;avancar();return}else{const n=lerDia(txt);if(n&&!/hoje/.test(t))d.setDate(Math.min(n,diasNoMes(d.getFullYear(),d.getMonth())))}A.data=ymd(d);avancar();return}
+const n=lerDia(txt);if(n==null){A.erro='Não entendi o dia. Fala só o número, de 1 a 31.';renderAssist();return}A.dia=n;avancar();return}
+}
+function escolherTipo(k){A.tipo=k;A.nome=A.nome||"";if(k.startsWith("avulso"))A.data=A.data||ymd(hoje());avancar()}
+async function salvarAssist(){
+try{
+if(A.tipo==="pagar"){await marcarPago(A.item,ymd(status(A.item).data),A.valor);toast(isEntrada(A.item)?"Marcado como recebido":"Marcado como pago");setAba(A.item.tipo)}
+else{const [tipo,sentido]=A.tipo.split("-");
+const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:A.nome,valor:A.valor,tipo};
+if(tipo==="avulso")it.data=A.data;else{it.dia=A.dia;it.criado=ymd(hoje())}
+if(sentido)it.sentido=sentido;
+await salvarItem(it);setAba(tipo);toast("Conta salva")}
+porVoz=false;A=null;renderAssist();render();
+}catch(x){A.erro="Não consegui salvar. Tenta de novo.";renderAssist()}
+}
+function pararMic(){if(ouvindo){try{ouvindo.abort()}catch(e){}ouvindo=null}}
+function ouvir(auto){
 if(ouvindo){try{ouvindo.stop()}catch(e){}return}
-if(!SR){dicaTeclado();return}
-let r;try{r=new SR()}catch(e){dicaTeclado();return}
-r.lang="pt-BR";r.interimResults=true;r.continuous=false;let final="";
-r.onresult=e=>{let txt="";for(const res of e.results){txt+=res[0].transcript;if(res.isFinal)final=txt}$("vozTxt").value=txt};
-r.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed")dicaTeclado();else if(ev.error!=="aborted"&&ev.error!=="no-speech")toast("Não consegui ouvir. Tente de novo.")};
-r.onend=()=>{ouvindo=null;$("vozMic").classList.remove("on");const t=(final||$("vozTxt").value).trim();if(t)mostrarEntendi(interpretar(t))};
-try{r.start();ouvindo=r;$("vozMic").classList.add("on");$("vozRes").innerHTML=""}catch(e){dicaTeclado()}
+if(!SR||!$("aTxt")){if(!auto){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}return}
+let r;try{r=new SR()}catch(e){return}
+r.lang="pt-BR";r.interimResults=true;r.continuous=false;let final="",ultimo="";
+r.onresult=e=>{let txt="";for(const res of e.results){txt+=res[0].transcript;if(res.isFinal)final=txt}ultimo=txt;const el=$("aTxt");if(el)el.value=txt};
+r.onerror=ev=>{if(!auto&&(ev.error==="not-allowed"||ev.error==="service-not-allowed")){porVoz=false;const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}};
+r.onend=()=>{ouvindo=null;const t=(final||ultimo).trim();if(t){porVoz=true;responder(t)}else renderAssist()};
+try{r.start();ouvindo=r;renderAssist()}catch(e){}
+}
+$("assist").addEventListener("click",e=>{
+const b=e.target.closest("button");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+if(a==="iniciar"){porVoz=false;iniciarAssist();return}
+if(a==="cancelar"){porVoz=false;fecharAssist();return}
+if(a==="mic"){ouvir(false);return}
+pararMic();
+if(a==="voltar"){const ps=passosDe(A);A.passo=ps[Math.max(0,ps.indexOf(A.passo)-1)];A.erro="";porVoz=false;renderAssist();return}
+if(a==="tipo"){porVoz=false;escolherTipo(v);return}
+if(a==="conta"){A.item=itens.find(x=>x.id===v);A.valor=null;avancar();return}
+if(a==="valor"){A.valor=+v;avancar();return}
+if(a==="semana"){A.dia=+v;avancar();return}
+if(a==="diames"){A.dia=+v;avancar();return}
+if(a==="data"){A.data=v;avancar();return}
+if(a==="proximo"){if(A.passo==="quando"&&A.tipo.startsWith("avulso")){A.data=$("aData").value||ymd(hoje());avancar();return}responder(($("aTxt")||{}).value);return}
+if(a==="salvar"){salvarAssist();return}
 });
+$("assist").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="aTxt"){e.preventDefault();porVoz=false;responder(e.target.value)}});
+renderAssist();
 (function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
 render();
 function iniciar(){lsLoad();pronto=true;render()}
