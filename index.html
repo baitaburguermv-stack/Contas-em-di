@@ -124,6 +124,11 @@ input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid
 .passos{display:flex;gap:4px}
 .passos i{width:22px;height:4px;border-radius:2px;background:var(--line)}
 .passos i.on{background:var(--accent)}
+.disse{margin:0;font-size:.85rem;color:var(--muted);font-style:italic}
+.modelo{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:12px 14px;margin:0;list-style:none}
+.modelo li{font-size:.92rem}
+.modelo b{color:var(--accent)}
+.ficha{display:flex;flex-direction:column;gap:10px}
 .backup{border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
 .backup p{margin:0;font-size:.82rem;color:var(--muted)}
 .prog{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
@@ -427,137 +432,165 @@ function render(){resumo();renderAvisos();renderLista()}
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
 const SEMANA={domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
 const NUM_PAL={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
+function palavrasValor(t){
+const ws=t.split(/[\s,-]+/);let total=0,parcial=0,achou=false;
+ws.forEach((w,i)=>{if(w==="mil"){total+=(parcial||1)*1000;parcial=0;achou=true}else if(w in NUM_PAL){if((w==="um"||w==="uma")&&ws[i+1]!=="mil")return;parcial+=NUM_PAL[w];achou=true}});
+return achou?total+parcial:null;
+}
 function lerValor(txt){
 let t=norm(txt).replace(/r\$\s*/g," ").replace(/\breais?\b/g," ");
 const m=t.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(\s*mil)?(?:\s*e\s*(\d{1,3}))?/);
 if(m){let n=parseFloat(m[1].replace(/\./g,"")+(m[2]?"."+m[2]:""));if(m[3]){n*=1000;if(m[4])n+= +m[4]}return Math.round(n*100)/100}
-let total=0,parcial=0,achou=false;
-for(const w of t.split(/[\s,-]+/)){if(w==="mil"){total+=(parcial||1)*1000;parcial=0;achou=true}else if(w in NUM_PAL){parcial+=NUM_PAL[w];achou=true}}
-return achou?total+parcial:null;
+return palavrasValor(t);
 }
 function lerDia(txt){const t=norm(txt);const m=t.match(/\d{1,2}/);let n=m?+m[0]:null;if(n==null){for(const w of t.split(/\s+/))if(w in NUM_PAL)n=(n||0)+NUM_PAL[w];if(/\bprimeiro\b/.test(t))n=1}return n>=1&&n<=31?n:null}
-function lerSemana(txt){const t=norm(txt);for(const k in SEMANA)if(t.includes(k))return SEMANA[k];return null}
-const TIPOS=[["fixo","Gasto fixo","todo mês, mesmo valor"],["variavel","Gasto variável","todo mês, valor muda"],["semanal-entrada","Entrada semanal","dinheiro que entra toda semana"],["semanal-saida","Saída semanal","gasto de toda semana"],["avulso-saida","Gasto avulso","só uma vez"],["avulso-entrada","Entrada avulsa","dinheiro que entrou uma vez"],["pagar","Marcar como pago","de uma conta já cadastrada"]];
-function lerTipo(txt){
-const t=norm(txt);
-if(/\b(marcar|paguei|pago|quitei|ja paguei|recebi)\b/.test(t)&&!/\b(avuls|semana)/.test(t))return "pagar";
-const ent=/(entrada|entra|recebo|receb|ganho|ganhei|venda)/.test(t);
-if(/variav|muda/.test(t))return "variavel";
-if(/fix/.test(t))return "fixo";
-if(/seman/.test(t))return ent?"semanal-entrada":"semanal-saida";
-if(/avuls|uma vez|extra/.test(t))return ent?"avulso-entrada":"avulso-saida";
-if(/\bsaida\b/.test(t))return "semanal-saida";
-if(ent)return "avulso-entrada";
-if(/gasto|gastei|compra/.test(t))return "avulso-saida";
-return null;
-}
+const TIPOS=[["fixo","Gasto fixo"],["variavel","Gasto variável"],["semanal-entrada","Entrada semanal"],["semanal-saida","Saída semanal"],["avulso-saida","Gasto avulso"],["avulso-entrada","Entrada avulsa"],["pagar","Marcar como pago"]];
+const PARADAS=new Set("paguei pago paga pagar quitei acertei recebi recebo receber recebido recebe gastei gasto gastos gasta comprei compra ganho ganhei vendi faturei entra entrou entrada entradas saida saidas sai saiu reais real rs r$ centavos todo toda todos todas dia dias vence vencimento venceu de do da dos das no na nos nas o a os as um uma com pra para pro por em e que mes mensal mensais semanal semanais semana fixo fixa fixos variavel variaveis media cada ontem hoje feira feiras mil valor minha meu minhas meus foi ao aos sobre referente conta avulso avulsa avulsos tipo nome marcar como".split(" "));
+const RX_PAGO=/\b(paguei|quitei|acertei|marcar como pago|ja paguei)\b/, RX_RECEBI=/\b(recebi|entrou|caiu)\b/;
+const RX_ENTRADA=/\b(recebo|recebi|receber|entra|entrou|entrada|ganho|ganhei|venda|vendas|vendi|salario|faturei|faturamento|caiu)\b/;
+const RX_VAR=/\b(variavel|varia|media|luz|agua|energia|cartao|gas)\b/;
 function acharConta(txt){
 const t=" "+norm(txt)+" ";let melhor=null,score=0;
-for(const it of itens){if(it.tipo==="avulso")continue;const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2);if(!ws.length)continue;
-const s=ws.filter(w=>t.includes(w)).length/ws.length;if(s>score){score=s;melhor=it}}
+for(const it of itens){if(it.tipo==="avulso")continue;const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2&&!PARADAS.has(w));if(!ws.length)continue;
+const s=ws.filter(w=>t.includes(" "+w)).length/ws.length;if(s>score){score=s;melhor=it}}
 return score>=0.5?melhor:null;
 }
-let A=null,ouvindo=null,porVoz=false;
+function interpretar(frase){
+const tn=" "+norm(frase)+" ";
+let t=tn.replace(/[!?;:"]/g," ");
+let dia=null,dow=null,valor=null;
+t=t.replace(/\b(?:todo|todos|no|nos|vence|vencimento|para)?\s*(?:o\s+)?dia\s+(\d{1,2}|primeiro|[a-z]+(?:\s+e\s+[a-z]+)?)\b/,(m,d)=>{const n=lerDia(d);if(n){dia=n;return " "}return m});
+t=t.replace(/\b(?:toda|todas|nas?|as|aos?|todo|todos)?\s*(domingo|segunda|terca|quarta|quinta|sexta|sabado)s?(?:[-\s]feiras?)?\b/,(m,d)=>{dow=SEMANA[d];return " "});
+valor=lerValor(t);
+const pal=norm(frase).replace(/r\$/g," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
+const orig=String(frase).replace(/r\$/gi," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
+const forte=i=>{const n=pal[i]||norm(orig[i]||"");return n&&!PARADAS.has(n)&&!/^\d/.test(n)&&!(n in SEMANA)&&!(n in NUM_PAL)&&!/^(primeiro|terca|segunda|quarta|quinta|sexta)(-?feira)?$/.test(n)};
+const idx=orig.map((w,i)=>i).filter(forte);
+const tk=[];
+if(idx.length){for(let i=idx[0];i<=idx[idx.length-1];i++){const n=pal[i]||norm(orig[i]);if(forte(i)||(/^(de|do|da|dos|das|e)$/.test(n)&&forte(i+1)&&forte(i-1)))tk.push(orig[i])}}
+let nome=tk.join(" ").trim();nome=nome?nome[0].toUpperCase()+nome.slice(1):"";
+const ent=RX_ENTRADA.test(tn);
+let tipo=null;
+if(/\bvariave/.test(tn))tipo="variavel";
+else if(/\bfix[oa]s?\b/.test(tn))tipo="fixo";
+else if(/\bseman/.test(tn)||dow!==null)tipo=ent?"semanal-entrada":"semanal-saida";
+else if(/\bavuls/.test(tn))tipo=ent?"avulso-entrada":"avulso-saida";
+const conta=acharConta(frase);
+if(conta&&(!tipo&&dia===null)&&(RX_PAGO.test(tn)||RX_RECEBI.test(tn)||/\bpago\b/.test(tn)))
+return {tipo:"pagar",item:conta,valor:valor??conta.valor,nome:"",dia:null,data:null};
+if(!tipo){if(dia!==null&&!/\b(gastei|comprei)\b/.test(tn))tipo=RX_VAR.test(tn)?"variavel":"fixo";else tipo=ent?"avulso-entrada":"avulso-saida"}
+let data=null;
+if(tipo.startsWith("avulso")){const d=hoje();if(/\bontem\b/.test(tn))d.setDate(d.getDate()-1);else if(dia!==null)d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));data=ymd(d)}
+return {tipo,nome,valor,dia:tipo.startsWith("semanal")?dow:(tipo.startsWith("avulso")?null:dia),data,item:null};
+}
+let A=null,ouvindo=null;
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-function passosDe(a){if(!a.tipo)return["tipo"];if(a.tipo==="pagar")return["tipo","conta","valor","fim"];return["tipo","nome","valor","quando","fim"]}
-function tipoLabel(k){return (TIPOS.find(x=>x[0]===k)||[,""])[1]}
-function iniciarAssist(){A={passo:"tipo",erro:""};renderAssist()}
-function fecharAssist(){pararMic();A=null;renderAssist()}
 const MIC_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 function renderAssist(){
 const box=$("assist");
-if(!A){box.className="";box.innerHTML=`<button class="assist-start" type="button" data-a="iniciar">${MIC_SVG}<span>Falar com o app<small>Eu pergunto passo a passo e tu responde falando ou tocando</small></span></button>`;return}
+if(!A){box.className="";box.innerHTML=`<button class="assist-start" type="button" data-a="iniciar">${MIC_SVG}<span>Falar com o app<small>Fala tudo de uma vez: tipo, nome, valor e dia</small></span></button>`;return}
 box.className="assist";
-const ps=passosDe(A),i=ps.indexOf(A.passo);
-let q="",ex="",chips="",campo="",extra="";
-const inp=(mode,ph,val)=>`<div class="resp"><input id="aTxt" inputmode="${mode}" placeholder="${ph}" value="${esc(val??"")}" autocomplete="off" enterkeyhint="next"><button class="mic${ouvindo?" on":""}" type="button" data-a="mic" aria-label="Responder falando">${MIC_SVG}</button></div>`;
-if(A.passo==="tipo"){q="O que tu quer registrar?";ex='Toca numa opção ou fala, por exemplo: "gasto fixo".';
-chips=TIPOS.map(([k,l])=>`<button class="chip${A.tipo===k?" sel":""}" type="button" data-a="tipo" data-v="${k}">${l}</button>`).join("");campo=inp("text","Ou escreve aqui","")}
-else if(A.passo==="nome"){q=A.tipo.endsWith("entrada")?"De onde vem esse dinheiro?":"Qual o nome dessa conta?";
-ex=A.tipo==="fixo"?'Fala só o nome. Ex.: "aluguel", "internet".':A.tipo==="variavel"?'Fala só o nome. Ex.: "luz", "água", "cartão".':A.tipo.endsWith("entrada")?'Fala só o nome. Ex.: "vendas", "salário".':'Fala só o nome. Ex.: "mercado", "gasolina".';
-campo=inp("text","Nome",A.nome)}
-else if(A.passo==="conta"){q="Qual conta tu pagou ou recebeu?";ex="Toca na conta ou fala o nome dela.";
-const rec=itens.filter(it=>it.tipo!=="avulso");
-chips=rec.length?rec.map(it=>`<button class="chip${A.item&&A.item.id===it.id?" sel":""}" type="button" data-a="conta" data-v="${it.id}">${esc(it.nome)}</button>`).join(""):'<span class="assist-ex">Ainda não tem conta cadastrada. Volta e escolhe outro tipo.</span>';
-campo=rec.length?inp("text","Nome da conta",""):""}
-else if(A.passo==="valor"){q=A.tipo==="pagar"?"Qual valor foi?":A.tipo==="variavel"?"Quanto costuma vir, mais ou menos?":"Qual o valor?";ex='Fala só o número. Ex.: "150" ou "1.200".';
-if(A.tipo==="pagar"&&A.item)chips=`<button class="chip" type="button" data-a="valor" data-v="${A.item.valor}">Usar ${brl(A.item.valor)}</button>`;
-campo=inp("decimal","0,00",A.valor!=null?fmtInput(A.valor):"")}
-else if(A.passo==="quando"){
-if(A.tipo.startsWith("semanal")){q="Em que dia da semana?";ex='Toca no dia ou fala, por exemplo: "sexta".';
-chips=[1,2,3,4,5,6,0].map(d=>`<button class="chip${A.dia===d?" sel":""}" type="button" data-a="semana" data-v="${d}">${DIAS[d][0].toUpperCase()+DIAS[d].slice(1)}</button>`).join("");campo=inp("text","Dia da semana","")}
-else if(A.tipo.startsWith("avulso")){q="Quando foi?";ex="Toca em hoje, ontem ou escolhe a data.";
-const h=ymd(hoje()),o=(()=>{const d=hoje();d.setDate(d.getDate()-1);return ymd(d)})();
-chips=`<button class="chip${A.data===h?" sel":""}" type="button" data-a="data" data-v="${h}">Hoje</button><button class="chip${A.data===o?" sel":""}" type="button" data-a="data" data-v="${o}">Ontem</button>`;
-campo=`<input id="aData" type="date" value="${esc(A.data||h)}">`}
-else{q="Que dia do mês vence?";ex='Fala só o dia. Ex.: "10".';
-chips=[5,10,15,20,25].map(d=>`<button class="chip${A.dia===d?" sel":""}" type="button" data-a="diames" data-v="${d}">Dia ${d}</button>`).join("");campo=inp("numeric","1 a 31",A.dia??"")}}
-else if(A.passo==="fim"){q="Confere se está certo:";
-const linhas=A.tipo==="pagar"?[["Conta",esc(A.item.nome)],["Valor",brl(A.valor)],["Vencimento",dm(status(A.item).data)]]
-:[["Tipo",tipoLabel(A.tipo)],["Nome",esc(A.nome)],["Valor",brl(A.valor)],[A.tipo.startsWith("avulso")?"Data":"Quando",A.tipo.startsWith("semanal")?"Toda "+DIAS[A.dia]:A.tipo.startsWith("avulso")?dm(fromYmd(A.data)):"Todo dia "+A.dia]];
-extra=`<div class="resumo-voz">${linhas.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join("")}</div>`}
-const fim=A.passo==="fim";
-box.innerHTML=`<div class="assist-top"><div class="passos">${ps.length>1?ps.map((p,j)=>`<i class="${j<=i?"on":""}"></i>`).join(""):""}</div><button class="btn ghost" type="button" data-a="cancelar">Cancelar</button></div>
-<p class="assist-q">${q}</p>${ex?`<p class="assist-ex">${ex}</p>`:""}
-${chips?`<div class="chips">${chips}</div>`:""}${campo}${extra}
+const topo=`<div class="assist-top"><span class="eyebrow">${A.fase==="falar"?"Fala tudo de uma vez":"Confere e ajusta se precisar"}</span><button class="btn ghost" type="button" data-a="cancelar">Cancelar</button></div>`;
+if(A.fase==="falar"){
+box.innerHTML=`${topo}
+<p class="assist-q">Fala o tipo, o nome, o valor e o dia</p>
+<ul class="modelo">
+<li><b>Gasto fixo</b>, aluguel, 1200, dia 10</li>
+<li><b>Gasto variável</b>, luz, 180, dia 15</li>
+<li><b>Entrada semanal</b>, vendas, 800, toda sexta</li>
+<li><b>Gasto avulso</b>, mercado, 52 reais, hoje</li>
+<li><b>Paguei</b> a luz, 172</li>
+</ul>
+<div class="resp"><input id="aTxt" autocomplete="off" enterkeyhint="done" placeholder="Ou escreve aqui" value="${esc(A.texto||"")}"><button class="mic${ouvindo?" on":""}" type="button" data-a="mic" aria-label="Falar">${MIC_SVG}</button></div>
 ${ouvindo?'<p class="ouvindo">Ouvindo… pode falar</p>':""}
 ${A.erro?`<p class="err">${A.erro}</p>`:""}
-<div class="inline">${i>0?'<button class="btn" type="button" data-a="voltar">Voltar</button>':""}${fim?'<button class="btn primary" type="button" data-a="salvar">Salvar</button>':(A.passo!=="tipo"?'<button class="btn primary" type="button" data-a="proximo">Próximo</button>':"")}</div>`;
+<div class="inline"><button class="btn primary" type="button" data-a="pronto">Pronto</button></div>`;
+return;
 }
-function avancar(){const ps=passosDe(A);A.passo=ps[ps.indexOf(A.passo)+1];A.erro="";renderAssist();if(porVoz&&SR&&A.passo!=="fim")setTimeout(()=>ouvir(true),350)}
-function responder(txt){
-if(!A)return;txt=String(txt||"").trim();
-if(!txt){A.erro="Fala ou escreve a resposta primeiro.";renderAssist();return}
-const p=A.passo;
-if(p==="tipo"){const k=lerTipo(txt);if(!k){A.erro='Não entendi. Toca numa das opções ou fala, por exemplo: "gasto fixo".';renderAssist();return}escolherTipo(k);return}
-if(p==="nome"){let n=txt.replace(/^(o|a|os|as|de|do|da|é|e)\s+/i,"").trim();n=n[0].toUpperCase()+n.slice(1);A.nome=n;avancar();return}
-if(p==="conta"){const it=acharConta(txt);if(!it){A.erro="Não achei essa conta. Toca no nome dela.";renderAssist();return}A.item=it;A.valor=null;avancar();return}
-if(p==="valor"){const v=lerValor(txt);if(v==null){A.erro='Não entendi o valor. Fala só o número, por exemplo "150".';renderAssist();return}A.valor=v;avancar();return}
-if(p==="quando"){
-if(A.tipo.startsWith("semanal")){const d=lerSemana(txt);if(d==null){A.erro='Não entendi o dia. Fala, por exemplo, "sexta".';renderAssist();return}A.dia=d;avancar();return}
-if(A.tipo.startsWith("avulso")){const t=norm(txt),d=hoje();if(/ontem/.test(t))d.setDate(d.getDate()-1);else if(/^\d{4}-\d{2}-\d{2}$/.test(txt)){A.data=txt;avancar();return}else{const n=lerDia(txt);if(n&&!/hoje/.test(t))d.setDate(Math.min(n,diasNoMes(d.getFullYear(),d.getMonth())))}A.data=ymd(d);avancar();return}
-const n=lerDia(txt);if(n==null){A.erro='Não entendi o dia. Fala só o número, de 1 a 31.';renderAssist();return}A.dia=n;avancar();return}
+const t=A.tipo;
+let campos="";
+if(t==="pagar"){
+const rec=itens.filter(it=>it.tipo!=="avulso");
+campos=rec.length?`<div class="field"><label for="cConta">Conta</label><select id="cConta">${rec.map(it=>`<option value="${it.id}" ${A.item&&A.item.id===it.id?"selected":""}>${esc(it.nome)}</option>`).join("")}</select></div>
+<div class="field"><label for="cValor">Valor pago</label><input id="cValor" inputmode="decimal" value="${A.valor!=null?fmtInput(A.valor):""}" placeholder="0,00"></div>`
+:'<p class="assist-ex">Ainda não tem conta cadastrada pra marcar como paga.</p>';
+}else{
+let quandoCampo;
+if(t.startsWith("semanal"))quandoCampo=`<div class="field"><label for="cDia">Dia da semana</label><select id="cDia"><option value="">Escolhe</option>${[1,2,3,4,5,6,0].map(d=>`<option value="${d}" ${A.dia===d?"selected":""}>${DIAS[d][0].toUpperCase()+DIAS[d].slice(1)}</option>`).join("")}</select></div>`;
+else if(t.startsWith("avulso"))quandoCampo=`<div class="field"><label for="cData">Data</label><input id="cData" type="date" value="${esc(A.data||ymd(hoje()))}"></div>`;
+else quandoCampo=`<div class="field"><label for="cDia">Dia do vencimento</label><input id="cDia" inputmode="numeric" placeholder="1 a 31" value="${A.dia??""}"></div>`;
+campos=`<div class="field"><label for="cNome">Nome</label><input id="cNome" value="${esc(A.nome)}" placeholder="Ex.: aluguel"></div>
+<div class="two"><div class="field"><label for="cValor">${t==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="cValor" inputmode="decimal" value="${A.valor!=null?fmtInput(A.valor):""}" placeholder="0,00"></div>${quandoCampo}</div>`;
 }
-function escolherTipo(k){A.tipo=k;A.nome=A.nome||"";if(k.startsWith("avulso"))A.data=A.data||ymd(hoje());avancar()}
+box.innerHTML=`${topo}
+${A.texto?`<p class="disse">Tu disse: "${esc(A.texto)}"</p>`:""}
+<div class="chips">${TIPOS.map(([k,l])=>`<button class="chip${t===k?" sel":""}" type="button" data-a="tipo" data-v="${k}">${l}</button>`).join("")}</div>
+<div class="ficha">${campos}</div>
+${A.erro?`<p class="err">${A.erro}</p>`:""}
+<div class="inline"><button class="btn primary" type="button" data-a="salvar">Salvar</button><button class="btn" type="button" data-a="denovo">Falar de novo</button></div>`;
+}
+function lerFicha(){
+if(!A||A.fase!=="conferir")return;
+const v=$("cValor");if(v)A.valor=v.value.trim()===""?null:(isNaN(parseValor(v.value))?null:parseValor(v.value));
+if(A.tipo==="pagar"){const c=$("cConta");if(c)A.item=itens.find(x=>x.id===c.value)||null;return}
+const n=$("cNome");if(n)A.nome=n.value.trim();
+const d=$("cDia");if(d)A.dia=d.value===""?null:+d.value;
+const dt=$("cData");if(dt)A.data=dt.value;
+}
+function processar(txt){
+txt=String(txt||"").trim();
+if(!txt){A.erro="Fala ou escreve primeiro.";renderAssist();return}
+A={...interpretar(txt),fase:"conferir",texto:txt,erro:""};
+const falta=[];if(A.tipo!=="pagar"){if(!A.nome)falta.push("o nome");if(A.valor==null)falta.push("o valor");if(A.dia==null&&!A.tipo.startsWith("avulso"))falta.push("o dia")}
+if(falta.length)A.erro=`Não peguei ${falta.join(" e ")}. Completa aqui embaixo.`;
+renderAssist();
+}
+function pararMic(){if(ouvindo){try{ouvindo.abort()}catch(e){}ouvindo=null}}
+function ouvir(){
+if(ouvindo){try{ouvindo.stop()}catch(e){}return}
+if(!SR){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar");return}
+let r;try{r=new SR()}catch(e){return}
+r.lang="pt-BR";r.interimResults=true;r.continuous=true;let txt="";let silencio;
+r.onresult=e=>{txt="";for(const res of e.results)txt+=res[0].transcript;const el=$("aTxt");if(el)el.value=txt;clearTimeout(silencio);silencio=setTimeout(()=>{try{r.stop()}catch(_){}} ,1800)};
+r.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}};
+r.onend=()=>{clearTimeout(silencio);ouvindo=null;if(!A)return;const t=(txt||($("aTxt")||{}).value||"").trim();if(t)processar(t);else renderAssist()};
+try{r.start();ouvindo=r;renderAssist()}catch(e){}
+}
 async function salvarAssist(){
+lerFicha();
 try{
-if(A.tipo==="pagar"){await marcarPago(A.item,ymd(status(A.item).data),A.valor);toast(isEntrada(A.item)?"Marcado como recebido":"Marcado como pago");setAba(A.item.tipo)}
-else{const [tipo,sentido]=A.tipo.split("-");
-const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:A.nome,valor:A.valor,tipo};
+if(A.tipo==="pagar"){if(!A.item){A.erro="Escolhe a conta.";renderAssist();return}if(A.valor==null){A.erro="Coloca o valor pago.";renderAssist();return}
+await marcarPago(A.item,ymd(status(A.item).data),A.valor);toast(isEntrada(A.item)?"Marcado como recebido":"Marcado como pago");setAba(A.item.tipo)}
+else{
+const [tipo,sentido]=A.tipo.split("-");
+if(!A.nome){A.erro="Coloca o nome.";renderAssist();return}
+if(A.valor==null){A.erro="Coloca o valor.";renderAssist();return}
+if(tipo==="semanal"&&(A.dia==null||A.dia<0||A.dia>6)){A.erro="Escolhe o dia da semana.";renderAssist();return}
+if((tipo==="fixo"||tipo==="variavel")&&!(A.dia>=1&&A.dia<=31)){A.erro="O dia do vencimento vai de 1 a 31.";renderAssist();return}
+if(tipo==="avulso"&&!/^\d{4}-\d{2}-\d{2}$/.test(A.data||"")){A.erro="Escolhe a data.";renderAssist();return}
+const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:A.nome[0].toUpperCase()+A.nome.slice(1),valor:A.valor,tipo};
 if(tipo==="avulso")it.data=A.data;else{it.dia=A.dia;it.criado=ymd(hoje())}
 if(sentido)it.sentido=sentido;
 await salvarItem(it);setAba(tipo);toast("Conta salva")}
-porVoz=false;A=null;renderAssist();render();
+A=null;renderAssist();render();
 }catch(x){A.erro="Não consegui salvar. Tenta de novo.";renderAssist()}
-}
-function pararMic(){if(ouvindo){try{ouvindo.abort()}catch(e){}ouvindo=null}}
-function ouvir(auto){
-if(ouvindo){try{ouvindo.stop()}catch(e){}return}
-if(!SR||!$("aTxt")){if(!auto){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}return}
-let r;try{r=new SR()}catch(e){return}
-r.lang="pt-BR";r.interimResults=true;r.continuous=false;let final="",ultimo="";
-r.onresult=e=>{let txt="";for(const res of e.results){txt+=res[0].transcript;if(res.isFinal)final=txt}ultimo=txt;const el=$("aTxt");if(el)el.value=txt};
-r.onerror=ev=>{if(!auto&&(ev.error==="not-allowed"||ev.error==="service-not-allowed")){porVoz=false;const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}};
-r.onend=()=>{ouvindo=null;const t=(final||ultimo).trim();if(t){porVoz=true;responder(t)}else renderAssist()};
-try{r.start();ouvindo=r;renderAssist()}catch(e){}
 }
 $("assist").addEventListener("click",e=>{
 const b=e.target.closest("button");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
-if(a==="iniciar"){porVoz=false;iniciarAssist();return}
-if(a==="cancelar"){porVoz=false;fecharAssist();return}
-if(a==="mic"){ouvir(false);return}
-pararMic();
-if(a==="voltar"){const ps=passosDe(A);A.passo=ps[Math.max(0,ps.indexOf(A.passo)-1)];A.erro="";porVoz=false;renderAssist();return}
-if(a==="tipo"){porVoz=false;escolherTipo(v);return}
-if(a==="conta"){A.item=itens.find(x=>x.id===v);A.valor=null;avancar();return}
-if(a==="valor"){A.valor=+v;avancar();return}
-if(a==="semana"){A.dia=+v;avancar();return}
-if(a==="diames"){A.dia=+v;avancar();return}
-if(a==="data"){A.data=v;avancar();return}
-if(a==="proximo"){if(A.passo==="quando"&&A.tipo.startsWith("avulso")){A.data=$("aData").value||ymd(hoje());avancar();return}responder(($("aTxt")||{}).value);return}
+if(a==="iniciar"){A={fase:"falar",texto:"",erro:""};renderAssist();if(SR)ouvir();else{const el=$("aTxt");if(el)el.focus()}return}
+if(a==="cancelar"){pararMic();A=null;renderAssist();return}
+if(a==="mic"){ouvir();return}
+if(a==="pronto"){pararMic();processar(($("aTxt")||{}).value);return}
+if(a==="denovo"){pararMic();A={fase:"falar",texto:"",erro:""};renderAssist();if(SR)ouvir();return}
+if(a==="tipo"){lerFicha();const era=A.tipo;A.tipo=v;A.erro="";
+if(v.startsWith("semanal")&&!(era||"").startsWith("semanal"))A.dia=null;
+if((v==="fixo"||v==="variavel")&&(era||"").startsWith("semanal"))A.dia=null;
+if(v.startsWith("avulso")&&!A.data)A.data=ymd(hoje());
+if(v==="pagar"&&!A.item)A.item=acharConta(A.texto||A.nome||"");
+renderAssist();return}
 if(a==="salvar"){salvarAssist();return}
 });
-$("assist").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="aTxt"){e.preventDefault();porVoz=false;responder(e.target.value)}});
+$("assist").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="aTxt"){e.preventDefault();pararMic();processar(e.target.value)}});
 renderAssist();
 (function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
 render();
