@@ -1,0 +1,433 @@
+O **index.pdf** não vai funcionar: o iPhone transformou o app num PDF ao salvar. Pra contornar isso, vamos criar o arquivo direto no GitHub, copiando e colando o código. O **icone.png** já está lá, então essa parte está certa.
+
+1. **Copia o código:** no fim desta mensagem tem um bloco de código. Toca no botão de **copiar** que aparece no canto dele.
+2. **Cria o arquivo:** na página do repositório, toca no **···** ao lado do botão verde **Code** e escolhe **Create new file**.
+3. **Dá o nome:** no campo do nome, escreve **index.html**.
+4. **Cola o código:** segura o dedo na área grande em branco, escolhe **Colar** e confere se o texto apareceu.
+5. **Salva:** toca no botão verde **Commit changes...** e depois em **Commit changes** de novo, na janela que abrir.
+
+Depois disso, o **index.html** aparece na lista junto com os outros. O zip e o PDF podem ficar lá, que não atrapalham. Me manda um print quando terminar que a gente vai pro último passo, que é ligar o site.
+
+```html
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Contas em Dia</title>
+<meta name="theme-color" content="#2E43B8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Contas em Dia">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icone.png">
+<link rel="icon" type="image/png" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+body{margin:0}
+:root{
+--bg:#EEF1F4; --surface:#FFFFFF; --ink:#18202B; --muted:#5E6A78; --line:#D7DDE4;
+--accent:#2E43B8; --accent-ink:#FFFFFF; --accent-soft:#E2E6FA;
+--in:#11795A; --in-soft:#DDF2EA; --out:#B23A2E; --out-soft:#F8E2DF;
+--warn:#9A6200; --warn-soft:#FBEFD6;
+--display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+--body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#11151B; --surface:#1A2029; --ink:#E9EDF2; --muted:#98A3B1; --line:#2C3542;
+--accent:#8C9CFF; --accent-ink:#0F1430; --accent-soft:#252C52;
+--in:#5FD3A6; --in-soft:#173A2F; --out:#FF8A7D; --out-soft:#3D2220;
+--warn:#F2B84B; --warn-soft:#3A2E14; color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#11151B; --surface:#1A2029; --ink:#E9EDF2; --muted:#98A3B1; --line:#2C3542;
+--accent:#8C9CFF; --accent-ink:#0F1430; --accent-soft:#252C52;
+--in:#5FD3A6; --in-soft:#173A2F; --out:#FF8A7D; --out-soft:#3D2220;
+--warn:#F2B84B; --warn-soft:#3A2E14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 96px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.02em;margin:0;line-height:1.1}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+header{display:flex;flex-direction:column;gap:4px}
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.summary div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.summary strong{font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary small{color:var(--muted);font-size:.75rem}
+.summary .saldo{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;flex-direction:row;justify-content:space-between;align-items:baseline}
+.summary .saldo strong{font-family:var(--display);font-size:1.5rem}
+.c-in{color:var(--in)} .c-out{color:var(--out)}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--ink)}
+.alert.late{background:var(--out-soft)}
+.alert .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
+.alert.late .dot{background:var(--out)}
+.alert div{flex:1;min-width:0}
+.alert b{display:block;font-weight:600}
+.alert span{font-size:.82rem;color:var(--muted)}
+.alert .v{font-weight:700;white-space:nowrap}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.tabs button{font:inherit;font-weight:600;font-size:.82rem;border:0;background:transparent;color:var(--muted);padding:9px 4px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.group-label{padding:10px 14px 4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.row{border-top:1px solid var(--line)}
+.row:first-child,.group-label + .row{border-top:0}
+.row-main{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.row-main:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row-info{flex:1;min-width:0}
+.row-info b{display:block;font-weight:600;overflow-wrap:anywhere}
+.row-info span{font-size:.82rem;color:var(--muted)}
+.row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.row-right strong{font-weight:700;white-space:nowrap}
+.pill{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.done{background:var(--in-soft);color:var(--in)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.late{background:var(--out-soft);color:var(--out)}
+.row-panel{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inline label{font-size:.82rem;color:var(--muted)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%}
+.btn{font:inherit;font-weight:600;font-size:.9rem;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--out);border-color:var(--out)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.empty b{color:var(--ink);font-family:var(--display);font-weight:600;font-size:1.05rem}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:99px;padding:14px 20px;box-shadow:0 6px 20px rgba(20,30,80,.25);cursor:pointer;z-index:5}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.8rem;font-weight:600;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.seg.four{grid-template-columns:repeat(2,1fr)}
+.seg button{font:inherit;font-size:.85rem;font-weight:600;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.note{font-size:.8rem;color:var(--muted)}
+.backup{border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.backup p{margin:0;font-size:.82rem;color:var(--muted)}
+.prog{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.prog .bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;border:1px solid var(--line)}
+.prog .bar i{display:block;height:100%;background:var(--in);border-radius:99px;transition:width .3s}
+.prog small{color:var(--muted);font-size:.78rem}
+.err{color:var(--out);font-size:.85rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:.9rem;z-index:6;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.row-panel,.sheet{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<span class="eyebrow" id="hoje"></span>
+<h1>Contas em Dia</h1>
+</header>
+<section class="summary" aria-label="Resumo do mês">
+<div><span class="eyebrow">Entradas</span><strong class="num c-in" id="sEnt">—</strong><small class="num" id="sEntR"></small></div>
+<div><span class="eyebrow">Saídas</span><strong class="num c-out" id="sSai">—</strong><small class="num" id="sSaiR"></small></div>
+<div><span class="eyebrow">A pagar</span><strong class="num" id="sFalta">—</strong><small>neste mês</small></div>
+<div class="prog"><div class="bar"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
+<div class="saldo"><span class="eyebrow" id="sMes">Saldo previsto</span><strong class="num" id="sSaldo">—</strong></div>
+</section>
+<section id="alertsWrap" hidden>
+<div class="alerts" id="alerts" aria-live="polite"></div>
+</section>
+<div id="sheetHost"></div>
+<div class="tabs" role="tablist">
+<button role="tab" id="tab-fixo" aria-selected="true">Fixos</button>
+<button role="tab" id="tab-variavel" aria-selected="false">Variáveis</button>
+<button role="tab" id="tab-semanal" aria-selected="false">Semanais</button>
+<button role="tab" id="tab-avulso" aria-selected="false">Avulsos</button>
+</div>
+<section class="list" id="list" aria-live="polite"></section>
+<p class="note" id="tabNote"></p>
+<section class="backup" aria-label="Cópia de segurança">
+<h2>Cópia de segurança</h2>
+<p>Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho ou limpar o navegador.</p>
+<div class="inline">
+<button class="btn" type="button" id="bkSalvar">Salvar cópia</button>
+<label class="btn" for="bkArquivo" style="cursor:pointer">Restaurar cópia</label>
+<input type="file" id="bkArquivo" accept="application/json,.json" hidden>
+</div>
+<div class="inline" id="bkConfirma" hidden>
+<span class="note" id="bkMsg"></span>
+<button class="btn danger" type="button" id="bkSim">Substituir minhas contas</button>
+<button class="btn ghost" type="button" id="bkNao">Cancelar</button>
+</div>
+</section>
+</div>
+<button class="fab" id="fab" type="button">+ Adicionar</button>
+<div class="toast" id="toast" hidden></div>
+<script>
+const DIAS=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+const DIAS_CURTO=["dom","seg","ter","qua","qui","sex","sáb"];
+const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const AVISO={mensal:5,semanal:1};
+const brl=v=>(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function parseValor(s){
+s=String(s||"").replace(/[R$\s]/g,"");
+if(s.includes(",")) s=s.replace(/\./g,"").replace(",",".");
+const n=parseFloat(s); return isFinite(n)&&n>=0?Math.round(n*100)/100:NaN;
+}
+const fmtInput=v=>(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+function hoje(){const d=new Date();d.setHours(0,0,0,0);return d}
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const fromYmd=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const diffDias=(a,b)=>Math.round((a-b)/864e5);
+const dm=d=>`${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
+const diasNoMes=(y,m)=>new Date(y,m+1,0).getDate();
+const occMes=(dia,y,m)=>new Date(y,m,Math.min(dia,diasNoMes(y,m)));
+function occSemana(dow,ref){const seg=new Date(ref);seg.setDate(seg.getDate()-((seg.getDay()+6)%7));const d=new Date(seg);d.setDate(seg.getDate()+((dow+6)%7));return d}
+const isMensal=it=>it.tipo==="fixo"||it.tipo==="variavel";
+const isEntrada=it=>(it.tipo==="semanal"||it.tipo==="avulso")&&it.sentido==="entrada";
+const noMes=(it,y,m)=>{const d=fromYmd(it.data);return d.getFullYear()===y&&d.getMonth()===m};
+let itens=[], pagos={}, db=null, pronto=false, aba="fixo", aberto=null, editando=null, confirmarExcluir=null;
+const pagoKey=(id,data)=>`${id}__${data}`;
+const LS="contas-em-dia-v1";
+function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{}}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos}))}catch(e){}}
+async function salvarItem(it){
+const {id,...dados}=it;
+if(db){await db.collection("itens").doc(id).set(dados)}
+else{const i=itens.findIndex(x=>x.id===id);i>=0?itens[i]=it:itens.push(it);lsSave();render()}
+}
+async function excluirItem(id){
+if(db){await db.collection("itens").doc(id).delete();
+for(const k of Object.keys(pagos)) if(pagos[k].item===id) await db.collection("pagos").doc(k).delete();}
+else{itens=itens.filter(x=>x.id!==id);for(const k of Object.keys(pagos)) if(pagos[k].item===id) delete pagos[k];lsSave();render()}
+}
+async function marcarPago(it,data,valor){
+const k=pagoKey(it.id,data), body={item:it.id,data,valor,em:ymd(hoje())};
+if(db){await db.collection("pagos").doc(k).set(body)} else {pagos[k]=body;lsSave();render()}
+}
+async function desfazer(it,data){
+const k=pagoKey(it.id,data);
+if(db){await db.collection("pagos").doc(k).delete()} else {delete pagos[k];lsSave();render()}
+}
+function status(it){
+const t=hoje();
+if(it.tipo==="avulso") return {kind:"done",label:dm(fromYmd(it.data)),avulso:true};
+let cur,next,lim;
+if(isMensal(it)){cur=occMes(it.dia,t.getFullYear(),t.getMonth());next=occMes(it.dia,t.getFullYear(),t.getMonth()+1);lim=AVISO.mensal}
+else{cur=occSemana(it.dia,t);next=new Date(cur);next.setDate(cur.getDate()+7);lim=AVISO.semanal}
+if(it.criado&&ymd(cur)<it.criado&&!pagos[pagoKey(it.id,ymd(cur))]){const d=diffDias(next,t);
+return d<=lim?{kind:"warn",data:next,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`}:{kind:"ok",data:next,dias:d,label:`Dia ${dm(next)}`}}
+const pc=pagos[pagoKey(it.id,ymd(cur))];
+if(!pc){
+const d=diffDias(cur,t);
+if(d<0) return {kind:"late",data:cur,dias:d,label:`Atrasado ${-d} dia${d===-1?"":"s"}`};
+if(d<=lim) return {kind:"warn",data:cur,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`};
+return {kind:"ok",data:cur,dias:d,label:`Dia ${dm(cur)}`};
+}
+const d=diffDias(next,t);
+if(d<=lim && !pagos[pagoKey(it.id,ymd(next))]) return {kind:"warn",data:next,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`,anterior:cur};
+return {kind:"done",data:cur,label:isEntrada(it)?"Recebido":"Pago",pago:pc,proxima:next};
+}
+function quando(it){
+if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada":"Gasto"} avulso · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
+if(isMensal(it)) return `Vence todo dia ${it.dia}`;
+return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`;
+}
+function resumo(){
+const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
+let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;
+for(const it of itens){
+if(it.tipo==="avulso"){if(noMes(it,y,m)){if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
+const datas=[];
+if(isMensal(it)) datas.push(occMes(it.dia,y,m));
+else for(let d=1;d<=n;d++){const x=new Date(y,m,d);if(x.getDay()===it.dia)datas.push(x)}
+for(const d of datas){
+const p=pagos[pagoKey(it.id,ymd(d))];
+const prev=p?p.valor:it.valor;
+if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
+else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
+}
+}
+$("sEnt").textContent=brl(entPrev);$("sEntR").textContent=`${brl(entReal)} recebido`;
+$("sSai").textContent=brl(saiPrev);$("sSaiR").textContent=`${brl(saiReal)} pago`;
+$("sFalta").textContent=brl(falta);
+$("pBar").style.width=(nTotal?Math.round(nPagas/nTotal*100):0)+"%";
+$("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}`:"Cadastre suas contas para acompanhar o mês";
+const saldo=entPrev-saiPrev;
+$("sSaldo").textContent=brl(saldo);$("sSaldo").className="num "+(saldo<0?"c-out":"c-in");
+$("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
+}
+function renderAvisos(){
+const lista=itens.map(it=>({it,s:status(it)})).filter(x=>x.s.kind==="warn"||x.s.kind==="late")
+.sort((a,b)=>a.s.dias-b.s.dias);
+$("alertsWrap").hidden=!lista.length;
+$("alerts").innerHTML=lista.map(({it,s})=>`
+<div class="alert ${s.kind==="late"?"late":""}"><span class="dot"></span>
+<div><b>${esc(it.nome)}</b><span>${s.kind==="late"?s.label:(isEntrada(it)?"Entra ":"Vence ")+(s.dias===0?"hoje":s.dias===1?"amanhã":`em ${s.dias} dias`)} · ${DIAS_CURTO[s.data.getDay()]} ${dm(s.data)}</span></div>
+<span class="v num ${isEntrada(it)?"c-in":""}">${brl(it.valor)}</span></div>`).join("");
+}
+function rowHtml(it){
+const s=status(it), open=aberto===it.id, ent=isEntrada(it);
+const valorMostrado=s.kind==="done"&&s.pago?s.pago.valor:it.valor;
+let sub=quando(it);
+if(s.kind==="done"&&!s.avulso) sub+=` · próxima ${dm(s.proxima)}`;
+if(it.tipo==="avulso") sub=quando(it);
+let panel="";
+if(open){
+const verbo=ent?"Recebi":"Paguei";
+const dataAlvo=ymd(s.data);
+if(s.avulso){
+panel=`<div class="inline"><button class="btn" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}else if(s.kind==="done"){
+panel=`<div class="inline"><span class="note">${ent?"Recebido":"Pago"} ${brl(s.pago.valor)} em ${dm(fromYmd(s.pago.em))}</span></div>
+<div class="inline"><button class="btn" data-act="desfazer" data-id="${it.id}" data-data="${ymd(s.data)}">Desfazer</button>
+<button class="btn ghost" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}else{
+panel=`<div class="field"><label for="v-${it.id}">${verbo} quanto? (${dm(s.data)})</label>
+<input id="v-${it.id}" inputmode="decimal" value="${fmtInput(it.valor)}"></div>
+<div class="inline"><button class="btn primary" data-act="pagar" data-id="${it.id}" data-data="${dataAlvo}">${verbo}</button>
+<button class="btn ghost" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}
+}
+return `<div class="row"><button class="row-main" data-act="abrir" data-id="${it.id}" aria-expanded="${open}">
+<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span></div>
+<div class="row-right"><strong class="num ${ent?"c-in":""}">${ent?"+ ":""}${brl(valorMostrado)}</strong>${s.avulso?"":`<span class="pill ${s.kind}">${s.label}</span>`}</div>
+</button>${open?`<div class="row-panel">${panel}</div>`:""}</div>`;
+}
+function delBtn(it){
+return confirmarExcluir===it.id
+? `<button class="btn danger" data-act="excluir-sim" data-id="${it.id}">Confirmar exclusão</button><button class="btn ghost" data-act="excluir-nao">Manter</button>`
+: `<button class="btn ghost" data-act="excluir" data-id="${it.id}">Excluir</button>`;
+}
+function renderLista(){
+const L=$("list");
+if(!pronto){L.innerHTML=`<div class="empty"><b>Carregando suas contas…</b></div>`;return}
+const T=hoje();
+const doTipo=itens.filter(it=>it.tipo===aba&&(aba!=="avulso"||noMes(it,T.getFullYear(),T.getMonth())));
+const ordenar=a=>a.slice().sort((x,y)=>isMensal(x)?x.dia-y.dia:((x.dia+6)%7)-((y.dia+6)%7));
+const vazio={
+fixo:["Nenhum gasto fixo ainda","Aluguel, internet, plano de celular, parcelas: o que tem sempre o mesmo valor. Toque em + Adicionar."],
+variavel:["Nenhum gasto variável ainda","Luz, água, cartão de crédito: contas que vencem todo mês mas mudam de valor. Toque em + Adicionar."],
+avulso:["Nenhum avulso neste mês","Gastos ou entradas que não se repetem: um conserto, uma venda extra, um presente. Toque em + Adicionar."],
+semanal:["Nada semanal ainda","Entradas e saídas que se repetem toda semana, como pagamento recebido na sexta ou compra de mercadoria. Toque em + Adicionar."]
+}[aba];
+if(!doTipo.length){L.innerHTML=`<div class="empty"><b>${vazio[0]}</b><span>${vazio[1]}</span></div>`}
+else if(aba==="semanal"){
+const ent=ordenar(doTipo.filter(isEntrada)), sai=ordenar(doTipo.filter(x=>!isEntrada(x)));
+L.innerHTML=(ent.length?`<div class="group-label">Entradas</div>`+ent.map(rowHtml).join(""):"")+
+(sai.length?`<div class="group-label" style="${ent.length?"border-top:1px solid var(--line)":""}">Saídas</div>`+sai.map(rowHtml).join(""):"");
+} else if(aba==="avulso"){L.innerHTML=doTipo.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(rowHtml).join("")}
+else L.innerHTML=ordenar(doTipo).map(rowHtml).join("");
+const tot=doTipo.reduce((a,b)=>a+(isEntrada(b)?0:b.valor),0);
+if(aba==="avulso"){const e=doTipo.filter(isEntrada).reduce((a,b)=>a+b.valor,0),g=doTipo.filter(x=>!isEntrada(x)).reduce((a,b)=>a+b.valor,0);
+$("tabNote").textContent=`Neste mês: ${brl(e)} de entradas e ${brl(g)} de gastos avulsos.`;return}
+$("tabNote").textContent= aba==="semanal" ? `Aviso 1 dia antes. Toque numa linha para marcar como pago ou recebido.`
+: `Total ${brl(tot)} por mês. Aviso 5 dias antes do vencimento.`;
+}
+let form=null;
+function abrirForm(it){
+editando=it?it.id:null;
+form=it?{...it}:{nome:"",valor:"",tipo:aba,sentido:"saida",dia:aba==="semanal"?5:10,data:ymd(hoje())};
+if(!form.data)form.data=ymd(hoje());
+renderForm();$("fab").hidden=true;
+setTimeout(()=>$("f-nome")?.focus(),30);
+window.scrollTo({top:0,behavior:"smooth"});
+}
+function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
+function renderForm(){
+if(!form)return;
+const semanal=form.tipo==="semanal",avulso=form.tipo==="avulso";
+const diaCampo=avulso?`<input id="f-dia" type="date" value="${esc(form.data)}">`:semanal
+?`<select id="f-dia">${DIAS.map((d,i)=>`<option value="${i}" ${+form.dia===i?"selected":""}>${d[0].toUpperCase()+d.slice(1)}</option>`).join("")}</select>`
+:`<input id="f-dia" inputmode="numeric" value="${esc(form.dia)}" placeholder="1 a 31">`;
+$("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
+<h2>${editando?"Editar conta":"Nova conta"}</h2>
+<div class="field"><label>Tipo</label><div class="seg">
+<button type="button" data-tipo="fixo" aria-pressed="${form.tipo==="fixo"}">Fixo mensal</button>
+<button type="button" data-tipo="variavel" aria-pressed="${form.tipo==="variavel"}">Variável mensal</button>
+<button type="button" data-tipo="semanal-entrada" aria-pressed="${semanal&&form.sentido==="entrada"}">Entrada semanal</button>
+<button type="button" data-tipo="semanal-saida" aria-pressed="${semanal&&form.sentido!=="entrada"}">Saída semanal</button>
+<button type="button" data-tipo="avulso-saida" aria-pressed="${avulso&&form.sentido!=="entrada"}">Gasto avulso</button>
+<button type="button" data-tipo="avulso-entrada" aria-pressed="${avulso&&form.sentido==="entrada"}">Entrada avulsa</button>
+</div></div>
+<div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${avulso?(form.sentido==="entrada"?"Ex.: venda extra":"Ex.: conserto do carro"):semanal?(form.sentido==="entrada"?"Ex.: vendas da semana":"Ex.: compra de mercadoria"):form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
+<div class="two">
+<div class="field"><label for="f-valor">${form.tipo==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="f-valor" inputmode="decimal" value="${form.valor===""?"":fmtInput(form.valor)}" placeholder="0,00"></div>
+<div class="field"><label for="f-dia">${avulso?"Data":semanal?"Dia da semana":"Dia do vencimento"}</label>${diaCampo}</div>
+</div>
+<p class="err" id="f-err" hidden></p>
+<div class="inline"><button class="btn primary" type="submit">${editando?"Salvar":"Adicionar"}</button><button class="btn ghost" type="button" data-act="cancelar">Cancelar</button></div>
+</form>`;
+}
+function lerForm(){
+form.nome=$("f-nome").value;form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
+if(form.tipo==="avulso")form.data=$("f-dia").value;else form.dia=$("f-dia").value;
+}
+$("sheetHost").addEventListener("click",e=>{
+const b=e.target.closest("button");if(!b)return;
+if(b.dataset.act==="cancelar"){fecharForm();return}
+if(b.dataset.tipo){lerForm();const t=b.dataset.tipo;
+const eraSemanal=form.tipo==="semanal";
+if(t.startsWith("semanal")){form.tipo="semanal";form.sentido=t.endsWith("entrada")?"entrada":"saida";if(!eraSemanal)form.dia=5}
+else if(t.startsWith("avulso")){form.tipo="avulso";form.sentido=t.endsWith("entrada")?"entrada":"saida"}
+else{form.tipo=t;if(eraSemanal)form.dia=10}
+renderForm()}
+});
+$("sheetHost").addEventListener("submit",async e=>{
+e.preventDefault();lerForm();
+const err=$("f-err"),nome=form.nome.trim(),valor=typeof form.valor==="number"?form.valor:NaN,dia=parseInt(form.dia,10);
+const msg=!nome?"Dê um nome para a conta.":isNaN(valor)?"Informe o valor, por exemplo 150,00.":
+form.tipo==="avulso"?(/^\d{4}-\d{2}-\d{2}$/.test(form.data||"")?"":"Escolha a data."):form.tipo==="semanal"?(dia>=0&&dia<=6?"":"Escolha o dia da semana."):(dia>=1&&dia<=31?"":"O dia do vencimento vai de 1 a 31.");
+if(msg){err.textContent=msg;err.hidden=false;return}
+const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome,valor,tipo:form.tipo};
+if(form.tipo==="avulso")it.data=form.data;else it.dia=dia;
+if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
+if(form.tipo==="semanal"||form.tipo==="avulso")it.sentido=form.sentido==="entrada"?"entrada":"saida";
+try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
+catch(x){err.textContent=x?.code==="quota_exceeded"?"Limite de registros atingido. Exclua contas antigas para continuar.":"Não consegui salvar. Verifique a conexão e tente de novo.";err.hidden=false}
+});
+$("list").addEventListener("click",async e=>{
+const b=e.target.closest("button");if(!b)return;
+const id=b.dataset.id,it=itens.find(x=>x.id===id),act=b.dataset.act;
+try{
+if(act==="abrir"){aberto=aberto===id?null:id;confirmarExcluir=null;render()}
+else if(act==="pagar"){const v=parseValor($("v-"+id).value);
+if(isNaN(v)){toast("Valor inválido");return}
+await marcarPago(it,b.dataset.data,v);aberto=null;toast(isEntrada(it)?"Marcado como recebido":"Marcado como pago");render()}
+else if(act==="desfazer"){await desfazer(it,b.dataset.data);toast("Pagamento desfeito");render()}
+else if(act==="editar"){aberto=null;abrirForm(it);render()}
+else if(act==="excluir"){confirmarExcluir=id;render()}
+else if(act==="excluir-nao"){confirmarExcluir=null;render()}
+else if(act==="excluir-sim"){await excluirItem(id);confirmarExcluir=null;aberto=null;toast("Conta excluída");render()}
+}catch(x){toast("Não consegui salvar. Tente de novo.")}
+});
+function setAba(t){aba=t;for(const k of ["fixo","variavel","semanal","avulso"])$("tab-"+k).setAttribute("aria-selected",k===t);aberto=null;renderLista()}
+for(const k of ["fixo","variavel","semanal","avulso"])$("tab-"+k).addEventListener("click",()=>setAba(k));
+$("fab").addEventListener("click",()=>abrirForm(null));
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
+function render(){resumo();renderAvisos();renderLista()}
+(function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
+render();
+function iniciar(){lsLoad();pronto=true;render()}
+window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
+$("bkSalvar").addEventListener("click",()=>{
+const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos},null,2)],{type:"application/json"});
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
+document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("Cópia salva");
+});
+let bkDados=null;
+$("bkArquivo").addEventListener("change",async e=>{
+const f=e.target.files[0];e.target.value="";if(!f)return;
+try{const j=JSON.parse(await f.text());if(j.app!=="contas-em-dia"||!Array.isArray(j.itens))throw 0;
+bkDados=j;$("bkMsg").textContent=`Cópia com ${j.itens.length} conta${j.itens.length===1?"":"s"}. Isso substitui o que está aqui agora.`;$("bkConfirma").hidden=false}
+catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
+});
+$("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
+$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};lsSave();bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+iniciar();
+setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
+</script>
+</body>
+</html>
+```
