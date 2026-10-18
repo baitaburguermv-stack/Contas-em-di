@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -50,6 +49,8 @@ header{display:flex;flex-direction:column;gap:4px}
 .summary small{color:var(--muted);font-size:.75rem}
 .summary .saldo{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;flex-direction:row;justify-content:space-between;align-items:baseline}
 .summary .saldo strong{font-family:var(--display);font-size:1.5rem}
+.summary .saldo strong{flex:none;overflow:visible}
+.summary .saldo .eyebrow{min-width:0}
 .c-in{color:var(--in)} .c-out{color:var(--out)}
 .alerts{display:flex;flex-direction:column;gap:8px}
 .alert{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--ink)}
@@ -99,6 +100,17 @@ input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid
 .seg button{font:inherit;font-size:.85rem;font-weight:600;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
 .note{font-size:.8rem;color:var(--muted)}
+.voz{display:flex;flex-direction:column;gap:8px}
+.voz-bar{display:flex;gap:8px;align-items:center}
+.voz-bar input{flex:1;font-size:16px}
+.mic{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
+.mic svg{width:22px;height:22px}
+.mic.on{background:var(--out);animation:pulso 1s ease-in-out infinite}
+@keyframes pulso{50%{transform:scale(1.08)}}
+.voz .note{margin:0}
+.entendi{background:var(--accent-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.entendi b{font-family:var(--display);font-weight:600}
+.entendi.erro{background:var(--out-soft)}
 .backup{border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
 .backup p{margin:0;font-size:.82rem;color:var(--muted)}
 .prog{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
@@ -122,6 +134,14 @@ input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid
 <div><span class="eyebrow">A pagar</span><strong class="num" id="sFalta">—</strong><small>neste mês</small></div>
 <div class="prog"><div class="bar"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
 <div class="saldo"><span class="eyebrow" id="sMes">Saldo previsto</span><strong class="num" id="sSaldo">—</strong></div>
+</section>
+<section class="voz" aria-label="Comando de voz">
+<form class="voz-bar" id="vozForm" novalidate>
+<input id="vozTxt" autocomplete="off" enterkeyhint="send" placeholder="Fale ou escreva o que aconteceu">
+<button type="button" class="mic" id="vozMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+</form>
+<p class="note" id="vozDica">Exemplos: "aluguel 1200 todo dia 10", "luz 180 dia 15", "recebo 800 toda sexta", "gastei 50 no mercado", "paguei a luz 172".</p>
+<div id="vozRes"></div>
 </section>
 <section id="alertsWrap" hidden>
 <div class="alerts" id="alerts" aria-live="polite"></div>
@@ -220,7 +240,7 @@ if(d<=lim && !pagos[pagoKey(it.id,ymd(next))]) return {kind:"warn",data:next,dia
 return {kind:"done",data:cur,label:isEntrada(it)?"Recebido":"Pago",pago:pc,proxima:next};
 }
 function quando(it){
-if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada":"Gasto"} avulso · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
+if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada avulsa":"Gasto avulso"} · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
 if(isMensal(it)) return `Vence todo dia ${it.dia}`;
 return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`;
 }
@@ -234,6 +254,7 @@ if(isMensal(it)) datas.push(occMes(it.dia,y,m));
 else for(let d=1;d<=n;d++){const x=new Date(y,m,d);if(x.getDay()===it.dia)datas.push(x)}
 for(const d of datas){
 const p=pagos[pagoKey(it.id,ymd(d))];
+if(!p&&it.criado&&ymd(d)<it.criado)continue;
 const prev=p?p.valor:it.valor;
 if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
 else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
@@ -397,6 +418,95 @@ for(const k of ["fixo","variavel","semanal","avulso"])$("tab-"+k).addEventListen
 $("fab").addEventListener("click",()=>abrirForm(null));
 let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
 function render(){resumo();renderAvisos();renderLista()}
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const SEMANA={domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
+const PARADAS=new Set("paguei pago paga pagar quitei acertei recebi recebo receber recebido recebe gastei gasto gastos gasta comprei compra ganho ganhei vendi faturei entra entrou entrada saida sai saiu reais real rs r$ centavos todo toda todos todas dia dias vence vencimento venceu de do da dos das no na nos nas o a os as um uma com pra para pro por em e que mes mensal mensais semanal semana fixo fixa fixos variavel media cada ontem hoje feira feiras mil valor minha meu minhas meus foi ao aos as sobre referente conta".split(" "));
+const RX_PAGO=/\b(paguei|quitei|acertei|ja paguei|pago hoje)\b/, RX_RECEBI=/\b(recebi|entrou|caiu)\b/;
+const RX_GASTO=/\b(gastei|comprei|gasto|paguei)\b/, RX_ENTRADA=/\b(recebo|recebi|receber|entra|entrou|entrada|ganho|ganhei|venda|vendas|vendi|salario|faturei|faturamento|caiu)\b/;
+const RX_VAR=/\b(variavel|varia|media|luz|agua|energia|cartao|gas)\b/;
+function interpretar(frase){
+let t=" "+norm(frase).replace(/[!?;:"]/g," ")+" ";
+let dia=null,dow=null,quandoAvulso=null,valor=null;
+t=t.replace(/\b(?:todo|todos|no|nos|vence|vencimento|para)?\s*(?:o\s+)?dia\s+(\d{1,2})\b/,(m,d)=>{dia=+d;return " "});
+t=t.replace(/\b(?:toda|todas|nas?|as|aos?|todo|todos)?\s*(domingo|segunda|terca|quarta|quinta|sexta|sabado)s?(?:[-\s]feiras?)?\b/,(m,d)=>{dow=SEMANA[d];return " "});
+if(/\bontem\b/.test(t))quandoAvulso=-1;
+t=t.replace(/r\$\s*/g," ");
+const mv=t.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(\s*mil)?(?:\s*e\s*(\d{1,3}))?/);
+if(mv){let n=parseFloat(mv[1].replace(/\./g,"")+(mv[2]?"."+mv[2]:""));if(mv[3]){n*=1000;if(mv[4])n+= +mv[4]}valor=Math.round(n*100)/100;t=t.replace(mv[0]," ")}
+const pal=norm(frase).replace(/r\$/g," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
+const orig=String(frase).replace(/r\$/gi," ").split(/[\s,.!?;:"-]+/).filter(Boolean);
+const forte=i=>{const n=pal[i]||norm(orig[i]);return n&&!PARADAS.has(n)&&!/^\d/.test(n)&&!(n in SEMANA)&&!/^(terca|segunda|quarta|quinta|sexta)-?feira$/.test(n)};
+const idx=orig.map((w,i)=>i).filter(forte);
+const nomeTok=[];
+if(idx.length){for(let i=idx[0];i<=idx[idx.length-1];i++){const n=pal[i]||norm(orig[i]);if(forte(i)||(/^(de|do|da|dos|das|e)$/.test(n)&&forte(i+1)))nomeTok.push(orig[i])}}
+let nome=nomeTok.join(" ").trim();
+if(!nome&&/\bconta\b/.test(norm(frase)))nome="";
+nome=nome?nome[0].toUpperCase()+nome.slice(1):"";
+const tn=" "+norm(frase)+" ";
+let melhor=null,score=0;
+for(const it of itens){if(it.tipo==="avulso")continue;
+const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2&&!PARADAS.has(w));if(!ws.length)continue;
+const hit=ws.filter(w=>tn.includes(" "+w)).length/ws.length;if(hit>score){score=hit;melhor=it}}
+const criar=dia!==null||dow!==null;
+if(melhor&&score>=0.5&&(RX_PAGO.test(tn)||RX_RECEBI.test(tn)||!criar)){
+return {acao:"pagar",item:melhor,valor:valor??melhor.valor};
+}
+if(dow!==null) return {acao:"criar",tipo:"semanal",sentido:RX_ENTRADA.test(tn)?"entrada":"saida",dia:dow,nome,valor};
+if(dia!==null&&!/\b(gastei|comprei)\b/.test(tn)) return {acao:"criar",tipo:RX_VAR.test(tn)?"variavel":"fixo",dia:Math.min(31,Math.max(1,dia)),nome,valor};
+const d=hoje();if(quandoAvulso)d.setDate(d.getDate()+quandoAvulso);else if(dia!==null)d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));
+return {acao:"criar",tipo:"avulso",sentido:RX_ENTRADA.test(tn)?"entrada":"saida",data:ymd(d),nome,valor};
+}
+const TIPO_NOME={fixo:"Gasto fixo mensal",variavel:"Gasto variável mensal"};
+function descrever(r){
+if(r.acao==="pagar"){const ent=isEntrada(r.item),s=status(r.item);return `${ent?"Recebido":"Pago"}: <b>${esc(r.item.nome)}</b> · ${brl(r.valor)} <span class="note">(${dm(s.data)})</span>`}
+let tipo=r.tipo==="semanal"?(r.sentido==="entrada"?"Entrada semanal":"Saída semanal"):r.tipo==="avulso"?(r.sentido==="entrada"?"Entrada avulsa":"Gasto avulso"):TIPO_NOME[r.tipo];
+let q=r.tipo==="semanal"?`toda ${DIAS[r.dia]}`:r.tipo==="avulso"?dm(fromYmd(r.data)):`todo dia ${r.dia}`;
+return `${tipo}: <b>${esc(r.nome||"sem nome")}</b> · ${r.valor!=null?brl(r.valor):"sem valor"} · ${q}`;
+}
+let vozPend=null;
+function mostrarEntendi(r){
+vozPend=r;const box=$("vozRes");
+if(r.acao==="criar"&&(r.valor==null||!r.nome)){
+box.innerHTML=`<div class="entendi erro"><span>${r.valor==null?"Não peguei o valor.":"Não peguei o nome da conta."} Entendi até aqui: ${descrever(r)}</span>
+<div class="inline"><button class="btn primary" type="button" data-v="corrigir">Completar</button><button class="btn ghost" type="button" data-v="cancelar">Cancelar</button></div></div>`;return}
+box.innerHTML=`<div class="entendi"><span>Entendi: ${descrever(r)}</span>
+<div class="inline"><button class="btn primary" type="button" data-v="ok">Confirmar</button><button class="btn" type="button" data-v="corrigir">Corrigir</button><button class="btn ghost" type="button" data-v="cancelar">Cancelar</button></div></div>`;
+}
+function abrirFormNovo(pre){
+editando=null;
+form={nome:"",valor:"",tipo:"fixo",sentido:"saida",dia:10,data:ymd(hoje()),...pre};
+if(form.valor==null)form.valor="";if(form.nome==null)form.nome="";
+renderForm();$("fab").hidden=true;window.scrollTo({top:0,behavior:"smooth"});
+}
+$("vozRes").addEventListener("click",async e=>{
+const b=e.target.closest("button");if(!b||!vozPend)return;const r=vozPend,v=b.dataset.v;
+if(v==="cancelar"){vozPend=null;$("vozRes").innerHTML="";return}
+if(v==="corrigir"){vozPend=null;$("vozRes").innerHTML="";
+if(r.acao==="pagar"){aberto=r.item.id;setAba(r.item.tipo);render();return}
+const {acao,...pre}=r;abrirFormNovo(pre);return}
+try{
+if(r.acao==="pagar"){const s=status(r.item);await marcarPago(r.item,ymd(s.data),r.valor);toast(isEntrada(r.item)?"Marcado como recebido":"Marcado como pago")}
+else{const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:r.nome,valor:r.valor,tipo:r.tipo};
+if(r.tipo==="avulso")it.data=r.data;else{it.dia=r.dia;it.criado=ymd(hoje())}
+if(r.tipo==="semanal"||r.tipo==="avulso")it.sentido=r.sentido;
+await salvarItem(it);setAba(it.tipo);toast("Conta adicionada")}
+vozPend=null;$("vozRes").innerHTML="";$("vozTxt").value="";render();
+}catch(x){toast("Não consegui salvar. Tente de novo.")}
+});
+$("vozForm").addEventListener("submit",e=>{e.preventDefault();const t=$("vozTxt").value.trim();if(!t){toast("Fale ou escreva algo primeiro");return}$("vozTxt").blur();mostrarEntendi(interpretar(t))});
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let ouvindo=null;
+function dicaTeclado(){$("vozTxt").focus();toast("Toque no microfone do teclado para falar")}
+$("vozMic").addEventListener("click",()=>{
+if(ouvindo){try{ouvindo.stop()}catch(e){}return}
+if(!SR){dicaTeclado();return}
+let r;try{r=new SR()}catch(e){dicaTeclado();return}
+r.lang="pt-BR";r.interimResults=true;r.continuous=false;let final="";
+r.onresult=e=>{let txt="";for(const res of e.results){txt+=res[0].transcript;if(res.isFinal)final=txt}$("vozTxt").value=txt};
+r.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed")dicaTeclado();else if(ev.error!=="aborted"&&ev.error!=="no-speech")toast("Não consegui ouvir. Tente de novo.")};
+r.onend=()=>{ouvindo=null;$("vozMic").classList.remove("on");const t=(final||$("vozTxt").value).trim();if(t)mostrarEntendi(interpretar(t))};
+try{r.start();ouvindo=r;$("vozMic").classList.add("on");$("vozRes").innerHTML=""}catch(e){dicaTeclado()}
+});
 (function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
 render();
 function iniciar(){lsLoad();pronto=true;render()}
@@ -420,4 +530,3 @@ setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60
 </script>
 </body>
 </html>
-```
