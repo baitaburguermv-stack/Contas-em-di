@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Contas em Dia</title>
+<meta name="theme-color" content="#2E43B8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Contas em Dia">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icone.png">
+<link rel="icon" type="image/png" href="icone.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg)}
+body{margin:0}
+:root{
+--bg:#EEF1F4; --surface:#FFFFFF; --ink:#18202B; --muted:#5E6A78; --line:#D7DDE4;
+--accent:#2E43B8; --accent-ink:#FFFFFF; --accent-soft:#E2E6FA;
+--in:#11795A; --in-soft:#DDF2EA; --out:#B23A2E; --out-soft:#F8E2DF;
+--warn:#9A6200; --warn-soft:#FBEFD6;
+--display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+--body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+--bg:#11151B; --surface:#1A2029; --ink:#E9EDF2; --muted:#98A3B1; --line:#2C3542;
+--accent:#8C9CFF; --accent-ink:#0F1430; --accent-soft:#252C52;
+--in:#5FD3A6; --in-soft:#173A2F; --out:#FF8A7D; --out-soft:#3D2220;
+--warn:#F2B84B; --warn-soft:#3A2E14; color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg:#11151B; --surface:#1A2029; --ink:#E9EDF2; --muted:#98A3B1; --line:#2C3542;
+--accent:#8C9CFF; --accent-ink:#0F1430; --accent-soft:#252C52;
+--in:#5FD3A6; --in-soft:#173A2F; --out:#FF8A7D; --out-soft:#3D2220;
+--warn:#F2B84B; --warn-soft:#3A2E14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 96px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.num{font-variant-numeric:tabular-nums}
+h1{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.02em;margin:0;line-height:1.1}
+h2{font-family:var(--display);font-weight:600;font-size:1.1rem;margin:0}
+.eyebrow{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+header{display:flex;flex-direction:column;gap:4px}
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.summary div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.summary strong{font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary small{color:var(--muted);font-size:.75rem}
+.summary .saldo{grid-column:1/-1;border-top:1px dashed var(--line);padding-top:10px;flex-direction:row;justify-content:space-between;align-items:baseline}
+.summary .saldo strong{font-family:var(--display);font-size:1.5rem}
+.summary .saldo strong{flex:none;overflow:visible}
+.summary .saldo .eyebrow{min-width:0}
+.c-in{color:var(--in)} .c-out{color:var(--out)}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:12px;background:var(--warn-soft);color:var(--ink)}
+.alert.late{background:var(--out-soft)}
+.alert .dot{width:8px;height:8px;border-radius:50%;background:var(--warn);flex:none}
+.alert.late .dot{background:var(--out)}
+.alert div{flex:1;min-width:0}
+.alert b{display:block;font-weight:600}
+.alert span{font-size:.82rem;color:var(--muted)}
+.alert .v{font-weight:700;white-space:nowrap}
+.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.tabs button{font:inherit;font-weight:600;font-size:.74rem;min-width:0;overflow:hidden;text-overflow:ellipsis;border:0;background:transparent;color:var(--muted);padding:9px 2px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.group-label{padding:10px 14px 4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.row{border-top:1px solid var(--line)}
+.row:first-child,.group-label + .row{border-top:0}
+.row-main{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.row-main:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row-info{flex:1;min-width:0}
+.row-info b{display:block;font-weight:600;overflow-wrap:anywhere}
+.row-info span{font-size:.82rem;color:var(--muted)}
+.row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.row-right strong{font-weight:700;white-space:nowrap}
+.pill{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pill.done{background:var(--in-soft);color:var(--in)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.late{background:var(--out-soft);color:var(--out)}
+.row-panel{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.inline{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.inline label{font-size:.82rem;color:var(--muted)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;width:100%}
+.btn{font:inherit;font-weight:600;font-size:.9rem;border-radius:10px;padding:10px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--out);border-color:var(--out)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.empty b{color:var(--ink);font-family:var(--display);font-weight:600;font-size:1.05rem}
+.fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:0;border-radius:99px;padding:14px 20px;box-shadow:0 6px 20px rgba(20,30,80,.25);cursor:pointer;z-index:5}
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:.8rem;font-weight:600;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.seg.four{grid-template-columns:repeat(2,1fr)}
+.seg button{font:inherit;font-size:.85rem;font-weight:600;padding:9px 6px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.note{font-size:.8rem;color:var(--muted)}
+.assist{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.assist-start{display:flex;align-items:center;gap:14px;width:100%;background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;padding:14px 16px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;text-align:left}
+.assist-start svg{width:26px;height:26px;flex:none}
+.assist-start small{display:block;font-weight:500;font-size:.8rem;opacity:.85}
+.assist-top{display:flex;justify-content:space-between;align-items:center}
+.assist-q{font-family:var(--display);font-weight:600;font-size:1.25rem;line-height:1.25;margin:0;text-wrap:balance}
+.assist-ex{margin:0;font-size:.85rem;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-weight:600;font-size:.9rem;padding:10px 14px;border-radius:99px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.chip.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.resp{display:flex;gap:8px;align-items:center}
+.resp input{flex:1;font-size:16px}
+.mic{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer}
+.mic svg{width:22px;height:22px}
+.mic.on{background:var(--out);animation:pulso 1s ease-in-out infinite}
+@keyframes pulso{50%{transform:scale(1.08)}}
+.ouvindo{font-size:.85rem;color:var(--out);font-weight:600;margin:0}
+.resumo-voz{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:12px 14px}
+.resumo-voz div{display:flex;justify-content:space-between;gap:12px}
+.resumo-voz span{color:var(--muted)}
+.resumo-voz b{text-align:right;overflow-wrap:anywhere}
+.passos{display:flex;gap:4px}
+.passos i{width:22px;height:4px;border-radius:2px;background:var(--line)}
+.passos i.on{background:var(--accent)}
+.disse{margin:0;font-size:.85rem;color:var(--muted);font-style:italic}
+.modelo{display:flex;flex-direction:column;gap:6px;background:var(--bg);border-radius:12px;padding:12px 14px;margin:0;list-style:none}
+.modelo li{font-size:.92rem}
+.modelo b{color:var(--accent)}
+.ficha{display:flex;flex-direction:column;gap:10px}
+.fala-app{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:14px 14px 14px 4px;padding:12px 14px;margin:0}
+.fala-app b{font-family:var(--display);font-weight:600}
+.fala-eu{align-self:flex-end;max-width:90%;background:var(--accent);color:var(--accent-ink);border-radius:14px 14px 4px 14px;padding:10px 14px;margin:0;font-size:.92rem}
+.lista-voz{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.lv-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.lv-item:first-child{border-top:0}
+.lv-item div{flex:1;min-width:0}
+.lv-item b{display:block;font-weight:600;overflow-wrap:anywhere}
+.lv-item span{font-size:.8rem;color:var(--muted)}
+.lv-item .falta{color:var(--out);font-weight:600}
+.lv-item strong{white-space:nowrap}
+.lv-item{flex-wrap:wrap;row-gap:2px}
+.lv-item div{flex:1 1 100%}
+.lv-item strong{margin-right:auto}
+.lv-item .btn{padding:6px 10px}
+.pensando{display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:600;margin:0}
+.pensando i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:gira .8s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.backup{border-top:1px dashed var(--line);padding-top:16px;display:flex;flex-direction:column;gap:10px}
+.backup p{margin:0;font-size:.82rem;color:var(--muted)}
+.prog{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}
+.prog .bar{height:8px;border-radius:99px;background:var(--bg);overflow:hidden;border:1px solid var(--line)}
+.prog .bar i{display:block;height:100%;background:var(--in);border-radius:99px;transition:width .3s}
+.prog small{color:var(--muted);font-size:.78rem}
+.err{color:var(--out);font-size:.85rem}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:.9rem;z-index:6;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.row-panel,.sheet{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<span class="eyebrow" id="hoje"></span>
+<h1>Contas em Dia</h1>
+</header>
+<section class="summary" aria-label="Resumo do mês">
+<div><span class="eyebrow">Entradas</span><strong class="num c-in" id="sEnt">—</strong><small class="num" id="sEntR"></small></div>
+<div><span class="eyebrow">Saídas</span><strong class="num c-out" id="sSai">—</strong><small class="num" id="sSaiR"></small></div>
+<div><span class="eyebrow">A pagar</span><strong class="num" id="sFalta">—</strong><small>neste mês</small></div>
+<div class="prog"><div class="bar"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
+<div class="saldo"><span class="eyebrow" id="sMes">Saldo previsto</span><strong class="num" id="sSaldo">—</strong></div>
+</section>
+<section id="assist" aria-label="Assistente de voz" aria-live="polite"></section>
+<section id="alertsWrap" hidden>
+<div class="alerts" id="alerts" aria-live="polite"></div>
+</section>
+<div id="sheetHost"></div>
+<div class="tabs" role="tablist">
+<button role="tab" id="tab-fixo" aria-selected="true">Fixos</button>
+<button role="tab" id="tab-variavel" aria-selected="false">Variáveis</button>
+<button role="tab" id="tab-semanal" aria-selected="false">Semanais</button>
+<button role="tab" id="tab-quinzenal" aria-selected="false">Quinzena</button>
+<button role="tab" id="tab-avulso" aria-selected="false">Avulsos</button>
+</div>
+<section class="list" id="list" aria-live="polite"></section>
+<p class="note" id="tabNote"></p>
+<section class="backup" aria-label="Cópia de segurança">
+<h2>Cópia de segurança</h2>
+<p>Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho ou limpar o navegador.</p>
+<div class="inline">
+<button class="btn" type="button" id="bkSalvar">Salvar cópia</button>
+<label class="btn" for="bkArquivo" style="cursor:pointer">Restaurar cópia</label>
+<input type="file" id="bkArquivo" accept="application/json,.json" hidden>
+</div>
+<div class="inline" id="bkConfirma" hidden>
+<span class="note" id="bkMsg"></span>
+<button class="btn danger" type="button" id="bkSim">Substituir minhas contas</button>
+<button class="btn ghost" type="button" id="bkNao">Cancelar</button>
+</div>
+</section>
+</div>
+<button class="fab" id="fab" type="button">+ Adicionar</button>
+<div class="toast" id="toast" hidden></div>
+<script>
+const DIAS=["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+const DIAS_CURTO=["dom","seg","ter","qua","qui","sex","sáb"];
+const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const AVISO={mensal:5,semanal:1};
+const brl=v=>(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function parseValor(s){
+s=String(s||"").replace(/[R$\s]/g,"");
+if(s.includes(",")) s=s.replace(/\./g,"").replace(",",".");
+const n=parseFloat(s); return isFinite(n)&&n>=0?Math.round(n*100)/100:NaN;
+}
+const fmtInput=v=>(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+function hoje(){const d=new Date();d.setHours(0,0,0,0);return d}
+const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const fromYmd=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const diffDias=(a,b)=>Math.round((a-b)/864e5);
+const dm=d=>`${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
+const diasNoMes=(y,m)=>new Date(y,m+1,0).getDate();
+const occMes=(dia,y,m)=>new Date(y,m,Math.min(dia,diasNoMes(y,m)));
+function occSemana(dow,ref){const seg=new Date(ref);seg.setDate(seg.getDate()-((seg.getDay()+6)%7));const d=new Date(seg);d.setDate(seg.getDate()+((dow+6)%7));return d}
+const isMensal=it=>it.tipo==="fixo"||it.tipo==="variavel";
+const isEntrada=it=>it.sentido==="entrada";
+const isQuinz=it=>it.tipo==="quinzenal";
+function occQuinz(anc,ref){const a=fromYmd(anc);const k=Math.floor(diffDias(ref,a)/14);const d=new Date(a);if(k>0)d.setDate(a.getDate()+14*k);return d}
+const noMes=(it,y,m)=>{const d=fromYmd(it.data);return d.getFullYear()===y&&d.getMonth()===m};
+let itens=[], pagos={}, db=null, pronto=false, aba="fixo", aberto=null, editando=null, confirmarExcluir=null;
+const pagoKey=(id,data)=>`${id}__${data}`;
+const LS="contas-em-dia-v1";
+function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{}}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos}))}catch(e){}}
+async function salvarItem(it){
+const {id,...dados}=it;
+if(db){await db.collection("itens").doc(id).set(dados)}
+else{const i=itens.findIndex(x=>x.id===id);i>=0?itens[i]=it:itens.push(it);lsSave();render()}
+}
+async function excluirItem(id){
+if(db){await db.collection("itens").doc(id).delete();
+for(const k of Object.keys(pagos)) if(pagos[k].item===id) await db.collection("pagos").doc(k).delete();}
+else{itens=itens.filter(x=>x.id!==id);for(const k of Object.keys(pagos)) if(pagos[k].item===id) delete pagos[k];lsSave();render()}
+}
+async function marcarPago(it,data,valor){
+const k=pagoKey(it.id,data), body={item:it.id,data,valor,em:ymd(hoje())};
+if(db){await db.collection("pagos").doc(k).set(body)} else {pagos[k]=body;lsSave();render()}
+}
+async function desfazer(it,data){
+const k=pagoKey(it.id,data);
+if(db){await db.collection("pagos").doc(k).delete()} else {delete pagos[k];lsSave();render()}
+}
+function primeiraParcela(it){const c=fromYmd(it.criado||ymd(hoje()));let d=occMes(it.dia,c.getFullYear(),c.getMonth());if(d<c)d=occMes(it.dia,c.getFullYear(),c.getMonth()+1);return d}
+function numParcela(it,d){const f=primeiraParcela(it);return (d.getFullYear()-f.getFullYear())*12+(d.getMonth()-f.getMonth())+1}
+const temParcelas=it=>it.tipo==="fixo"&&it.parcelas>0;
+function status(it){
+const t=hoje();
+if(it.tipo==="avulso") return {kind:"done",label:dm(fromYmd(it.data)),avulso:true};
+let cur,next,lim;
+if(isMensal(it)){cur=occMes(it.dia,t.getFullYear(),t.getMonth());next=occMes(it.dia,t.getFullYear(),t.getMonth()+1);lim=AVISO.mensal}
+else if(isQuinz(it)){cur=occQuinz(it.data,t);next=new Date(cur);next.setDate(cur.getDate()+14);lim=AVISO.semanal}
+else{cur=occSemana(it.dia,t);next=new Date(cur);next.setDate(cur.getDate()+7);lim=AVISO.semanal}
+if(it.criado&&ymd(cur)<it.criado&&!pagos[pagoKey(it.id,ymd(cur))]){const d=diffDias(next,t);
+return d<=lim?{kind:"warn",data:next,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`}:{kind:"ok",data:next,dias:d,label:`Dia ${dm(next)}`}}
+if(temParcelas(it)&&numParcela(it,cur)>it.parcelas&&!pagos[pagoKey(it.id,ymd(cur))])return {kind:"done",label:"Quitado",quitado:true,data:cur};
+const pc=pagos[pagoKey(it.id,ymd(cur))];
+if(!pc){
+const d=diffDias(cur,t);
+if(d<0) return {kind:"late",data:cur,dias:d,label:`Atrasado ${-d} dia${d===-1?"":"s"}`};
+if(d<=lim) return {kind:"warn",data:cur,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`};
+return {kind:"ok",data:cur,dias:d,label:`Dia ${dm(cur)}`};
+}
+const d=diffDias(next,t);
+if(temParcelas(it)&&numParcela(it,next)>it.parcelas)return {kind:"done",label:"Quitado",quitado:true,data:cur,pago:pc};
+if(d<=lim && !pagos[pagoKey(it.id,ymd(next))]) return {kind:"warn",data:next,dias:d,label:d===0?"Vence hoje":d===1?"Amanhã":`Em ${d} dias`,anterior:cur};
+return {kind:"done",data:cur,label:isEntrada(it)?"Recebido":"Pago",pago:pc,proxima:next};
+}
+function quando(it){
+if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada avulsa":"Gasto avulso"} · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
+if(isMensal(it)) return (isEntrada(it)?`Entra todo dia ${it.dia}`:`Vence todo dia ${it.dia}`)+(temParcelas(it)?` · ${it.parcelas}x`:"");
+if(isQuinz(it)) return `${isEntrada(it)?"Entra":"Sai"} a cada 15 dias`;
+return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`;
+}
+function resumo(){
+const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
+let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;
+for(const it of itens){
+if(it.tipo==="avulso"){if(noMes(it,y,m)){if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
+const datas=[];
+if(isMensal(it)) datas.push(occMes(it.dia,y,m));
+else if(isQuinz(it)){let d=occQuinz(it.data,new Date(y,m,1));if(d<new Date(y,m,1))d.setDate(d.getDate()+14);while(d.getMonth()===m&&d.getFullYear()===y){datas.push(new Date(d));d.setDate(d.getDate()+14)}}
+else for(let d=1;d<=n;d++){const x=new Date(y,m,d);if(x.getDay()===it.dia)datas.push(x)}
+for(const d of datas){
+const p=pagos[pagoKey(it.id,ymd(d))];
+if(!p&&it.criado&&ymd(d)<it.criado)continue;
+if(temParcelas(it)&&numParcela(it,d)>it.parcelas&&!p)continue;
+const prev=p?p.valor:it.valor;
+if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
+else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
+}
+}
+$("sEnt").textContent=brl(entPrev);$("sEntR").textContent=`${brl(entReal)} recebido`;
+$("sSai").textContent=brl(saiPrev);$("sSaiR").textContent=`${brl(saiReal)} pago`;
+$("sFalta").textContent=brl(falta);
+$("pBar").style.width=(nTotal?Math.round(nPagas/nTotal*100):0)+"%";
+$("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}`:(itens.length?`Nenhuma conta a pagar em ${MESES[m]}`:"Cadastre suas contas para acompanhar o mês");
+const saldo=entPrev-saiPrev;
+$("sSaldo").textContent=brl(saldo);$("sSaldo").className="num "+(saldo<0?"c-out":"c-in");
+$("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
+}
+function renderAvisos(){
+const lista=itens.map(it=>({it,s:status(it)})).filter(x=>x.s.kind==="warn"||x.s.kind==="late")
+.sort((a,b)=>a.s.dias-b.s.dias);
+$("alertsWrap").hidden=!lista.length;
+$("alerts").innerHTML=lista.map(({it,s})=>`
+<div class="alert ${s.kind==="late"?"late":""}"><span class="dot"></span>
+<div><b>${esc(it.nome)}</b><span>${s.kind==="late"?s.label:(isEntrada(it)?"Entra ":"Vence ")+(s.dias===0?"hoje":s.dias===1?"amanhã":`em ${s.dias} dias`)} · ${DIAS_CURTO[s.data.getDay()]} ${dm(s.data)}</span></div>
+<span class="v num ${isEntrada(it)?"c-in":""}">${brl(it.valor)}</span></div>`).join("");
+}
+function rowHtml(it){
+const s=status(it), open=aberto===it.id, ent=isEntrada(it);
+const valorMostrado=s.kind==="done"&&s.pago?s.pago.valor:it.valor;
+let sub=quando(it);
+if(temParcelas(it)){const k=Math.min(numParcela(it,s.data),it.parcelas);sub=`Todo dia ${it.dia} · parcela ${Math.max(1,k)} de ${it.parcelas}`}
+if(s.quitado) sub=`${it.parcelas} parcelas · tudo pago`;
+else if(s.kind==="done"&&!s.avulso&&s.proxima) sub+=` · próxima ${dm(s.proxima)}`;
+if(it.tipo==="avulso") sub=quando(it);
+let panel="";
+if(open){
+const verbo=ent?"Recebi":"Paguei";
+const dataAlvo=ymd(s.data);
+if(s.avulso){
+panel=`<div class="inline"><button class="btn" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}else if(s.quitado){
+panel=`<div class="inline"><span class="note">Todas as parcelas foram pagas.</span></div><div class="inline"><button class="btn ghost" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}else if(s.kind==="done"){
+panel=`<div class="inline"><span class="note">${ent?"Recebido":"Pago"} ${brl(s.pago.valor)} em ${dm(fromYmd(s.pago.em))}</span></div>
+<div class="inline"><button class="btn" data-act="desfazer" data-id="${it.id}" data-data="${ymd(s.data)}">Desfazer</button>
+<button class="btn ghost" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}else{
+panel=`<div class="field"><label for="v-${it.id}">${verbo} quanto? (${dm(s.data)})</label>
+<input id="v-${it.id}" inputmode="decimal" value="${fmtInput(it.valor)}"></div>
+<div class="inline"><button class="btn primary" data-act="pagar" data-id="${it.id}" data-data="${dataAlvo}">${verbo}</button>
+<button class="btn ghost" data-act="editar" data-id="${it.id}">Editar</button>${delBtn(it)}</div>`;
+}
+}
+return `<div class="row"><button class="row-main" data-act="abrir" data-id="${it.id}" aria-expanded="${open}">
+<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span></div>
+<div class="row-right"><strong class="num ${ent?"c-in":""}">${ent?"+ ":""}${brl(valorMostrado)}</strong>${s.avulso?"":`<span class="pill ${s.kind}">${s.label}</span>`}</div>
+</button>${open?`<div class="row-panel">${panel}</div>`:""}</div>`;
+}
+function delBtn(it){
+return confirmarExcluir===it.id
+? `<button class="btn danger" data-act="excluir-sim" data-id="${it.id}">Confirmar exclusão</button><button class="btn ghost" data-act="excluir-nao">Manter</button>`
+: `<button class="btn ghost" data-act="excluir" data-id="${it.id}">Excluir</button>`;
+}
+function renderLista(){
+const L=$("list");
+if(!pronto){L.innerHTML=`<div class="empty"><b>Carregando suas contas…</b></div>`;return}
+const T=hoje();
+const doTipo=itens.filter(it=>it.tipo===aba&&(aba!=="avulso"||noMes(it,T.getFullYear(),T.getMonth())));
+const ordenar=a=>a.slice().sort((x,y)=>isMensal(x)?x.dia-y.dia:isQuinz(x)?status(x).data-status(y).data:((x.dia+6)%7)-((y.dia+6)%7));
+const vazio={
+fixo:["Nada fixo ainda","Aluguel, internet, prestações ou uma entrada que cai todo mês com o mesmo valor. Toque em + Adicionar."],
+variavel:["Nenhum gasto variável ainda","Luz, água, cartão de crédito: contas que vencem todo mês mas mudam de valor. Toque em + Adicionar."],
+avulso:["Nenhum avulso neste mês","Gastos ou entradas que não se repetem: um conserto, uma venda extra, um presente. Toque em + Adicionar."],
+quinzenal:["Nada quinzenal ainda","Entradas e saídas que se repetem a cada 15 dias, como um brique de quinzena. Toque em + Adicionar."],
+semanal:["Nada semanal ainda","Entradas e saídas que se repetem toda semana, como pagamento recebido na sexta ou compra de mercadoria. Toque em + Adicionar."]
+}[aba];
+if(!doTipo.length){L.innerHTML=`<div class="empty"><b>${vazio[0]}</b><span>${vazio[1]}</span></div>`}
+else if(aba!=="avulso"&&doTipo.some(isEntrada)){
+const ent=ordenar(doTipo.filter(isEntrada)), sai=ordenar(doTipo.filter(x=>!isEntrada(x)));
+L.innerHTML=(ent.length?`<div class="group-label">Entradas</div>`+ent.map(rowHtml).join(""):"")+
+(sai.length?`<div class="group-label" style="${ent.length?"border-top:1px solid var(--line)":""}">Saídas</div>`+sai.map(rowHtml).join(""):"");
+} else if(aba==="avulso"){L.innerHTML=doTipo.slice().sort((a,b)=>b.data.localeCompare(a.data)).map(rowHtml).join("")}
+else L.innerHTML=ordenar(doTipo).map(rowHtml).join("");
+const tot=doTipo.reduce((a,b)=>a+(isEntrada(b)?0:b.valor),0);
+if(aba==="avulso"){const e=doTipo.filter(isEntrada).reduce((a,b)=>a+b.valor,0),g=doTipo.filter(x=>!isEntrada(x)).reduce((a,b)=>a+b.valor,0);
+$("tabNote").textContent=`Neste mês: ${brl(e)} de entradas e ${brl(g)} de gastos avulsos.`;return}
+$("tabNote").textContent= (aba==="semanal"||aba==="quinzenal") ? `Aviso 1 dia antes. Toque numa linha para marcar como pago ou recebido.`
+: (doTipo.some(isEntrada)?`Por mês: entra ${brl(doTipo.filter(isEntrada).reduce((a,b)=>a+b.valor,0))} e sai ${brl(tot)}. Aviso 5 dias antes.`:`Total ${brl(tot)} por mês. Aviso 5 dias antes do vencimento.`);
+}
+let form=null;
+function abrirForm(it){
+editando=it?it.id:null;
+form=it?{...it,sentido:it.sentido||"saida"}:{nome:"",valor:"",tipo:aba,sentido:"saida",dia:aba==="semanal"?5:10,data:ymd(hoje())};
+if(!form.data)form.data=ymd(hoje());
+renderForm();$("fab").hidden=true;
+setTimeout(()=>$("f-nome")?.focus(),30);
+window.scrollTo({top:0,behavior:"smooth"});
+}
+function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
+const FORM_TIPOS=[["fixo","saida","Gasto fixo mensal"],["fixo","entrada","Entrada mensal"],["variavel","saida","Gasto variável"],["semanal","entrada","Entrada semanal"],["semanal","saida","Saída semanal"],["quinzenal","entrada","Entrada quinzenal"],["quinzenal","saida","Saída quinzenal"],["avulso","saida","Gasto avulso"],["avulso","entrada","Entrada avulsa"]];
+function renderForm(){
+if(!form)return;
+const semanal=form.tipo==="semanal",avulso=form.tipo==="avulso",quinz=form.tipo==="quinzenal",ent=form.sentido==="entrada";
+const diaCampo=(avulso||quinz)?`<input id="f-dia" type="date" value="${esc(form.data)}">`:semanal
+?`<select id="f-dia">${DIAS.map((d,i)=>`<option value="${i}" ${+form.dia===i?"selected":""}>${d[0].toUpperCase()+d.slice(1)}</option>`).join("")}</select>`
+:`<input id="f-dia" inputmode="numeric" value="${esc(form.dia)}" placeholder="1 a 31">`;
+$("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
+<h2>${editando?"Editar conta":"Nova conta"}</h2>
+<div class="field"><label>Tipo</label><div class="seg">
+${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-pressed="${form.tipo===t&&(form.sentido||"saida")===se}">${l}</button>`).join("")}
+</div></div>
+<div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: conserto do carro":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
+<div class="two">
+<div class="field"><label for="f-valor">${form.tipo==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="f-valor" inputmode="decimal" value="${form.valor===""?"":fmtInput(form.valor)}" placeholder="0,00"></div>
+<div class="field"><label for="f-dia">${avulso?"Data":quinz?"Próxima vez":semanal?"Dia da semana":ent?"Dia que entra":"Dia do vencimento"}</label>${diaCampo}</div>
+</div>
+${form.tipo==="fixo"&&!ent?`<div class="field"><label for="f-parc">Se for prestação, quantas parcelas faltam?</label><input id="f-parc" inputmode="numeric" value="${form.parcelas||""}" placeholder="Deixa vazio se não tiver fim"></div>`:""}
+<p class="err" id="f-err" hidden></p>
+<div class="inline"><button class="btn primary" type="submit">${editando?"Salvar":"Adicionar"}</button><button class="btn ghost" type="button" data-act="cancelar">Cancelar</button></div>
+</form>`;
+}
+function lerForm(){
+form.nome=$("f-nome").value;form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
+if(form.tipo==="avulso"||form.tipo==="quinzenal")form.data=$("f-dia").value;else form.dia=$("f-dia").value;
+if($("f-parc"))form.parcelas=parseInt($("f-parc").value,10)||null;
+}
+$("sheetHost").addEventListener("click",e=>{
+const b=e.target.closest("button");if(!b)return;
+if(b.dataset.act==="cancelar"){fecharForm();return}
+if(b.dataset.tipo){lerForm();const t=b.dataset.tipo;
+const eraSemanal=form.tipo==="semanal",[nt,ns]=t.split("-");
+form.tipo=nt;form.sentido=ns||"saida";
+if(nt==="semanal"&&!eraSemanal)form.dia=5;
+if((nt==="fixo"||nt==="variavel")&&(eraSemanal||!(+form.dia>=1)))form.dia=10;
+if((nt==="avulso"||nt==="quinzenal")&&!form.data)form.data=ymd(hoje());
+renderForm()}
+});
+$("sheetHost").addEventListener("submit",async e=>{
+e.preventDefault();lerForm();
+const err=$("f-err"),nome=form.nome.trim(),valor=typeof form.valor==="number"?form.valor:NaN,dia=parseInt(form.dia,10);
+const msg=!nome?"Dê um nome para a conta.":isNaN(valor)?"Informe o valor, por exemplo 150,00.":
+(form.tipo==="avulso"||form.tipo==="quinzenal")?(/^\d{4}-\d{2}-\d{2}$/.test(form.data||"")?"":"Escolha a data."):form.tipo==="semanal"?(dia>=0&&dia<=6?"":"Escolha o dia da semana."):(dia>=1&&dia<=31?"":"O dia do vencimento vai de 1 a 31.");
+if(msg){err.textContent=msg;err.hidden=false;return}
+const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome,valor,tipo:form.tipo};
+if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
+if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
+it.sentido=form.sentido==="entrada"?"entrada":"saida";
+if(form.tipo==="fixo"&&it.sentido==="saida"&&form.parcelas>0)it.parcelas=form.parcelas;
+try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
+catch(x){err.textContent=x?.code==="quota_exceeded"?"Limite de registros atingido. Exclua contas antigas para continuar.":"Não consegui salvar. Verifique a conexão e tente de novo.";err.hidden=false}
+});
+$("list").addEventListener("click",async e=>{
+const b=e.target.closest("button");if(!b)return;
+const id=b.dataset.id,it=itens.find(x=>x.id===id),act=b.dataset.act;
+try{
+if(act==="abrir"){aberto=aberto===id?null:id;confirmarExcluir=null;render()}
+else if(act==="pagar"){const v=parseValor($("v-"+id).value);
+if(isNaN(v)){toast("Valor inválido");return}
+await marcarPago(it,b.dataset.data,v);aberto=null;toast(isEntrada(it)?"Marcado como recebido":"Marcado como pago");render()}
+else if(act==="desfazer"){await desfazer(it,b.dataset.data);toast("Pagamento desfeito");render()}
+else if(act==="editar"){aberto=null;abrirForm(it);render()}
+else if(act==="excluir"){confirmarExcluir=id;render()}
+else if(act==="excluir-nao"){confirmarExcluir=null;render()}
+else if(act==="excluir-sim"){await excluirItem(id);confirmarExcluir=null;aberto=null;toast("Conta excluída");render()}
+}catch(x){toast("Não consegui salvar. Tente de novo.")}
+});
+function setAba(t){aba=t;for(const k of ["fixo","variavel","semanal","quinzenal","avulso"])$("tab-"+k).setAttribute("aria-selected",k===t);aberto=null;renderLista()}
+for(const k of ["fixo","variavel","semanal","quinzenal","avulso"])$("tab-"+k).addEventListener("click",()=>setAba(k));
+$("fab").addEventListener("click",()=>abrirForm(null));
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2200)}
+function render(){resumo();renderAvisos();renderLista()}
+const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+const SEMANA={domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
+const NUM_PAL={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
+function palavrasValor(t){
+const ws=t.split(/[\s,-]+/);let total=0,parcial=0,achou=false;
+ws.forEach((w,i)=>{if(w==="mil"){total+=(parcial||1)*1000;parcial=0;achou=true}else if(w in NUM_PAL){if((w==="um"||w==="uma")&&ws[i+1]!=="mil")return;parcial+=NUM_PAL[w];achou=true}});
+return achou?total+parcial:null;
+}
+function lerValor(txt){
+let t=norm(txt).replace(/r\$\s*/g," ").replace(/\breais?\b/g," ");
+const m=t.match(/(\d{1,3}(?:\.\d{3})+|\d+)(?:,(\d{1,2}))?(\s*mil)?(?:\s*e\s*(\d{1,3}))?/);
+if(m){let n=parseFloat(m[1].replace(/\./g,"")+(m[2]?"."+m[2]:""));if(m[3]){n*=1000;if(m[4])n+= +m[4]}return Math.round(n*100)/100}
+return palavrasValor(t);
+}
+function lerDia(txt){const t=norm(txt);const m=t.match(/\d{1,2}/);let n=m?+m[0]:null;if(n==null){for(const w of t.split(/\s+/))if(w in NUM_PAL)n=(n||0)+NUM_PAL[w];if(/\bprimeiro\b/.test(t))n=1}return n>=1&&n<=31?n:null}
+const TIPOS=[["fixo","Gasto fixo"],["fixo-entrada","Entrada mensal"],["variavel","Gasto variável"],["semanal-entrada","Entrada semanal"],["semanal-saida","Saída semanal"],["quinzenal-entrada","Entrada quinzenal"],["quinzenal-saida","Saída quinzenal"],["avulso-saida","Gasto avulso"],["avulso-entrada","Entrada avulsa"],["pagar","Marcar como pago"]];
+const PARADAS=new Set("paguei pago paga pagar quitei acertei recebi recebo receber recebido recebe gastei gasto gastos gasta comprei compra ganho ganhei vendi faturei entra entrou entrada entradas saida saidas sai saiu reais real rs r$ centavos todo toda todos todas dia dias vence vencimento venceu de do da dos das no na nos nas o a os as um uma com pra para pro por em e que mes mensal mensais semanal semanais semana fixo fixa fixos variavel variaveis media cada ontem hoje feira feiras mil valor minha meu minhas meus foi ao aos sobre referente conta avulso avulsa avulsos tipo nome marcar como".split(" "));
+const RX_PAGO=/\b(paguei|quitei|acertei|marcar como pago|ja paguei)\b/, RX_RECEBI=/\b(recebi|entrou|caiu)\b/;
+const RX_ENTRADA=/\b(recebo|recebi|receber|entra|entrou|entrada|ganho|ganhei|venda|vendas|vendi|salario|faturei|faturamento|caiu|brique|briques|bico|bicos|freela|comissao|lucro|lucrei)\b/;
+const RX_VAR=/\b(variavel|varia|media|luz|agua|energia|cartao|gas)\b/;
+function acharConta(txt){
+const t=" "+norm(txt)+" ";let melhor=null,score=0;
+for(const it of itens){if(it.tipo==="avulso")continue;const ws=norm(it.nome).split(/\s+/).filter(w=>w.length>2&&!PARADAS.has(w));if(!ws.length)continue;
+const s=ws.filter(w=>t.includes(" "+w)).length/ws.length;if(s>score){score=s;melhor=it}}
+return score>=0.5?melhor:null;
+}
+const ENCHE=new Set("eu tu ele ela gente voce voces nos fui foi vou vai ir tava estava estou to ta tenho tem tinha ja ainda so mais menos uns umas tipo ne entao ai la aqui isso isto esse essa este esta aquele aquela coisa coisas negocio dinheiro deu dar custou ficou fica ficaram custa custando pagando pagamos preciso precisa quase cerca aproximadamente ou quanto bem bom boa agora anteontem amanha passada passado ano vez vezes x parcela parcelas prestacao prestacoes faltam falta faltando restam resta restando total parcelado parcelei parcelada mensalidade sempre conto contos pila pilas nao sim tambem depois porque pois lembrar anota anotar coloca colocar bota botar registra registrar vem veio vieram vinha quinzena quinzenas quinzenal quinzenalmente cada semanas sim proxima proximo proximas foram sao era eram faz fiz fazer fica ficar".split(" "));
+const PREP=new Set("no na nos nas do da dos das de com pro pra para em o a os as ao".split(" "));
+const RX_PASSADO=/\b(paguei|gastei|comprei|recebi|ganhei|vendi|caiu|entrou|saiu|pagou|gastou|comprou|fiz|tive)\b/;
+const lerNum=w=>{if(/^\d+$/.test(w))return +w;if(w in NUM_PAL)return NUM_PAL[w];return null};
+function ultimoDiaSemana(dow){const d=hoje();let k=(d.getDay()-dow+7)%7;if(k===0)k=7;d.setDate(d.getDate()-k);return d}
+function partes(frase){
+const s=" "+String(frase||"").replace(/\s+/g," ").replace(/\bmil e (\d)/gi,"mil§$1")+" ";
+const verbos="paguei|gastei|comprei|recebi|ganhei|vendi|tenho|tem|meu|minha|toda|todo|todas|o|a|os|as|mais|pago|recebo|ganho|caiu|entrou|tambem|também|depois";
+const rx=new RegExp(`[.;!?\\n]+|,\\s*(?:e\\s+)?(?=(?:${verbos})\\s)|\\s+(?:e\\s+)?(?:tamb[eé]m|depois|al[eé]m disso)\\s+|\\s+e\\s+(?=(?:${verbos})\\s)|\\s+e\\s+(?=(?:mais\\s+)?(?:uns\\s+|umas\\s+)?(?:r\\$\\s*)?\\d)`,"i");
+return s.split(rx).map(x=>(x||"").replace(/§/g," e ").trim()).filter(Boolean);
+}
+function acharNome(orig,pal){
+const forte=i=>{const n=pal[i];return !!n&&!PARADAS.has(n)&&!ENCHE.has(n)&&!PREP.has(n)&&!/^\d/.test(n)&&!(n in SEMANA)&&!(n in NUM_PAL)&&!/^\d+x$/.test(n)&&!/ndo$/.test(n)&&!/^(primeiro|segunda|terca|quarta|quinta|sexta)(-?feira)?$/.test(n)};
+const runs=[];let cur=null;
+for(let i=0;i<pal.length;i++){
+if(forte(i)){if(!cur)cur={ini:i,fim:i,pre:i>0&&PREP.has(pal[i-1])};else cur.fim=i}
+else if(cur&&/^(de|do|da|dos|das|e)$/.test(pal[i])&&forte(i+1)&&pal[i]!=="e"){}
+else if(cur){runs.push(cur);cur=null}
+}
+if(cur)runs.push(cur);
+if(!runs.length)return "";
+const r=runs.find(x=>x.pre)||runs[0];
+let ws=orig.slice(r.ini,r.fim+1);if(ws.length>4)ws=ws.slice(0,4);
+let n=ws.join(" ");return n?n[0].toUpperCase()+n.slice(1):"";
+}
+function interpretarUm(frase){
+const tn=" "+norm(frase).replace(/[!?;:"]/g," ")+" ";
+let t=tn,dia=null,dow=null,data=null,parcelas=null,porParcela=null;
+// datas no formato 10/11
+t=t.replace(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/,(m,d,mo,a)=>{const h=hoje();let y=a?(+a<100?2000+ +a:+a):h.getFullYear();const dd=new Date(y,+mo-1,+d);if(!isNaN(dd))data=ymd(dd);return " "});
+// parcelas: "10x", "10 vezes", "12 parcelas", "faltam 8"
+t=t.replace(/\b(?:em\s+)?(\d{1,3}|[a-z]+)\s*(?:x|vezes|parcelas|prestacoes|mensalidades)\b(?:\s+de\s+(?:r\$\s*)?((?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d{1,2})?))?/,(m,n,v)=>{const k=lerNum(n);if(!k||k>360)return m;parcelas=k;if(v)porParcela=lerValor(v);return " "});
+t=t.replace(/\b(?:faltam|falta|restam|resta|faltando|restando)\s+(?:mais\s+)?(\d{1,3}|[a-z]+)\b(?:\s+(?:parcelas|prestacoes|meses|vezes))?/,(m,n)=>{const k=lerNum(n);if(!k)return m;parcelas=k;return " "});
+t=t.replace(/\b(?:todo|todos|no|nos|vence|vencimento|para|pro|ate|até)?\s*(?:o\s+)?dia\s+(\d{1,2}|primeiro|[a-z]+(?:\s+e\s+[a-z]+)?)\b/,(m,d)=>{const n=lerDia(d);if(n){dia=n;return " "}return m});
+let semanalForte=/\b(toda semana|por semana|semanal|semanalmente|toda\s+(?:segunda|terca|quarta|quinta|sexta)|todo\s+(?:sabado|domingo)|todas as|todos os|nas\s+(?:segundas|tercas|quartas|quintas|sextas)|aos\s+(?:sabados|domingos)|sempre)\b/.test(tn);
+t=t.replace(/\b(?:toda|todas|nas?|as|aos?|todo|todos|na|no)?\s*(domingo|segunda|terca|quarta|quinta|sexta|sabado)s?(?:[-\s]feiras?)?\b(?:\s+passad[oa])?/,(m,d)=>{dow=SEMANA[d];return " "});
+t=t.replace(/\b(conto|contos|pila|pilas|reais|real)\b/g," ").replace(/\b(de (15|quinze) em (15|quinze)( dias)?|a cada (15|quinze) dias|cada (15|quinze) dias|a cada (2|duas) semanas)\b/g," ");
+let valor=lerValor(t);
+if(porParcela!=null)valor=porParcela;
+else if(parcelas&&valor!=null&&!/\b(parcela|prestacao|mensalidade|por mes)\b/.test(tn)&&/\b(total|comprei|parcelei|parcelado|parcelada|em \d+ ?x|em \d+ vezes|em [a-z]+ vezes)\b/.test(tn))valor=Math.round(valor/parcelas*100)/100;
+const orig=String(frase).replace(/r\$/gi," ").split(/[\s,.!?;:"]+/).filter(Boolean);
+const pal=orig.map(w=>norm(w));
+const nome=acharNome(orig,pal);
+const ent=RX_ENTRADA.test(tn);
+const passado=RX_PASSADO.test(tn);
+const mensalForte=/\b(todo mes|por mes|mensal|mensalmente|todo dia|vence|vencimento|mensalidade)\b/.test(tn);
+// 1) pagar conta que já existe
+const conta=acharConta(frase);
+if(conta&&!parcelas&&!mensalForte&&!semanalForte&&/\b(paguei|pago|pagou|quitei|recebi|caiu|entrou|acertei)\b/.test(tn))
+return {tipo:"pagar",item:conta,valor:valor??conta.valor,nome:"",dia:null,data:null,parcelas:null};
+let tipo=null;
+if(parcelas){tipo="fixo";if(dia==null)dia=hoje().getDate()}
+else if(/\bvariave/.test(tn))tipo="variavel";
+else if(/\b(quinzena|quinzenas|quinzenal|quinzenalmente|de (15|quinze) em (15|quinze)|a cada (15|quinze) dias|cada (15|quinze) dias|a cada (2|duas) semanas|semana sim,? semana nao)\b/.test(tn))tipo=ent?"quinzenal-entrada":"quinzenal-saida";
+else if(/\bfix[oa]s?\b/.test(tn))tipo=ent?"fixo-entrada":"fixo";
+else if(/\bavuls/.test(tn))tipo=ent?"avulso-entrada":"avulso-saida";
+else if(semanalForte||(dow!==null&&!passado))tipo=ent?"semanal-entrada":"semanal-saida";
+else if(mensalForte||(dia!==null&&!passado))tipo=ent?"fixo-entrada":RX_VAR.test(tn)?"variavel":"fixo";
+else tipo=ent?"avulso-entrada":"avulso-saida";
+if(tipo.startsWith("avulso")){
+let d=hoje();
+if(data)d=fromYmd(data);
+else if(/\banteontem\b/.test(tn))d.setDate(d.getDate()-2);
+else if(/\bontem\b/.test(tn))d.setDate(d.getDate()-1);
+else if(dow!==null)d=ultimoDiaSemana(dow);
+else if(dia!==null){d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));if(d>hoje())d.setMonth(d.getMonth()-1)}
+data=ymd(d);
+}
+if(tipo.startsWith("quinzenal")){let d=hoje();if(data)d=fromYmd(data);else if(dow!==null){const k=(dow-d.getDay()+7)%7;d.setDate(d.getDate()+k)}else if(dia!==null){d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));if(d<hoje())d.setDate(d.getDate()+14)}data=ymd(d);
+return {tipo,nome,valor,dia:null,data,item:null,parcelas:null}}
+return {tipo,nome,valor,dia:tipo.startsWith("semanal")?dow:(tipo.startsWith("avulso")?null:dia),data:tipo.startsWith("avulso")?data:null,item:null,parcelas:tipo==="fixo"?parcelas:null};
+}
+function interpretarVarios(frase){
+const segs=partes(frase);const out=[];let nomePendente="";
+for(const sg of segs){
+const tem=/\d/.test(sg)||norm(sg).split(/\s+/).some(w=>w in NUM_PAL&&w!=="um"&&w!=="uma")||(acharConta(sg)&&/\b(paguei|pago|quitei|recebi|caiu|entrou)\b/.test(norm(sg)));
+if(!tem){const n=acharNome(sg.split(/\s+/),norm(sg).split(/\s+/));if(n){if(out.length&&!out[out.length-1].nome&&out[out.length-1].tipo!=="pagar")out[out.length-1].nome=n;else nomePendente=n}continue}
+const x=interpretarUm(sg);const prev=out[out.length-1];
+const sgn=" "+norm(sg)+" ";
+if(prev&&prev.tipo.startsWith("avulso")&&x.tipo.startsWith("avulso")&&!RX_PASSADO.test(sgn)&&!RX_ENTRADA.test(sgn)&&!/\b(ontem|anteontem|hoje)\b/.test(sgn)){x.tipo=prev.tipo;x.data=prev.data}
+if(prev&&prev.tipo!=="pagar"&&x.tipo!=="pagar"&&x.valor==null&&!x.nome){
+if(prev.tipo.startsWith("quinzenal")&&x.dia!=null){const d=hoje();d.setDate(Math.min(x.dia,diasNoMes(d.getFullYear(),d.getMonth())));if(d<hoje())d.setMonth(d.getMonth()+1);prev.data=ymd(d);continue}
+if(prev.tipo.startsWith("avulso")&&x.dia!=null){if(x.tipo==="fixo"||x.tipo==="variavel"){prev.tipo=(x.tipo==="variavel"||RX_VAR.test(" "+norm(prev.nome)+" "))?"variavel":"fixo";prev.dia=x.dia;prev.data=null}else if(x.tipo.startsWith("semanal")){prev.tipo=x.tipo.replace(/-.*/,"")+"-"+prev.tipo.split("-")[1];prev.dia=x.dia;prev.data=null}continue}
+if(x.dia!=null&&!prev.tipo.startsWith("avulso")&&prev.tipo.startsWith("semanal")===x.tipo.startsWith("semanal"))prev.dia=x.dia;
+continue}
+if(!x.nome&&nomePendente&&x.tipo!=="pagar"){x.nome=nomePendente}
+nomePendente="";out.push(x);
+}
+if(!out.length&&segs.length){const x=interpretarUm(frase);if(x.tipo==="pagar"||x.valor!=null||x.nome)out.push(x)}
+return out;
+}
+function interpretar(frase){return interpretarVarios(frase)[0]||interpretarUm(frase)}
+let A=null,ouvindo=null;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const MIC_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+function renderAssist(){
+const box=$("assist");
+if(!A){box.className="";box.innerHTML=`<button class="assist-start" type="button" data-a="iniciar">${MIC_SVG}<span>Falar com o app<small>Fala do teu jeito, como se fosse com uma pessoa</small></span></button>`;return}
+box.className="assist";
+const topo=`<div class="assist-top"><span class="eyebrow">${A.fase==="falar"?"Pode falar":A.fase==="pensando"?"Um instante":"Confere e ajusta se precisar"}</span><button class="btn ghost" type="button" data-a="cancelar">Cancelar</button></div>`;
+if(A.fase==="falar"){
+box.innerHTML=`${topo}
+<p class="assist-q">Me conta o que aconteceu</p>
+${sampleFn?`<ul class="modelo">
+<li>"Hoje paguei a luz, deu 172, e gastei uns 50 no mercado"</li>
+<li>"Meu aluguel é 1200 e vence todo dia 10"</li>
+<li>"Toda sexta eu recebo mais ou menos 800 das vendas"</li>
+</ul>`:`<ul class="modelo">
+<li>"Meu aluguel é 1200 e vence todo dia 10"</li>
+<li>"Toda sexta eu recebo umas 800 das vendas"</li>
+<li>"Paguei a luz, deu 172, e gastei uns 50 no mercado"</li>
+<li>"Comprei uma geladeira em 10x de 300, todo dia 5"</li>
+</ul>`}
+<div class="resp"><input id="aTxt" autocomplete="off" enterkeyhint="done" placeholder="Ou escreve aqui" value="${esc(A.texto||"")}"><button class="mic${ouvindo?" on":""}" type="button" data-a="mic" aria-label="Falar">${MIC_SVG}</button></div>
+${ouvindo?'<p class="ouvindo">Ouvindo… pode falar</p>':""}
+${A.erro?`<p class="err">${A.erro}</p>`:""}
+<div class="inline"><button class="btn primary" type="button" data-a="pronto">Pronto</button></div>`;
+return;
+}
+if(A.fase==="pensando"){box.innerHTML=`${topo}<p class="fala-eu">${esc(A.texto)}</p><p class="pensando"><i></i>Entendendo o que tu disse…</p>`;return}
+if(A.fase==="lista"){
+box.innerHTML=`${topo}<p class="fala-eu">${esc(A.texto)}</p>
+${A.resposta?`<p class="fala-app"><span>${esc(A.resposta)}</span></p>`:""}
+<div class="lista-voz">${A.lista.map((x,i)=>{const f=faltaEm(x);return `<div class="lv-item"><div><b>${x.tipo==="pagar"?"Pago: "+esc(x.item?x.item.nome:"conta"):esc(x.nome||"Sem nome")}</b><span>${f.length?`<span class="falta">Falta ${f.join(" e ")}</span>`:esc(descQuando(x))}</span></div><strong class="num">${x.valor!=null?brl(x.valor):"—"}</strong><button class="btn ghost" type="button" data-a="ajustar" data-v="${i}">Ajustar</button><button class="btn ghost" type="button" data-a="tirar" data-v="${i}" aria-label="Tirar">✕</button></div>`}).join("")}</div>
+${A.erro?`<p class="err">${A.erro}</p>`:""}
+<div class="inline"><button class="btn primary" type="button" data-a="salvartudo">Salvar ${A.lista.length>1?"tudo":""}</button><button class="btn" type="button" data-a="denovo">Falar de novo</button></div>`;
+return}
+const t=A.tipo;
+let campos="";
+if(t==="pagar"){
+const rec=itens.filter(it=>it.tipo!=="avulso");
+campos=rec.length?`<div class="field"><label for="cConta">Conta</label><select id="cConta">${rec.map(it=>`<option value="${it.id}" ${A.item&&A.item.id===it.id?"selected":""}>${esc(it.nome)}</option>`).join("")}</select></div>
+<div class="field"><label for="cValor">Valor pago</label><input id="cValor" inputmode="decimal" value="${A.valor!=null?fmtInput(A.valor):""}" placeholder="0,00"></div>`
+:'<p class="assist-ex">Ainda não tem conta cadastrada pra marcar como paga.</p>';
+}else{
+let quandoCampo;
+if(t.startsWith("semanal"))quandoCampo=`<div class="field"><label for="cDia">Dia da semana</label><select id="cDia"><option value="">Escolhe</option>${[1,2,3,4,5,6,0].map(d=>`<option value="${d}" ${A.dia===d?"selected":""}>${DIAS[d][0].toUpperCase()+DIAS[d].slice(1)}</option>`).join("")}</select></div>`;
+else if(t.startsWith("avulso")||t.startsWith("quinzenal"))quandoCampo=`<div class="field"><label for="cData">${t.startsWith("quinzenal")?"Próxima vez":"Data"}</label><input id="cData" type="date" value="${esc(A.data||ymd(hoje()))}"></div>`;
+else quandoCampo=`<div class="field"><label for="cDia">${t.endsWith("entrada")?"Dia que entra":"Dia do vencimento"}</label><input id="cDia" inputmode="numeric" placeholder="1 a 31" value="${A.dia??""}"></div>`;
+const parcCampo=t==="fixo"?`<div class="field"><label for="cParc">Parcelas que faltam (se for prestação)</label><input id="cParc" inputmode="numeric" placeholder="Vazio = sem fim" value="${A.parcelas||""}"></div>`:"";
+campos=`<div class="field"><label for="cNome">Nome</label><input id="cNome" value="${esc(A.nome)}" placeholder="Ex.: aluguel"></div>
+<div class="two"><div class="field"><label for="cValor">${t==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="cValor" inputmode="decimal" value="${A.valor!=null?fmtInput(A.valor):""}" placeholder="0,00"></div>${quandoCampo}</div>${parcCampo}`;
+}
+box.innerHTML=`${topo}
+${A.texto?`<p class="fala-eu">${esc(A.texto)}</p>`:""}
+${A.resposta?`<p class="fala-app"><span>${esc(A.resposta)}</span></p>`:""}
+<div class="chips">${TIPOS.map(([k,l])=>`<button class="chip${t===k?" sel":""}" type="button" data-a="tipo" data-v="${k}">${l}</button>`).join("")}</div>
+<div class="ficha">${campos}</div>
+${A.erro?`<p class="err">${A.erro}</p>`:""}
+<div class="inline"><button class="btn primary" type="button" data-a="salvar">${A.voltar?"Pronto":"Salvar"}</button>${A.voltar?'<button class="btn" type="button" data-a="voltarlista">Voltar</button>':'<button class="btn" type="button" data-a="denovo">Falar de novo</button>'}</div>`;
+}
+function lerFicha(){
+if(!A||A.fase!=="conferir")return;
+const v=$("cValor");if(v)A.valor=v.value.trim()===""?null:(isNaN(parseValor(v.value))?null:parseValor(v.value));
+if(A.tipo==="pagar"){const c=$("cConta");if(c)A.item=itens.find(x=>x.id===c.value)||null;return}
+const n=$("cNome");if(n)A.nome=n.value.trim();
+const d=$("cDia");if(d)A.dia=d.value===""?null:+d.value;
+const dt=$("cData");if(dt)A.data=dt.value;
+const pc=$("cParc");if(pc)A.parcelas=parseInt(pc.value,10)||null;
+}
+let sampleFn=null;
+(async()=>{try{sampleFn=window.claude&&window.claude.use?await window.claude.use("sample"):null}catch(e){sampleFn=null}if(A&&A.fase==="falar")renderAssist()})();
+function faltaEm(x){const f=[];if(x.tipo==="pagar"){if(!x.item)f.push("a conta");if(x.valor==null)f.push("o valor");return f}
+if(!x.nome)f.push("o nome");if(x.valor==null)f.push("o valor");if(x.tipo.startsWith("semanal")&&x.dia==null)f.push("o dia da semana");if((x.tipo.startsWith("fixo")||x.tipo.startsWith("variavel"))&&x.dia==null)f.push("o dia");if(x.tipo.startsWith("quinzenal")&&!x.data)f.push("a data");return f}
+function descQuando(x){if(x.tipo==="pagar")return "vencimento "+dm(status(x.item).data);const lb=tipoLabel(x.tipo);
+if(x.tipo.startsWith("semanal"))return lb+" · toda "+DIAS[x.dia];if(x.tipo.startsWith("avulso"))return lb+" · "+dm(fromYmd(x.data));if(x.tipo.startsWith("quinzenal"))return lb+" · a cada 15 dias, próxima "+dm(fromYmd(x.data));return lb+" · todo dia "+x.dia+(x.parcelas?` · ${x.parcelas}x`:"")}
+function tipoLabel(k){return (TIPOS.find(t=>t[0]===k)||[,""])[1]}
+function doIA(x){
+if(!x||typeof x!=="object")return null;
+const num=v=>{const n=typeof v==="number"?v:parseFloat(String(v??"").replace(",","."));return isFinite(n)?Math.round(n*100)/100:null};
+if(x.acao==="pagar"){const it=itens.find(i=>i.id===x.contaId)||null;return {tipo:"pagar",item:it,valor:num(x.valor)??(it?it.valor:null),nome:"",dia:null,data:null}}
+let t=String(x.tipo||"");if(!["fixo","variavel","semanal","avulso","quinzenal"].includes(t))t="avulso";
+const sent=x.sentido==="entrada"?"entrada":"saida";
+if(t==="variavel"&&sent==="entrada")t="fixo";
+const tipo=(t==="semanal"||t==="avulso"||t==="quinzenal")?t+"-"+sent:(t==="fixo"&&sent==="entrada")?"fixo-entrada":t;
+let dia=x.dia==null?null:parseInt(x.dia,10);if(isNaN(dia))dia=null;
+if(t==="semanal"&&!(dia>=0&&dia<=6))dia=null;if((t==="fixo"||t==="variavel")&&!(dia>=1&&dia<=31))dia=null;
+const data=(t==="avulso"||t==="quinzenal")?(/^\d{4}-\d{2}-\d{2}$/.test(x.data||"")?x.data:ymd(hoje())):null;
+let nome=String(x.nome||"").trim();nome=nome?nome[0].toUpperCase()+nome.slice(1):"";
+const parc=parseInt(x.parcelas,10);
+return {tipo,nome,valor:num(x.valor),dia:(t==="avulso"||t==="quinzenal")?null:dia,data,item:null,parcelas:tipo==="fixo"&&parc>0&&parc<=360?parc:null};
+}
+async function entenderComIA(txt){
+const contas=itens.filter(i=>i.tipo!=="avulso").map(i=>({id:i.id,nome:i.nome,tipo:i.tipo,sentido:i.sentido||"saida",valor:i.valor}));
+const h=hoje();
+const prompt=`Tu és o assistente de um app de controle de contas pessoais, em português do Brasil. A pessoa falou isto (é uma transcrição de voz e pode ter pequenos erros):
+"${txt}"
+Hoje é ${DIAS[h.getDay()]}, ${ymd(h)}.
+Contas já cadastradas (use o id delas quando a pessoa disser que pagou ou recebeu uma delas): ${JSON.stringify(contas)}
+Tipos de registro:
+- fixo: conta mensal de valor fixo (aluguel, internet, parcela, academia). Precisa "dia" do vencimento, 1 a 31.
+- variavel: conta mensal cujo valor muda (luz, água, gás, cartão de crédito). Precisa "dia" de 1 a 31; "valor" é o valor médio.
+- fixo com "sentido":"entrada": dinheiro que entra todo mês (salário, aluguel que a pessoa recebe, brique mensal). Precisa "dia".
+- quinzenal: entrada ou saída que se repete a cada 15 dias (quinzena). Precisa "data" da próxima vez (AAAA-MM-DD) e "sentido".
+- semanal: entrada ou saída que se repete toda semana. Precisa "dia" da semana (0=domingo, 1=segunda ... 6=sábado) e "sentido".
+- avulso: gasto ou entrada que aconteceu uma vez só. Precisa "data" (AAAA-MM-DD; "ontem", "segunda passada" etc. viram data) e "sentido".
+- pagar: a pessoa pagou ou recebeu uma conta que JÁ está na lista acima. Use acao "pagar" e o "contaId".
+Se a pessoa disser que pagou algo que não está na lista, registre como avulso de saída.
+"sentido" é "entrada" para dinheiro que entra (venda, salário, recebi) e "saida" para dinheiro que sai.
+Responda só com JSON neste formato:
+{"resposta":"uma frase curta, simpática e natural em português, como numa conversa, dizendo o que tu vai anotar","itens":[{"acao":"criar","tipo":"fixo","sentido":null,"nome":"Aluguel","valor":1200,"dia":10,"data":null,"contaId":null}]}
+Cada coisa que a pessoa contou vira um item. Use null no que ela não disse (não invente valores nem dias). Se a fala não tiver nada sobre dinheiro, devolva "itens": [] e use "resposta" para pedir que ela conte o gasto ou a entrada.`;
+return await sampleFn.json(prompt,{modelTier:"quick",cache:false});
+}
+async function processar(txt){
+txt=String(txt||"").trim();
+if(!A)A={fase:"falar",texto:"",erro:""};
+if(!txt){A.erro="Fala ou escreve primeiro.";renderAssist();return}
+if(sampleFn){
+A={fase:"pensando",texto:txt,erro:""};renderAssist();
+try{
+const r=await entenderComIA(txt);
+if(!A||A.fase!=="pensando")return;
+const lista=(Array.isArray(r&&r.itens)?r.itens:[]).map(doIA).filter(Boolean);
+const resposta=String((r&&r.resposta)||"").slice(0,300);
+if(!lista.length){A={fase:"falar",texto:"",erro:resposta||"Não entendi. Me conta o gasto ou a entrada de novo."};renderAssist();return}
+if(lista.length===1){const f=faltaEm(lista[0]);A={...lista[0],fase:"conferir",texto:txt,resposta,erro:f.length?`Só falta ${f.join(" e ")}. Completa aqui embaixo.`:""};renderAssist();return}
+A={fase:"lista",lista,texto:txt,resposta,erro:""};renderAssist();return;
+}catch(e){
+if(!A)return;
+if(e&&(e.code==="not_granted"||e.code==="sampling_disabled"||e.code==="capability_disabled"||e.code==="capability_removed"||e.code==="not_declared"))sampleFn=null;
+if(e&&e.code==="cancelled")return;
+processarLocal(txt);if(A&&e&&e.code==="rate_limited")A.erro="O Claude está ocupado agora, então eu entendi do jeito simples. Confere aqui.";renderAssist();return;
+}
+}
+processarLocal(txt);
+}
+function processarLocal(txt){
+const lista=interpretarVarios(txt);
+if(!lista.length){A={fase:"falar",texto:"",erro:'Não achei nenhum valor no que tu disse. Tenta assim: "gastei 50 no mercado".'};renderAssist();return}
+if(lista.length===1){const f=faltaEm(lista[0]);A={...lista[0],fase:"conferir",texto:txt,resposta:f.length?"":"Entendi assim. Confere e salva:",erro:f.length?`Só falta ${f.join(" e ")}. Completa aqui embaixo.`:""};renderAssist();return}
+A={fase:"lista",lista,texto:txt,resposta:`Entendi ${lista.length} coisas. Confere e salva:`,erro:""};renderAssist();
+}
+function pararMic(){if(ouvindo){try{ouvindo.abort()}catch(e){}ouvindo=null}}
+function ouvir(){
+if(ouvindo){try{ouvindo.stop()}catch(e){}return}
+if(!SR){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar");return}
+let r;try{r=new SR()}catch(e){return}
+r.lang="pt-BR";r.interimResults=true;r.continuous=true;let txt="";let silencio;
+r.onresult=e=>{txt="";for(const res of e.results)txt+=res[0].transcript;const el=$("aTxt");if(el)el.value=txt;clearTimeout(silencio);silencio=setTimeout(()=>{try{r.stop()}catch(_){}} ,1800)};
+r.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){const el=$("aTxt");if(el)el.focus();toast("Toca no microfone do teclado para falar")}};
+r.onend=()=>{clearTimeout(silencio);ouvindo=null;if(!A)return;const t=(txt||($("aTxt")||{}).value||"").trim();if(t)processar(t);else renderAssist()};
+try{r.start();ouvindo=r;renderAssist()}catch(e){}
+}
+async function salvarItemVoz(x){
+if(x.tipo==="pagar"){await marcarPago(x.item,ymd(status(x.item).data),x.valor);return x.item.tipo}
+const [tipo,sentido]=x.tipo.split("-");
+const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:x.nome[0].toUpperCase()+x.nome.slice(1),valor:x.valor,tipo};
+if(tipo==="avulso")it.data=x.data;else if(tipo==="quinzenal"){it.data=x.data;it.criado=ymd(hoje())}else{it.dia=x.dia;it.criado=ymd(hoje())}
+it.sentido=sentido||"saida";
+if(tipo==="fixo"&&it.sentido==="saida"&&x.parcelas>0)it.parcelas=x.parcelas;
+await salvarItem(it);return tipo;
+}
+async function salvarTudo(){
+const ruim=A.lista.findIndex(x=>faltaEm(x).length);
+if(ruim>=0){A.erro="Tem item faltando informação. Toca em Ajustar nele.";renderAssist();return}
+try{let ult="fixo";for(const x of A.lista)ult=await salvarItemVoz(x);toast(A.lista.length>1?`${A.lista.length} registros salvos`:"Salvo");setAba(ult);A=null;renderAssist();render()}
+catch(e){A.erro="Não consegui salvar tudo. Tenta de novo.";renderAssist()}
+}
+async function salvarAssist(){
+lerFicha();
+if(A.voltar){const f=faltaEm(A);if(f.length){A.erro=`Falta ${f.join(" e ")}.`;renderAssist();return}
+const v=A.voltar,{voltar,fase,erro,texto,resposta,...item}=A;v.lista[v.idx]=item;A={fase:"lista",lista:v.lista,texto:v.texto,resposta:v.resposta,erro:""};renderAssist();return}
+try{
+if(A.tipo==="pagar"){if(!A.item){A.erro="Escolhe a conta.";renderAssist();return}if(A.valor==null){A.erro="Coloca o valor pago.";renderAssist();return}
+await marcarPago(A.item,ymd(status(A.item).data),A.valor);toast(isEntrada(A.item)?"Marcado como recebido":"Marcado como pago");setAba(A.item.tipo)}
+else{
+const [tipo,sentido]=A.tipo.split("-");
+if(!A.nome){A.erro="Coloca o nome.";renderAssist();return}
+if(A.valor==null){A.erro="Coloca o valor.";renderAssist();return}
+if(tipo==="semanal"&&(A.dia==null||A.dia<0||A.dia>6)){A.erro="Escolhe o dia da semana.";renderAssist();return}
+if((tipo==="fixo"||tipo==="variavel")&&!(A.dia>=1&&A.dia<=31)){A.erro="O dia do vencimento vai de 1 a 31.";renderAssist();return}
+if((tipo==="avulso"||tipo==="quinzenal")&&!/^\d{4}-\d{2}-\d{2}$/.test(A.data||"")){A.erro="Escolhe a data.";renderAssist();return}
+await salvarItemVoz(A);setAba(tipo);toast("Conta salva")}
+A=null;renderAssist();render();
+}catch(x){A.erro="Não consegui salvar. Tenta de novo.";renderAssist()}
+}
+$("assist").addEventListener("click",e=>{
+const b=e.target.closest("button");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+if(a==="iniciar"){A={fase:"falar",texto:"",erro:""};renderAssist();if(SR)ouvir();else{const el=$("aTxt");if(el)el.focus()}return}
+if(a==="cancelar"){pararMic();A=null;renderAssist();return}
+if(a==="mic"){ouvir();return}
+if(a==="pronto"){pararMic();processar(($("aTxt")||{}).value);return}
+if(a==="denovo"){pararMic();A={fase:"falar",texto:"",erro:""};renderAssist();if(SR)ouvir();return}
+if(a==="tipo"){lerFicha();const era=A.tipo;A.tipo=v;A.erro="";
+if(v.startsWith("semanal")&&!(era||"").startsWith("semanal"))A.dia=null;
+if((v==="fixo"||v==="variavel")&&(era||"").startsWith("semanal"))A.dia=null;
+if((v.startsWith("avulso")||v.startsWith("quinzenal"))&&!A.data)A.data=ymd(hoje());
+if((v.startsWith("fixo")||v.startsWith("variavel"))&&(era||"").startsWith("quinzenal"))A.dia=null;
+if(v==="pagar"&&!A.item)A.item=acharConta(A.texto||A.nome||"");
+renderAssist();return}
+if(a==="salvar"){salvarAssist();return}
+if(a==="salvartudo"){salvarTudo();return}
+if(a==="tirar"){A.lista.splice(+v,1);A.erro="";if(!A.lista.length){A=null}renderAssist();return}
+if(a==="ajustar"){const i=+v,x=A.lista[i];A={...x,fase:"conferir",texto:"",resposta:"",erro:"",voltar:{lista:A.lista,idx:i,texto:A.texto,resposta:A.resposta}};renderAssist();return}
+if(a==="voltarlista"){const v2=A.voltar;A={fase:"lista",lista:v2.lista,texto:v2.texto,resposta:v2.resposta,erro:""};renderAssist();return}
+});
+$("assist").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="aTxt"){e.preventDefault();pararMic();processar(e.target.value)}});
+renderAssist();
+(function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
+render();
+function iniciar(){lsLoad();pronto=true;render()}
+window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
+$("bkSalvar").addEventListener("click",()=>{
+const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos},null,2)],{type:"application/json"});
+const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
+document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("Cópia salva");
+});
+let bkDados=null;
+$("bkArquivo").addEventListener("change",async e=>{
+const f=e.target.files[0];e.target.value="";if(!f)return;
+try{const j=JSON.parse(await f.text());if(j.app!=="contas-em-dia"||!Array.isArray(j.itens))throw 0;
+bkDados=j;$("bkMsg").textContent=`Cópia com ${j.itens.length} conta${j.itens.length===1?"":"s"}. Isso substitui o que está aqui agora.`;$("bkConfirma").hidden=false}
+catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
+});
+$("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
+$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};lsSave();bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+iniciar();
+setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
+</script>
+</body>
+</html>
