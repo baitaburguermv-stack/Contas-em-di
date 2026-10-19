@@ -352,8 +352,8 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .ju-main .dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:50%}
 .ju-main .dir strong{font-weight:800;white-space:nowrap}
 .ju-det{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
-.ju-linhas{display:grid;grid-template-columns:1fr auto;gap:6px 12px;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:.9rem}
-.ju-linhas span{color:var(--muted)}
+.ju-linhas{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:.9rem}
+.ju-linhas span{color:var(--muted);white-space:nowrap}
 .ju-linhas b{text-align:right;font-weight:700;white-space:nowrap}
 .ju-linhas .tot{border-top:1px dashed var(--line);padding-top:6px}
 .ju-h{margin:4px 2px 0;font-family:var(--display);font-weight:600;font-size:1.05rem}
@@ -754,8 +754,8 @@ const ICO=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const ICO_IN=ICO("M17 7 7 17M7 9v8h8"),ICO_OUT=ICO("M7 17 17 7M9 7h8v8"),ICO_OK=ICO("m5 12 5 5 9-10");
 const temJuros=it=>isEntrada(it)&&it.tipo!=="avulso"&&it.jurosPct>0;
 function jurosEm(it,d){if(!temJuros(it)||!d)return {dias:0,v:0};const dias=diffDias(hoje(),d);if(dias<=0)return {dias:0,v:0};
-return {dias,v:Math.round(it.valor*it.jurosPct/100*(it.jurosPor==="dia"?dias:dias/30)*100)/100}}
-const taxaTxt=it=>`${String(it.jurosPct).replace(".",",")}% ${it.jurosPor==="dia"?"ao dia":"ao mês"}`;
+return {dias,v:Math.round(it.valor*it.jurosPct/100*(it.jurosPor==="dia"?dias:it.jurosPor==="semana"?dias/7:dias/30)*100)/100}}
+const taxaTxt=it=>`${String(it.jurosPct).replace(".",",")}% ${it.jurosPor==="dia"?"por dia":it.jurosPor==="semana"?"por semana":"por mês"}`;
 function rowHtml(it){
 const s=status(it), open=aberto===it.id, ent=isEntrada(it);
 const jr=s.kind==="late"?jurosEm(it,s.data):{dias:0,v:0};
@@ -851,7 +851,7 @@ ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-
 <div class="field"><label for="f-dia">${avulso?"Data":quinz?"Próxima vez":semanal?"Dia da semana":ent?"Dia que entra":"Dia do vencimento"}</label>${diaCampo}</div>
 </div>
 ${ent&&!avulso?`<div class="two"><div class="field"><label for="f-juros">Juros se atrasar (%)</label><input id="f-juros" inputmode="decimal" value="${form.jurosPct?String(form.jurosPct).replace(".",","):""}" placeholder="Ex.: 1"></div>
-<div class="field"><label for="f-jpor">Cobrado</label><select id="f-jpor"><option value="mes" ${form.jurosPor!=="dia"?"selected":""}>ao mês</option><option value="dia" ${form.jurosPor==="dia"?"selected":""}>ao dia</option></select></div></div>
+<div class="field"><label for="f-jpor">Cobrado</label><select id="f-jpor"><option value="dia" ${form.jurosPor==="dia"?"selected":""}>por dia</option><option value="semana" ${form.jurosPor==="semana"?"selected":""}>por semana</option><option value="mes" ${form.jurosPor!=="dia"&&form.jurosPor!=="semana"?"selected":""}>por mês</option></select></div></div>
 <p class="note" style="margin-top:-6px">Deixa vazio se não cobrar juros. Quando atrasar, o app soma os juros a cada dia.</p>`:""}
 ${aceitaParcelas(form.tipo)?`<div class="field"><label for="f-parc">${ent?"Se for parcelado, quantas parcelas faltam receber?":"Se for prestação, quantas parcelas faltam?"}</label><input id="f-parc" inputmode="numeric" value="${form.parcelas||""}" placeholder="Deixa vazio se não tiver fim"></div>`:""}
 <p class="err" id="f-err" hidden></p>
@@ -887,7 +887,7 @@ if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=d
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
 it.sentido=form.sentido==="entrada"?"entrada":"saida";
 if(aceitaParcelas(form.tipo)&&form.parcelas>0)it.parcelas=form.parcelas;
-if(it.sentido==="entrada"&&it.tipo!=="avulso"&&form.jurosPct>0){it.jurosPct=form.jurosPct;it.jurosPor=form.jurosPor==="dia"?"dia":"mes"}
+if(it.sentido==="entrada"&&it.tipo!=="avulso"&&form.jurosPct>0){it.jurosPct=form.jurosPct;it.jurosPor=["dia","semana"].includes(form.jurosPor)?form.jurosPor:"mes"}
 try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
 catch(x){err.textContent=x?.code==="quota_exceeded"?"Limite de registros atingido. Exclua contas antigas para continuar.":"Não consegui salvar. Verifique a conexão e tente de novo.";err.hidden=false}
 });
@@ -1362,7 +1362,12 @@ const {passados,proximo}=juVencs(e),pg=new Set(e.pagos||[]),jm=Math.round(e.valo
 const abertos=passados.filter(d=>!pg.has(ymd(d)));
 const t=hoje(),atraso=abertos.length?diffDias(t,abertos[0]):0;
 const jurosAberto=Math.round(abertos.length*jm*100)/100;
-return {jm,abertos,proximo,atraso,jurosAberto,total:e.valor+jurosAberto,recebido:(e.pagos||[]).length*jm};
+let mora=0,moraPrimeiro=0;
+if(e.atrasoPct>0&&abertos.length){const f=d=>{const n=Math.max(0,diffDias(t,d));return e.atrasoPor==="mes"?n/30:e.atrasoPor==="semana"?n/7:n};
+if(e.atrasoBase==="juros"){abertos.forEach((d,i)=>{const v=jm*e.atrasoPct/100*f(d);mora+=v;if(i===0)moraPrimeiro=v})}
+else mora=e.valor*e.atrasoPct/100*f(abertos[0]);
+mora=Math.round(mora*100)/100;moraPrimeiro=Math.round(moraPrimeiro*100)/100}
+return {jm,abertos,proximo,atraso,jurosAberto,mora,moraPrimeiro,total:Math.round((e.valor+jurosAberto+mora)*100)/100,recebido:(e.pagos||[]).length*jm};
 }
 function juStatus(e,c){
 if(e.quitado)return {kind:"done",label:"Quitado"};
@@ -1371,14 +1376,16 @@ if(c.abertos.length)return {kind:"warn",label:"Vence hoje"};
 const d=diffDias(c.proximo,hoje());return {kind:d<=5?"warn":"ok",label:d===1?"Amanhã":`Em ${d} dias`};
 }
 const pctBR=v=>String(v).replace(".",",")+"%";
+const moraTxt=e=>`${pctBR(e.atrasoPct)} ${e.atrasoPor==="mes"?"por mês":e.atrasoPor==="semana"?"por semana":"por dia"} sobre ${e.atrasoBase==="juros"?"os juros atrasados":"o valor emprestado"}`;
 function renderJurema(){
 const C=$("juCorpo"),ativos=jurema.filter(e=>!e.quitado),quit=jurema.filter(e=>e.quitado);
 const soma=(lista,f)=>lista.reduce((a,e)=>a+f(e,juCalc(e)),0);
 const rec=ativos.filter(e=>e.sentido!=="saida"),dev=ativos.filter(e=>e.sentido==="saida");
 let h="";
-if(rec.length||!dev.length){const tot=soma(rec,(e,c)=>c.total),na=soma(rec,e=>e.valor),jm=soma(rec,(e,c)=>c.jm),ab=soma(rec,(e,c)=>c.jurosAberto);
+if(rec.length||!dev.length){const tot=soma(rec,(e,c)=>c.total),na=soma(rec,e=>e.valor),jm=soma(rec,(e,c)=>c.jm),ab=soma(rec,(e,c)=>c.jurosAberto+c.mora),mo=soma(rec,(e,c)=>c.mora);
 h+=`<section class="ju-hero" aria-label="Resumo do que você tem a receber"><div><small>Total a receber hoje</small><div class="big num">${brl(tot)}</div></div>
 <div class="ju-grid"><div><small>Emprestado</small><b class="num">${curto(na)}</b></div><div><small>Juros por mês</small><b class="num">${curto(jm)}</b></div><div><small>Juros em aberto</small><b class="num">${curto(ab)}</b></div></div>
+${mo>0?`<span class="ju-sub">Os juros em aberto incluem ${brl(mo)} de juros por atraso.</span>`:""}
 ${na>0?`<span class="ju-sub">Rende em média ${pctBR(Math.round(jm/na*1000)/10)} ao mês sobre o que está emprestado.</span>`:""}</section>`}
 if(dev.length){const tot=soma(dev,(e,c)=>c.total),jm=soma(dev,(e,c)=>c.jm);
 h+=`<div class="cartao"><h2>Você deve</h2><div class="ju-linhas"><span>Total para quitar hoje</span><b class="num c-out">${brl(tot)}</b><span>Juros por mês</span><b class="num">${brl(jm)}</b></div></div>`}
@@ -1399,20 +1406,22 @@ det=`<div class="ju-det"><div class="ju-linhas">
 <span>Valor ${ent?"emprestado":"que peguei"}</span><b class="num">${brl(e.valor)}</b>
 <span>Juros</span><b class="num">${pctBR(e.taxa)} ao mês = ${brl(c.jm)}</b>
 <span>Pagamento</span><b>todo dia ${e.dia}</b>
+${e.atrasoPct>0?`<span>Se atrasar</span><b style="white-space:normal">${moraTxt(e)}</b>`:""}
 <span>Desde</span><b>${dm(fromYmd(e.inicio))}/${fromYmd(e.inicio).getFullYear()}</b>
 ${e.quitado?`<span>Quitado em</span><b>${dm(fromYmd(e.quitado))}</b>`:`<span>Juros em aberto</span><b class="num ${c.jurosAberto?"c-out":""}">${brl(c.jurosAberto)}${c.abertos.length?` (${c.abertos.length} ${c.abertos.length>1?"meses":"mês"})`:""}</b>
+${c.mora?`<span>Juros por atraso</span><b class="num c-out">${brl(c.mora)}</b>`:""}
 <span>${c.abertos.length?"Vencido desde":"Próximo vencimento"}</span><b class="${c.abertos.length?"c-out":""}">${c.abertos.length?dm(c.abertos[0]):dm(c.proximo)}</b>
 <span class="tot">Total para quitar hoje</span><b class="tot num">${brl(c.total)}</b>`}
 ${(e.pagos||[]).length?`<span>Juros já ${ent?"recebidos":"pagos"}</span><b class="num">${brl(c.recebido)} (${e.pagos.length}x)</b>`:""}
 </div>
 ${e.quitado?`<div class="inline"><button class="btn" type="button" data-ju="reabrir" data-id="${e.id}">Desfazer quitação</button></div>`:`<div class="inline">
-<button class="btn primary" type="button" data-ju="juros" data-id="${e.id}">${ent?"Recebi":"Paguei"} os juros${c.abertos.length?` de ${dm(c.abertos[0])}`:` de ${dm(c.proximo)}`} (${brl(c.jm)})</button>
+<button class="btn primary" type="button" data-ju="juros" data-id="${e.id}">${ent?"Recebi":"Paguei"} os juros${c.abertos.length?` de ${dm(c.abertos[0])}`:` de ${dm(c.proximo)}`} (${brl(c.jm+c.moraPrimeiro)}${c.moraPrimeiro?" com atraso":""})</button>
 <button class="btn" type="button" data-ju="quitar" data-id="${e.id}">Quitou tudo (${brl(c.total)})</button></div>`}
 <div class="inline">${(e.pagos||[]).length&&!e.quitado?`<button class="btn ghost" type="button" data-ju="desfazer" data-id="${e.id}">Desfazer último</button>`:""}
 <button class="btn ghost" type="button" data-ju="editar" data-id="${e.id}">Editar</button>
 ${conf?`<button class="btn danger" type="button" data-ju="excluir-sim" data-id="${e.id}">Confirmar exclusão</button>`:`<button class="btn ghost" type="button" data-ju="excluir" data-id="${e.id}">Excluir</button>`}</div></div>`}
 return `<div class="ju-card"><button class="ju-main" type="button" data-ju="abrir" data-id="${e.id}" aria-expanded="${aberto}"><span class="avatar ${e.quitado?"done":ent?"in":"out"}" aria-hidden="true">${e.quitado?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
-<div><b class="nome">${esc(e.nome)}</b><small>${brl(e.valor)} a ${pctBR(e.taxa)} ao mês · dia ${e.dia}</small>${!e.quitado&&c.jurosAberto?`<small class="c-out">+ ${brl(c.jurosAberto)} de juros em aberto</small>`:""}</div>
+<div><b class="nome">${esc(e.nome)}</b><small>${brl(e.valor)} a ${pctBR(e.taxa)} ao mês · dia ${e.dia}</small>${!e.quitado&&c.jurosAberto?`<small class="c-out">+ ${brl(c.jurosAberto)} de juros em aberto</small>`:""}${!e.quitado&&c.mora?`<small class="c-out">+ ${brl(c.mora)} de juros por atraso</small>`:""}</div>
 <div class="dir">${dir}<span class="pill ${st.kind}">${st.label}</span></div></button>${det}</div>`;
 }
 function formJurema(){const f=juForm,ed=!!f.id;
@@ -1423,12 +1432,17 @@ return `<form class="sheet" id="juF" novalidate><h2>${ed?"Editar empréstimo":"N
 <div class="field"><label for="juTaxa">Juros ao mês (%)</label><input id="juTaxa" inputmode="decimal" value="${f.taxa?String(f.taxa).replace(".",","):""}" placeholder="Ex.: 30"></div></div>
 <div class="two"><div class="field"><label for="juDia">Dia do pagamento</label><input id="juDia" inputmode="numeric" value="${f.dia||""}" placeholder="1 a 31"></div>
 <div class="field"><label for="juIni">Data do empréstimo</label><input id="juIni" type="date" value="${esc(f.inicio||ymd(hoje()))}"></div></div>
+<div class="two"><div class="field"><label for="juAtr">Juros por atraso (%)</label><input id="juAtr" inputmode="decimal" value="${f.atrasoPct?String(f.atrasoPct).replace(".",","):""}" placeholder="Ex.: 1"></div>
+<div class="field"><label for="juAtrPor">Cobrado</label><select id="juAtrPor"><option value="dia" ${f.atrasoPor!=="mes"&&f.atrasoPor!=="semana"?"selected":""}>por dia</option><option value="semana" ${f.atrasoPor==="semana"?"selected":""}>por semana</option><option value="mes" ${f.atrasoPor==="mes"?"selected":""}>por mês</option></select></div></div>
+<div class="field"><label for="juAtrBase">Calculado sobre</label><select id="juAtrBase"><option value="valor" ${f.atrasoBase!=="juros"?"selected":""}>o valor emprestado</option><option value="juros" ${f.atrasoBase==="juros"?"selected":""}>os juros do mês que atrasaram</option></select></div>
 <p class="note" id="juPrev"></p>
 <p class="err" id="juErr" hidden></p>
 <div class="inline"><button class="btn primary" type="submit">${ed?"Salvar":"Adicionar"}</button><button class="btn ghost" type="button" data-ju="cancelar">Cancelar</button></div></form>`}
 function juPrevia(){const v=parseValor(($("juValor")||{}).value),t=parseValor(($("juTaxa")||{}).value),el=$("juPrev");if(!el)return;
-el.textContent=v>0&&t>0?`Juros de ${brl(Math.round(v*t)/100)} por mês. Se não pagar no dia, soma mais ${brl(Math.round(v*t)/100)} a cada mês de atraso.`:""}
-function lerJuForm(){juForm.nome=$("juNome").value;juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value}
+const a=parseValor(($("juAtr")||{}).value),por=($("juAtrPor")||{}).value,base=($("juAtrBase")||{}).value,jm=Math.round(v*t)/100;
+let x="";if(a>0&&v>0){const b=base==="juros"?jm:v,dia=Math.round(b*a/100/(por==="mes"?30:por==="semana"?7:1)*100)/100;x=` Se atrasar, soma mais ${brl(dia)} por dia de atraso${base==="juros"?" (por mês atrasado)":""}.`}
+el.textContent=v>0&&t>0?`Juros de ${brl(jm)} por mês. Se não pagar no dia, soma mais ${brl(jm)} a cada mês de atraso.${x}`:""}
+function lerJuForm(){juForm.nome=$("juNome").value;juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value;const at=parseValor($("juAtr").value);juForm.atrasoPct=isNaN(at)?null:at;juForm.atrasoPor=$("juAtrPor").value;juForm.atrasoBase=$("juAtrBase").value}
 function salvarJurema(){lsSave();renderJurema()}
 $("abrirJurema").addEventListener("click",()=>{$("perfil").close();juForm=null;juConf=null;renderJurema();$("jurema").showModal()});
 $("fecharJurema").addEventListener("click",()=>$("jurema").close());
@@ -1448,11 +1462,13 @@ else if(a==="editar"){juForm={...emp};renderJurema();$("juCorpo").scrollIntoView
 else if(a==="excluir"){juConf=id;renderJurema()}
 else if(a==="excluir-sim"){jurema=jurema.filter(x=>x.id!==id);juConf=null;juAberto=null;salvarJurema();toast("Empréstimo excluído")}
 });
-$("jurema").addEventListener("input",e=>{if(e.target.id==="juValor"||e.target.id==="juTaxa")juPrevia()});
+$("jurema").addEventListener("input",e=>{if(/^ju(Valor|Taxa|Atr)/.test(e.target.id))juPrevia()});
+$("jurema").addEventListener("change",e=>{if(/^juAtr/.test(e.target.id))juPrevia()});
 $("jurema").addEventListener("submit",e=>{e.preventDefault();lerJuForm();const f=juForm,dia=parseInt(f.dia,10),err=$("juErr");
 const msg=!f.nome.trim()?"Coloque o nome.":!(f.valor>0)?"Coloque o valor, por exemplo 1.000,00.":!(f.taxa>=0)||isNaN(f.taxa)?"Coloque os juros ao mês, por exemplo 30.":!(dia>=1&&dia<=31)?"O dia do pagamento vai de 1 a 31.":!/^\d{4}-\d{2}-\d{2}$/.test(f.inicio||"")?"Escolha a data do empréstimo.":"";
 if(msg){err.textContent=msg;err.hidden=false;return}
 const novo={id:f.id||("j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),valor:f.valor,taxa:f.taxa,dia,inicio:f.inicio,sentido:f.sentido==="saida"?"saida":"entrada",pagos:f.pagos||[]};
+if(f.atrasoPct>0){novo.atrasoPct=f.atrasoPct;novo.atrasoPor=["mes","semana"].includes(f.atrasoPor)?f.atrasoPor:"dia";novo.atrasoBase=f.atrasoBase==="juros"?"juros":"valor"}
 if(f.quitado){novo.quitado=f.quitado;novo.valorQuitado=f.valorQuitado}
 const i=jurema.findIndex(x=>x.id===novo.id);i>=0?jurema[i]=novo:jurema.push(novo);
 juForm=null;juAberto=novo.id;salvarJurema();toast(i>=0?"Empréstimo atualizado":"Empréstimo adicionado")});
