@@ -1131,9 +1131,9 @@ function iniciar(){lsLoad();if(FIREBASE_CONFIG){iniciarNuvem();return}pronto=tru
 // ===================== LOGIN (Firebase) =====================
 // Cole aqui a configuração do seu projeto Firebase (Configurações do projeto > Seus apps > Web).
 // Enquanto ficar null, o app funciona sem login, guardando tudo só neste celular.
-const FIREBASE_CONFIG=null;
+const FIREBASE_CONFIG={apiKey:"AIzaSyBfsiU9iXQDd_pou-WT4iSRUxWYyslcmm8",authDomain:"contas-em-di.firebaseapp.com",projectId:"contas-em-di",storageBucket:"contas-em-di.firebasestorage.app",messagingSenderId:"225923966650",appId:"1:225923966650:web:ffe5cf2a6b142557ecc483"};
 // E-mail de quem libera o acesso (o dono do app). Tem que ser o mesmo e-mail escrito nas regras do Firestore.
-const ADMIN_EMAIL="";
+const ADMIN_EMAIL="pereiramercadolivre2023@gmail.com";
 const FB_VER="10.12.2",LS_DONO="contas-em-dia-dono";
 function nuvemSalvar(){if(!nuvemDoc)return;clearTimeout(nvT);nvT=setTimeout(()=>{
 nuvemDoc.set({itens,pagos,perfil,atualizado:Date.now()}).catch(e=>{if(e&&e.code==="permission-denied")sairPorBloqueio();else toast("Sem internet. Salvo no celular, envio quando voltar.")})},400)}
