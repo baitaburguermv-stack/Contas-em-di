@@ -16,6 +16,7 @@ const saidaCubica = (k) => 1 - Math.pow(1 - k, 3);
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
 
 function listaEfeitos(e) { return !e ? [] : Array.isArray(e) ? e : [e]; }
+const camTexto = (c) => (typeof c.camera === 'string' ? c.camera : '');
 
 export class Estudio {
   constructor(canvas, { largura = 720, altura = 1280 } = {}) {
@@ -57,7 +58,17 @@ export class Estudio {
     }
     this.criarEfeitos();
     this.compilar();
+    this.foto = null;
+    let pronto = Promise.resolve();
+    if (roteiro.foto) {
+      const img = new Image();
+      pronto = new Promise((ok) => { img.onload = img.onerror = ok; });
+      img.src = roteiro.foto;
+      this.foto = img;
+      pronto.then(() => this.roteiro === roteiro && this.seek(this.tAtual || 0));
+    }
     this.seek(0);
+    return pronto;
   }
 
   // ---------------------------------------------------------------- roteiro → linha do tempo
@@ -65,9 +76,10 @@ export class Estudio {
     const r = this.roteiro;
     const estado = {};
     for (const [id, d] of Object.entries(r.personagens)) {
-      estado[id] = { pos: [...(d.pos || [0, 0])], expr: d.expr || 'neutro', visivel: d.visivel !== false };
+      estado[id] = { pos: [...(d.pos || [0, 0])], expr: d.expr || 'neutro', visivel: d.visivel !== false, sentado: !!d.sentado, virar: d.virar ?? null };
     }
     const copia = () => JSON.parse(JSON.stringify(estado));
+    let props = { ...(r.props || {}) };
     let t = 0;
     this.eventos = [];
     this.cenas = r.cenas.map((original, i) => {
@@ -77,6 +89,7 @@ export class Estudio {
       if (dur == null) {
         if (c.tipo === 'titulo') dur = 3.4;
         else if (c.tipo === 'fim') dur = 3.6;
+        else if (c.tipo === 'foto' && !fala) dur = 4;
         else if (fala) dur = Math.max(2.3, ATRASO_FALA + fala.length / LETRAS_POR_SEG + 1.3);
         else dur = 2.4;
       }
@@ -99,11 +112,15 @@ export class Estudio {
         }
         if (a.sair) estado[id].visivel = false;
         if (a.expr) estado[id].expr = a.expr;
+        if (a.sentado !== undefined) estado[id].sentado = a.sentado;
+        if (a.virar !== undefined) estado[id].virar = a.virar;
         if (a.gesto === 'tapa' && a.alvo && !(c.acoes[a.alvo]?.gesto)) {
           c.acoes[a.alvo] = { ...(c.acoes[a.alvo] || {}), gesto: 'levar_tapa' };
         }
       }
-      const cena = { ...c, indice: i, t0: t, dur, fala, ini, fim: copia(), movimentos };
+      const propsIni = { ...props };
+      props = { ...props, ...(c.props || {}) };
+      const cena = { ...c, indice: i, t0: t, dur, fala, ini, fim: copia(), movimentos, propsIni, propsFim: { ...props } };
       this.eventosDaCena(cena);
       t += dur;
       return cena;
@@ -116,8 +133,8 @@ export class Estudio {
     const ev = (tipo, dt, extra = {}) => this.eventos.push({ tipo, t: c.t0 + dt, ...extra });
     if (c.tipo === 'titulo') ev('abertura', 0.05);
     if (c.tipo === 'fim') ev('fim', 0.1);
-    if (c.fala && c.quem) {
-      const def = this.roteiro.personagens[c.quem] || {};
+    if (c.fala && c.quem && this.roteiro.personagens[c.quem]) {
+      const def = this.roteiro.personagens[c.quem];
       const base = def.voz || VOZES[def.tipo] || 300;
       [...c.fala].forEach((ch, i) => {
         if (i % 2 || !/[\p{L}\p{N}]/u.test(ch)) return;
@@ -125,7 +142,7 @@ export class Estudio {
         ev('blip', ATRASO_FALA + i / LETRAS_POR_SEG, { freq: base * variacao });
       });
     }
-    if ((c.camera || '').startsWith('drama')) ev('dun', 0.05);
+    if (camTexto(c).startsWith('drama')) ev('dun', 0.05);
     for (const e of listaEfeitos(c.efeito)) {
       const [nome] = e.split(':');
       if (nome === 'coracoes') { ev('coracao', 0.1); ev('coracao', 1.1); }
@@ -190,9 +207,10 @@ export class Estudio {
     if (!c || c.tipo === 'titulo' || c.tipo === 'fim') return 0;
     const a = c.acoes?.[id] || {};
     if (mov?.andando && mov.dir) return Math.atan2(mov.dir[0], mov.dir[1]) * 0.85;
+    if (c.fim[id]?.virar != null) return c.fim[id].virar;
     let alvo = a.olhar || a.alvo;
     if (alvo === 'camera') return 0;
-    const [tipoCam, alvoCam] = (c.camera || '').split(':');
+    const [tipoCam, alvoCam] = camTexto(c).split(':');
     if (tipoCam === 'drama' && (alvoCam || c.quem) === id && !a.olhar) return 0;
     if (!alvo) {
       if (c.quem && c.quem !== id && posicoes[c.quem]) alvo = c.quem;
@@ -233,7 +251,8 @@ export class Estudio {
       ator.raiz.visible = vis;
       if (!vis) continue;
       const [x, z] = posicoes[id];
-      ator.raiz.position.set(x, 0, z);
+      const calcada = this.roteiro.calcada;
+      ator.raiz.position.set(x, calcada && x > calcada.x ? calcada.altura : 0, z);
       const yAtual = this.yawAlvo(c, id, posicoes, movs[id]);
       const yAnt = posAnt[id] ? this.yawAlvo(anterior, id, posAnt) : yAtual;
       ator.raiz.rotation.y = lerp(yAnt, yAtual, suave(clamp(lt / 0.35)));
@@ -247,15 +266,23 @@ export class Estudio {
         const base = /[aeiouáéíóúãõâêô]/i.test(ch) ? 1 : /[\s,.!?…]/.test(ch) ? 0.1 : 0.5;
         abertura = base * (0.55 + 0.45 * Math.sin((pos % 1) * Math.PI));
       }
+      const s0 = c.ini[id].sentado ? 1 : 0, s1 = c.fim[id].sentado ? 1 : 0;
+      const sentar = lerp(s0, s1, suave(clamp((lt - (a.atraso || 0)) / 0.7)));
       ator.pose({
-        tempo: t, expr: c.fim[id].expr, falando, abertura,
+        tempo: t, expr: c.fim[id].expr, falando, abertura, sentar,
         gesto: a.gesto, tGesto: lt - (a.atraso || 0), andando: movs[id].andando,
       });
     }
 
     this.atualizarEfeitos(c, lt, posicoes);
     this.posicionarCamera(c, lt, posicoes);
-    this.cenario.animar?.(t);
+    const kProps = suave(clamp((lt - (c.propsAtraso || 0)) / (c.propsTempo || 1.5)));
+    const valores = {};
+    for (const k of new Set([...Object.keys(c.propsIni), ...Object.keys(c.propsFim)])) {
+      const a0 = c.propsIni[k] ?? c.propsFim[k], a1 = c.propsFim[k];
+      valores[k] = typeof a1 === 'number' ? lerp(a0, a1, kProps) : a1;
+    }
+    this.cenario.animar?.(t, valores);
     this.renderer.render(this.cena, this.camera);
     this.compor(c, lt);
   }
@@ -308,6 +335,17 @@ export class Estudio {
   }
 
   posicionarCamera(c, lt, posicoes) {
+    if (c.camera && typeof c.camera === 'object') {
+      const k = suave(clamp(lt / c.dur));
+      const v = (a, b) => (b ? a.map((x, i) => lerp(x, b[i], k)) : a);
+      const [px, py, pz] = v(c.camera.pos, c.camera.ate);
+      const [ox, oy, oz] = v(c.camera.olhar, c.camera.olharAte);
+      const tremor = listaEfeitos(c.efeito).includes('tremor') ? Math.max(0, 1 - lt / 1.2) : 0;
+      this.camera.position.set(px + Math.sin(lt * 57) * 0.06 * tremor, py + Math.cos(lt * 43) * 0.05 * tremor, pz);
+      this.camera.up.set(0, 1, 0);
+      this.camera.lookAt(ox, oy, oz);
+      return;
+    }
     const visiveis = Object.keys(posicoes);
     let spec = c.camera || (c.tipo ? 'geral' : c.quem ? `close:${c.quem}` : 'geral');
     let [tipo, arg] = spec.split(':');
@@ -352,8 +390,9 @@ export class Estudio {
     const u = Math.min(W, H) / 720;
     g.drawImage(this.renderer.domElement, 0, 0, W, H);
     const efeitos = listaEfeitos(c.efeito);
+    if (c.tipo === 'foto') this.desenharFoto(c, lt);
 
-    if ((c.camera || '').startsWith('drama') || efeitos.includes('vinheta')) {
+    if (camTexto(c).startsWith('drama') || efeitos.includes('vinheta')) {
       const k = clamp(lt / 0.3) * 0.55;
       const rg = g.createRadialGradient(W / 2, H * 0.4, Math.min(W, H) * 0.25, W / 2, H * 0.4, Math.max(W, H) * 0.75);
       rg.addColorStop(0, 'rgba(120,0,20,0)');
@@ -410,6 +449,27 @@ export class Estudio {
         g.restore();
       }
     }
+  }
+
+  desenharFoto(c, lt) {
+    const g = this.g2d, W = this.W, H = this.H, img = this.foto;
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    if (img?.naturalWidth) {
+      const k = suave(clamp(lt / c.dur));
+      const zoom = lerp(c.zoom?.[0] ?? 1, c.zoom?.[1] ?? 1.3, k);
+      const esc = Math.max(W / img.naturalWidth, H / img.naturalHeight) * zoom;
+      const dw = img.naturalWidth * esc, dh = img.naturalHeight * esc;
+      const [fx0, fy0] = c.foco?.[0] ?? [0.5, 0.5];
+      const [fx1, fy1] = c.foco?.[1] ?? c.foco?.[0] ?? [0.5, 0.5];
+      const fx = lerp(fx0, fx1, k), fy = lerp(fy0, fy1, k);
+      const x = clamp(W / 2 - fx * dw, W - dw, 0), y = clamp(H / 2 - fy * dh, H - dh, 0);
+      g.drawImage(img, x, y, dw, dh);
+      const rg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.7);
+      rg.addColorStop(0, 'rgba(0,0,0,0)'); rg.addColorStop(1, 'rgba(0,0,0,.55)');
+      g.fillStyle = rg; g.fillRect(0, 0, W, H);
+    }
+    const fade = Math.min(clamp(lt / 0.5), clamp((c.dur - lt) / 0.6));
+    if (fade < 1) { g.fillStyle = `rgba(0,0,0,${1 - fade})`; g.fillRect(0, 0, W, H); }
   }
 
   retangulo(x, y, w, h, r) {

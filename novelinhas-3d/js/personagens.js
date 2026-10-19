@@ -564,11 +564,12 @@ export function criarPersonagem(def) {
   if (tapaOlhos) rosto.esconderOlhos();
   sombra(raiz);
 
+  if (def.escala) raiz.scale.setScalar(def.escala);
   const fase = (def.nome || def.tipo).length * 0.37;
   return {
     def, raiz, corpoG, rosto, bracos, pernas, cor: c.cor, tapaOlhos,
-    altura: PERNA + c.ry + Math.max(c.topo, c.ry),
-    centroRosto: baseY + c.rostoY,
+    altura: (PERNA + c.ry + Math.max(c.topo, c.ry)) * (def.escala || 1),
+    centroRosto: (baseY + c.rostoY) * (def.escala || 1),
     /**
      * pose: { expr, falando, abertura, gesto, tGesto, andando, tempo }
      */
@@ -635,7 +636,16 @@ export function criarPersonagem(def) {
       } else if (g === 'abracar') {
         const k = Math.min(1, tg / 0.4);
         rot[0].x = -1.3 * k; rot[1].x = -1.3 * k; rot[0].z = -0.35 + 0.8 * k; rot[1].z = 0.35 - 0.8 * k;
+
+      } else if (g === 'segurar') {
+        const k = Math.min(1, tg / 0.35);
+        rot[1].x = -1.25 * k; rot[1].z = 0.35 - 0.2 * k;
+        rot[0].x = -0.6 * k; rot[0].z = -0.35 + 0.15 * k;
+        inclinarX = 0.14 * k;
       }
+
+      // sentado (0 = em pé, 1 = sentado)
+      const sentar = p.sentar || 0;
 
       // andar
       let passo = 0;
@@ -644,10 +654,11 @@ export function criarPersonagem(def) {
         bob += Math.abs(passo) * 0.06;
         rot[0].x += passo * 0.5; rot[1].x -= passo * 0.5;
       }
-      pernas.forEach((pr) => { pr.quadril.rotation.x = p.andando ? passo * 0.6 * pr.lado : 0; });
+      pernas.forEach((pr) => { pr.quadril.rotation.x = (p.andando ? passo * 0.6 * pr.lado : 0) - 1.45 * sentar; });
 
       bracos.forEach((b, i) => { b.ombro.rotation.set(rot[i].x, 0, rot[i].z); });
-      corpoG.position.set(tremor, PERNA + c.ry + bob + pulo, 0);
+      corpoG.position.set(tremor, PERNA + c.ry + bob + pulo - PERNA * 0.92 * sentar, -0.12 * sentar);
+      pernas.forEach((pr) => { pr.quadril.position.y = PERNA - PERNA * 0.92 * sentar; });
       corpoG.scale.set(1 / Math.sqrt(esticar), esticar, 1 / Math.sqrt(esticar));
       corpoG.rotation.set(inclinarX, giroCabeca, inclinarZ);
       raiz.rotation.x = quedaX;

@@ -398,7 +398,213 @@ function hospital(cena) {
   return { animar(t) { telaTex.offset.x = -t * 0.35; } };
 }
 
-const CENARIOS = { sala, mansao, feira, hospital };
+// ----------------------------------------------------------------------------
+// Rua à noite com um hatch prata rebaixado parado rente ao meio-fio.
+// Props animáveis: porta (graus de abertura da porta do lado da calçada).
+function carroRebaixado() {
+  const carro = new THREE.Group();
+  const prata = mat(0xc3c8ce, { metalness: 0.75, roughness: 0.28 });
+  const vidro = mat(0x0b0f14, { metalness: 0.6, roughness: 0.1, side: THREE.DoubleSide });
+  const preto = mat(0x111111, { roughness: 0.6 });
+  const L = 1.6; // largura
+  // perfil lateral (X = comprimento, traseira em +X; Y = altura)
+  const p = new THREE.Shape();
+  p.moveTo(-1.95, 0.12);
+  p.lineTo(-2.0, 0.5);
+  p.quadraticCurveTo(-2.0, 0.72, -1.8, 0.76);
+  p.lineTo(-0.85, 0.9);
+  p.lineTo(-0.15, 1.33);
+  p.quadraticCurveTo(0.3, 1.38, 1.45, 1.36);
+  p.quadraticCurveTo(1.7, 1.34, 1.82, 1.12);
+  p.lineTo(1.96, 0.8);
+  p.lineTo(1.98, 0.5);
+  p.lineTo(1.93, 0.12);
+  p.lineTo(1.63, 0.12);
+  p.absarc(1.25, 0.3, 0.38, 0, Math.PI, false);
+  p.lineTo(-0.87, 0.12);
+  p.absarc(-1.25, 0.3, 0.38, 0, Math.PI, false);
+  p.lineTo(-1.95, 0.12);
+  const geo = new THREE.ExtrudeGeometry(p, { depth: L, bevelEnabled: true, bevelSize: 0.08, bevelThickness: 0.08, bevelSegments: 5, curveSegments: 18 });
+  geo.translate(0, 0, -L / 2);
+  geo.rotateY(-Math.PI / 2);
+  const corpo = new THREE.Mesh(geo, prata);
+  corpo.castShadow = corpo.receiveShadow = true;
+  carro.add(corpo);
+  const lateral = L / 2 + 0.085;
+  // janelas laterais
+  const jan = new THREE.Shape();
+  jan.moveTo(-0.72, 0.96); jan.lineTo(-0.12, 1.29); jan.lineTo(1.4, 1.3); jan.lineTo(1.66, 1.06); jan.lineTo(1.66, 0.96);
+  for (const lado of [-1, 1]) {
+    const j = new THREE.Mesh(new THREE.ShapeGeometry(jan), vidro);
+    j.rotation.y = -Math.PI / 2;
+    j.position.x = lado * (lateral + 0.003);
+    carro.add(j);
+  }
+  // vidro traseiro e para-brisa
+  const traseiro = new THREE.Mesh(new THREE.PlaneGeometry(1.36, 0.46), vidro);
+  traseiro.position.set(0, 1.17, 1.93); traseiro.rotation.x = 0.42;
+  const parabrisa = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 0.72), vidro);
+  parabrisa.position.set(0, 1.12, -0.55); parabrisa.rotation.x = 1.0;
+  carro.add(traseiro, parabrisa);
+  // aerofólio
+  carro.add(caixa(1.45, 0.05, 0.22, prata, 0, 1.4, 1.62));
+  // lanternas
+  const lanternaMat = new THREE.MeshStandardMaterial({ color: 0xff2020, emissive: 0xff1010, emissiveIntensity: 2.2, roughness: 0.2 });
+  for (const lado of [-1, 1]) {
+    const l = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.2, 0.06), lanternaMat);
+    l.position.set(lado * 0.58, 0.82, 2.04);
+    carro.add(l);
+    const luz = new THREE.PointLight(0xff2a2a, 1.2, 2.2, 2);
+    luz.position.set(lado * 0.58, 0.8, 2.4);
+    carro.add(luz);
+  }
+  // placa (luz de placa acesa)
+  const placaTex = textura(256, 84, (x, w, h) => {
+    x.fillStyle = '#f4f6f8'; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#1d4fa3'; x.fillRect(0, 0, w, 18);
+    x.fillStyle = '#fff'; x.font = 'bold 13px sans-serif'; x.textAlign = 'center'; x.fillText('BRASIL', w / 2, 14);
+    x.fillStyle = '#111'; x.font = 'bold 50px monospace'; x.fillText('FRT3D24', w / 2, 70);
+  });
+  placaTex.wrapS = placaTex.wrapT = THREE.ClampToEdgeWrapping;
+  const placa = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.17), new THREE.MeshStandardMaterial({ map: placaTex, emissive: 0xffffff, emissiveMap: placaTex, emissiveIntensity: 0.35 }));
+  placa.position.set(0, 0.42, 2.065);
+  carro.add(placa);
+  // rodas (rebaixado: quase encostando no para-lama)
+  const aro = textura(128, 128, (x, w, h) => {
+    x.fillStyle = '#2a2a2a'; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#d9dde2'; x.beginPath(); x.arc(64, 64, 52, 0, 7); x.fill();
+    x.strokeStyle = '#555'; x.lineWidth = 7;
+    for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; x.beginPath(); x.moveTo(64 + Math.cos(a) * 14, 64 + Math.sin(a) * 14); x.lineTo(64 + Math.cos(a + 0.25) * 50, 64 + Math.sin(a + 0.25) * 50); x.stroke(); }
+    x.fillStyle = '#888'; x.beginPath(); x.arc(64, 64, 12, 0, 7); x.fill();
+  });
+  aro.wrapS = aro.wrapT = THREE.ClampToEdgeWrapping;
+  const pneu = mat(0x141414, { roughness: 0.9 });
+  const aroMat = mat(0xffffff, { map: aro, metalness: 0.7, roughness: 0.3 });
+  for (const z of [-1.25, 1.25]) for (const lado of [-1, 1]) {
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.22, 28), [pneu, aroMat, aroMat]);
+    r.rotation.z = Math.PI / 2;
+    r.position.set(lado * 0.72, 0.33, z);
+    r.castShadow = true;
+    carro.add(r);
+  }
+  // vão da porta (interior escuro aparece quando a porta abre)
+  const vao = new THREE.Mesh(new THREE.PlaneGeometry(1.05, 1.1), mat(0x17110d, { roughness: 1, side: THREE.DoubleSide }));
+  vao.rotation.y = Math.PI / 2;
+  vao.position.set(lateral + 0.004, 0.7, -0.05);
+  carro.add(vao);
+  // porta do lado direito (dobradiça na frente, em z = -0.6)
+  const porta = new THREE.Group();
+  porta.position.set(lateral + 0.03, 0, -0.6);
+  const painel = new THREE.Shape();
+  painel.moveTo(0, 0.1); painel.lineTo(1.1, 0.1); painel.lineTo(1.1, 0.96); painel.lineTo(0, 0.96);
+  const geoPainel = new THREE.ExtrudeGeometry(painel, { depth: 0.06, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02, bevelSegments: 2 });
+  geoPainel.rotateY(-Math.PI / 2);
+  const placaPorta = new THREE.Mesh(geoPainel, prata);
+  placaPorta.castShadow = true;
+  const jPorta = new THREE.Shape();
+  jPorta.moveTo(0.1, 0.96); jPorta.lineTo(0.5, 1.29); jPorta.lineTo(1.08, 1.3); jPorta.lineTo(1.08, 0.96);
+  const geoJ = new THREE.ShapeGeometry(jPorta);
+  geoJ.rotateY(-Math.PI / 2);
+  const janelaPorta = new THREE.Mesh(geoJ, vidro);
+  janelaPorta.position.x = 0.03;
+  const macaneta = caixa(0.03, 0.04, 0.16, preto, 0.05, 0.82, 0.85);
+  const retrovisor = caixa(0.2, 0.14, 0.1, prata, 0.12, 1.0, 0.05);
+  porta.add(placaPorta, janelaPorta, macaneta, retrovisor);
+  // painel interno (visível com a porta aberta)
+  const interno = caixa(0.02, 0.8, 1.04, mat(0x2a2522, { roughness: 1 }), -0.04, 0.53, 0.55);
+  porta.add(interno);
+  carro.add(porta);
+  return { carro, porta };
+}
+
+function ruaNoite(cena) {
+  cena.background = new THREE.Color(0x0c0d14);
+  cena.fog = new THREE.FogExp2(0x2a2420, 0.035);
+  cena.add(new THREE.HemisphereLight(0xa8b0e0, 0x4a3524, 1.15));
+  const preench = new THREE.DirectionalLight(0xffe2bd, 1.5);
+  preench.position.set(3, 4, 9);
+  cena.add(preench);
+  // postes com luz de sódio
+  for (const [x, z, k] of [[2.6, -5, 1], [-5.5, -9, 0.8], [2.6, 3.5, 0.9]]) {
+    const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 5.5, 10), mat(0x3a3a3a));
+    poste.position.set(x, 2.75 + 0.15, z);
+    cena.add(poste);
+    const braco = caixa(1.2, 0.06, 0.06, mat(0x3a3a3a), x - 0.6, 5.55, z);
+    cena.add(braco);
+    const lampada = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    lampada.position.set(x - 1.1, 5.45, z);
+    cena.add(lampada);
+    const luz = new THREE.SpotLight(0xffc27a, 70 * k, 14, 0.85, 0.6, 1.6);
+    luz.position.set(x - 1.1, 5.4, z);
+    luz.target.position.set(x - 1.6, 0, z + 0.5);
+    luz.castShadow = true;
+    luz.shadow.mapSize.set(1024, 1024);
+    luz.shadow.bias = -0.0008;
+    cena.add(luz, luz.target);
+  }
+  const lua = new THREE.DirectionalLight(0x9fb2ff, 0.5);
+  lua.position.set(-4, 8, 6);
+  cena.add(lua);
+  // asfalto molhado
+  const asfalto = textura(512, 512, (x, w, h) => {
+    x.fillStyle = '#1b1c20'; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 4000; i++) { const v = 25 + Math.random() * 30; x.fillStyle = `rgb(${v},${v},${v + 4})`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+  }, [10, 10]);
+  const rua = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), mat(0xffffff, { map: asfalto, roughness: 0.35, metalness: 0.2 }));
+  rua.rotation.x = -Math.PI / 2; rua.receiveShadow = true;
+  cena.add(rua);
+  // faixa vermelha da ciclovia (como na foto)
+  const faixa = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 40), mat(0xa3262a, { roughness: 0.6 }));
+  faixa.rotation.x = -Math.PI / 2; faixa.position.set(-3.6, 0.004, 0);
+  cena.add(faixa);
+  // calçada de bloquinhos + meio-fio
+  const blocos = textura(256, 256, (x, w, h) => {
+    x.fillStyle = '#9b958c'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#6f6a63'; x.lineWidth = 3;
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 4; i++) {
+      const off = j % 2 ? w / 8 : 0;
+      x.strokeRect(i * w / 4 + off, j * h / 8, w / 4, h / 8);
+    }
+  }, [12, 30]);
+  const calcada = new THREE.Mesh(new THREE.BoxGeometry(8, 0.15, 40), mat(0xffffff, { map: blocos, roughness: 0.9 }));
+  calcada.position.set(0.55 + 4, 0.075, 0); calcada.receiveShadow = true;
+  cena.add(calcada);
+  const meioFio = caixa(0.14, 0.16, 40, mat(0xd8d3ca, { roughness: 0.8 }), 0.62, 0.08, 0);
+  cena.add(meioFio);
+  const filete = caixa(0.1, 0.005, 40, mat(0x9a3b2c), 0.85, 0.153, 0);
+  cena.add(filete);
+  // canteiro, árvores e prédio ao fundo
+  for (const [x, z] of [[-6, -6], [-7.5, -11], [-4.5, -14], [4.5, -9], [6.5, -13], [5, -2]]) {
+    const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 2.6, 8), mat(0x2d2218));
+    tronco.position.set(x, 1.3, z); cena.add(tronco);
+    const copa = new THREE.Mesh(new THREE.SphereGeometry(1.5, 14, 10), mat(0x1c2a1a, { roughness: 1 }));
+    copa.position.set(x, 3.3, z); copa.scale.y = 0.8; cena.add(copa);
+  }
+  const predio = caixa(10, 3.2, 3, mat(0x6b5c4c, { roughness: 1 }), -1, 1.6, -18);
+  cena.add(predio);
+  // placa de imobiliária (genérica)
+  const placaTex = textura(256, 160, (x, w, h) => {
+    x.fillStyle = '#b3202b'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#fff'; x.lineWidth = 6; x.strokeRect(6, 6, w - 12, h - 12);
+    x.fillStyle = '#fff'; x.font = 'bold 38px sans-serif'; x.textAlign = 'center';
+    x.fillText('FRUTA', w / 2, 62); x.fillText('IMÓVEIS', w / 2, 104);
+    x.font = 'bold 22px sans-serif'; x.fillText('(00) 3D3D-2024', w / 2, 138);
+  });
+  const placa = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.1), new THREE.MeshStandardMaterial({ map: placaTex, emissive: 0x551010, roughness: 0.6 }));
+  placa.position.set(-1.5, 4.1, -10);
+  cena.add(placa, caixa(0.08, 3.6, 0.08, mat(0x444444), -1.5, 1.8, -10.02));
+
+  const { carro, porta } = carroRebaixado();
+  carro.position.set(-1.26, 0, -1.5);
+  cena.add(carro);
+  return {
+    animar(t, props = {}) {
+      porta.rotation.y = THREE.MathUtils.degToRad(props.porta ?? 0);
+    },
+  };
+}
+
+const CENARIOS = { sala, mansao, feira, hospital, rua_noite: ruaNoite };
 export const LISTA_CENARIOS = Object.keys(CENARIOS);
 
 export function montarCenario(nome, cena) {
