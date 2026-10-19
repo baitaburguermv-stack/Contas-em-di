@@ -56,7 +56,7 @@ header{display:flex;flex-direction:column;gap:2px;padding:0 2px}
 .hero{position:relative;overflow:hidden;background:linear-gradient(140deg,var(--hero-a),var(--hero-b));color:#fff;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(43,59,176,.25)}
 .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
 .hero-label{font-size:.85rem;font-weight:500;opacity:.85}
-.hero-saldo{font-family:var(--display);font-weight:800;font-size:2.4rem;letter-spacing:-.02em;line-height:1;overflow-wrap:anywhere}
+.hero-saldo{text-align:center;font-family:var(--display);font-weight:800;font-size:2.4rem;letter-spacing:-.02em;line-height:1;overflow-wrap:anywhere}
 .hero .c-in{color:var(--hero-in)} .hero .c-out{color:var(--hero-out)}
 .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .stat{display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.12);border-radius:16px;padding:12px;min-width:0}
@@ -268,6 +268,17 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .sobra b{font-family:var(--display);font-size:1.2rem}
 .graf .empty{padding:12px 0}
 .graf-sep{border:0;border-top:1px solid var(--line);margin:4px 0}
+.mes-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:-6px -8px 0}
+.mes-nav button{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;cursor:pointer}
+.mes-nav button svg{width:20px;height:20px}
+.mes-nav .hero-label{flex:1;text-align:center;font-weight:600;opacity:1}
+.mes-hoje{align-self:center;margin-top:-8px;border:0;background:none;color:#fff;font:inherit;font-size:.82rem;font-weight:600;text-decoration:underline;cursor:pointer;min-height:32px}
+.prox{display:flex;flex-direction:column;gap:6px}
+.prox-tit{font-size:.75rem;opacity:.85}
+.prox-lista{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.prox-lista button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:52px;padding:8px 10px;border:0;border-radius:14px;background:rgba(255,255,255,.12);color:#fff;font:inherit;cursor:pointer;text-align:left;min-width:0}
+.prox-lista small{font-size:.72rem;opacity:.85;text-transform:capitalize}
+.prox-lista b{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .hero-link{align-self:flex-start;display:flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-weight:600;font-size:.88rem;cursor:pointer}
 .hero-link svg{width:16px;height:16px}
 /* agenda */
@@ -348,13 +359,15 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <button class="eu" type="button" id="abrirPerfil" aria-label="Meu perfil" aria-haspopup="dialog"></button>
 </header>
 <section class="hero" aria-label="Resumo do mês">
-<span class="hero-label" id="sMes">Saldo previsto</span>
+<div class="mes-nav"><button type="button" id="mesAnt" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="hero-label" id="sMes" aria-live="polite">Saldo previsto</span><button type="button" id="mesProx" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>
+<button type="button" class="mes-hoje" id="mesHoje" hidden>Voltar para este mês</button>
 <strong class="num hero-saldo" id="sSaldo">—</strong>
 <div class="hero-stats">
 <div class="stat"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17M7 9v8h8"/></svg></span><div><small>Entradas</small><b class="num" id="sEnt">—</b><small class="num" id="sEntR"></small></div></div>
 <div class="stat"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><div><small>Saídas</small><b class="num" id="sSai">—</b><small class="num" id="sSaiR"></small></div></div>
 </div>
 <div class="prog"><div class="bar" id="pBarWrap" role="progressbar" aria-label="Contas pagas no mês" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
+<div class="prox" id="proxMeses"></div>
 <button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Calendário do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </section>
 <section class="cartao graf" aria-labelledby="grafTit">
@@ -533,11 +546,11 @@ const px=temParcelas(it)?` · ${it.parcelas}x`:"";
 if(isQuinz(it)) return `${isEntrada(it)?"Entra":"Sai"} a cada 15 dias`+px;
 return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`+px;
 }
-function resumo(){
-const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
-let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;agendaMes=[];
+function calcMes(y,m){
+const n=diasNoMes(y,m);
+let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;const ag=[];
 for(const it of itens){
-if(it.tipo==="avulso"){if(noMes(it,y,m)){agendaMes.push({d:fromYmd(it.data),it,valor:it.valor,pago:true});if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
+if(it.tipo==="avulso"){if(noMes(it,y,m)){ag.push({d:fromYmd(it.data),it,valor:it.valor,pago:true});if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
 const datas=[];
 if(isMensal(it)) datas.push(occMes(it.dia,y,m));
 else if(isQuinz(it)){let d=occQuinz(it.data,new Date(y,m,1));if(d<new Date(y,m,1))d.setDate(d.getDate()+14);while(d.getMonth()===m&&d.getFullYear()===y){datas.push(new Date(d));d.setDate(d.getDate()+14)}}
@@ -547,33 +560,47 @@ const p=pagos[pagoKey(it.id,ymd(d))];
 if(!p&&it.criado&&ymd(d)<it.criado)continue;
 if(temParcelas(it)&&numParcela(it,d)>it.parcelas&&!p)continue;
 const prev=p?p.valor:it.valor+jurosEm(it,d).v;
-agendaMes.push({d,it,valor:prev,pago:!!p});
+ag.push({d,it,valor:prev,pago:!!p});
 if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
 else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
 }
 }
-$("sEnt").textContent=brl(entPrev);$("sEntR").textContent=`${brl(entReal)} recebido`;
-$("sSai").textContent=brl(saiPrev);$("sSaiR").textContent=`${brl(saiReal)} pago`;
+return {entPrev,saiPrev,entReal,saiReal,falta,nPagas,nTotal,ag,saldo:entPrev-saiPrev};
+}
+let mesVer=0,agSel=null;
+const mesAlvo=k=>{const t=hoje(),d=new Date(t.getFullYear(),t.getMonth()+k,1);return [d.getFullYear(),d.getMonth()]};
+const nomeMes=(y,m)=>MESES[m]+(y!==hoje().getFullYear()?` de ${y}`:"");
+const curto=v=>{const a=Math.abs(v),s=v<0?"-":"";return a>=1e5?`${s}R$ ${(a/1e3).toLocaleString("pt-BR",{maximumFractionDigits:0})} mil`:`${s}R$ ${Math.round(a).toLocaleString("pt-BR")}`};
+function resumo(){
+const [y,m]=mesAlvo(mesVer),c=calcMes(y,m),{entPrev,saiPrev,entReal,saiReal,falta,nPagas,nTotal}=c;agendaMes=c.ag;
+const futuro=mesVer>0;
+$("sEnt").textContent=brl(entPrev);$("sEntR").textContent=futuro?"previsto":`${brl(entReal)} recebido`;
+$("sSai").textContent=brl(saiPrev);$("sSaiR").textContent=futuro?"previsto":`${brl(saiReal)} pago`;
 $("pBar").style.width=(nTotal?Math.round(nPagas/nTotal*100):0)+"%";
 const pb=$("pBarWrap");pb.setAttribute("aria-valuemax",nTotal);pb.setAttribute("aria-valuenow",nPagas);pb.setAttribute("aria-valuetext",`${nPagas} de ${nTotal} contas pagas`);
 $("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}`+(falta>0?` · falta pagar ${brl(falta)}`:" · tudo pago 🎉"):(itens.length?`Nenhuma conta a pagar em ${MESES[m]}`:"Cadastre suas contas para acompanhar o mês");
-const saldo=entPrev-saiPrev;
-$("sSaldo").textContent=brl(saldo);$("sSaldo").className="num hero-saldo "+(saldo<0?"c-out":"");
-$("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
-renderGraficos(m);
+$("sSaldo").textContent=brl(c.saldo);$("sSaldo").className="num hero-saldo "+(c.saldo<0?"c-out":"");
+$("sMes").textContent=`Saldo ${mesVer<0?"de":"previsto de"} ${nomeMes(y,m)}`;
+$("mesHoje").hidden=mesVer===0;
+$("proxMeses").innerHTML=`<span class="prox-tit">Próximos meses</span><div class="prox-lista">${[1,2,3].map(k=>{const [yy,mm]=mesAlvo(mesVer+k),cc=calcMes(yy,mm);
+return `<button type="button" data-mes="${mesVer+k}" aria-label="Ver ${nomeMes(yy,mm)}: saldo ${brl(cc.saldo)}"><small>${MESES[mm].slice(0,3)}${yy!==y?" "+String(yy).slice(2):""}</small><b class="num ${cc.saldo<0?"c-out":""}">${curto(cc.saldo)}</b></button>`}).join("")}</div>`;
+$("verAgenda").firstChild.textContent=`Calendário de ${MESES[m]}`;
+renderGraficos(y,m);
 }
+function irMes(k){mesVer=Math.max(-24,Math.min(36,k));gFatia=null;agSel=null;resumo()}
 let agendaMes=[];
 const barra=(rot,val,max,cls,extra="")=>`<div class="gi"><div class="gi-top"><span>${rot}</span><b class="num">${brl(val)}${extra}</b></div><div class="gtrack" aria-hidden="true"><i class="${cls}" style="width:${max>0?Math.max(2,val/max*100):0}%"></i></div></div>`;
 let gAba="dia",gSentido="saida",gMes=0,gSerie=[];
 const GABAS=["dia","es","conta"];
-function renderGraficos(m){gMes=m;
-$("grafTit").textContent=`Gráficos de ${MESES[m]}`;
+let gAno=0;
+function renderGraficos(y,m){if(y!==undefined){gAno=y;gMes=m}else{y=gAno;m=gMes}
+$("grafTit").textContent=`Gráficos de ${nomeMes(y,m)}`;
 for(const k of GABAS){const b=$("gt-"+k);b.setAttribute("aria-selected",k===gAba);b.tabIndex=k===gAba?0:-1}
 $("gPainel").setAttribute("aria-labelledby","gt-"+gAba);
 let ent=0,sai=0;for(const a of agendaMes)isEntrada(a.it)?ent+=a.valor:sai+=a.valor;
 const P=$("gPainel");
 if(!ent&&!sai){P.innerHTML=`<p class="empty">Cadastre suas contas e entradas que o gráfico aparece aqui.</p>`;return}
-if(gAba==="dia"){P.innerHTML=graficoDia(m);ligarGraficoDia();return}
+if(gAba==="dia"){P.innerHTML=graficoDia(y,m);ligarGraficoDia();return}
 if(gAba==="es"){const mx=Math.max(ent,sai),sobra=ent-sai;
 P.innerHTML=`<div class="gl">${barra("Entradas",ent,mx,"in")+barra("Saídas",sai,mx,"out")}</div>
 <div class="sobra"><span>${sobra>=0?"Sobra no mês":"Falta no mês"}</span><b class="num ${sobra>=0?"c-in":"c-out"}">${brl(Math.abs(sobra))}</b></div>`;return}
@@ -603,8 +630,8 @@ ${sel?`<text class="centro-v" x="100" y="98" text-anchor="middle">${pctTxt(sel.p
 </svg>
 <div class="leg">${fatias.map((f,i)=>`<button type="button" data-fatia="${i}" aria-pressed="${gFatia===i}"><i style="background:${f.cor}" aria-hidden="true"></i><span>${esc(f.nome)}</span><b class="num">${brl(f.v)}</b><small class="num">${pctTxt(f.pct)}</small></button>`).join("")}</div></div>`;
 }
-function graficoDia(m){
-const t=hoje(),y=t.getFullYear(),n=diasNoMes(y,m),delta=new Array(n+1).fill(0);
+function graficoDia(y,m){
+const t=hoje(),n=diasNoMes(y,m),delta=new Array(n+1).fill(0);
 for(const a of agendaMes)delta[a.d.getDate()]+=isEntrada(a.it)?a.valor:-a.valor;
 gSerie=[];let c=0;for(let d=1;d<=n;d++){c+=delta[d];gSerie.push(c)}
 const W=340,H=170,L=6,R=6,T=22,B=24,mx=Math.max(0,...gSerie),mn=Math.min(0,...gSerie),span=(mx-mn)||1;
@@ -612,7 +639,7 @@ const X=d=>L+(d-1)/(n-1)*(W-L-R),Y=v=>T+(mx-v)/span*(H-T-B),y0=Y(0);
 let path=`M${X(1)},${Y(gSerie[0])}`;for(let d=2;d<=n;d++)path+=`H${X(d)}V${Y(gSerie[d-1])}`;
 const area=`${path}V${y0}H${X(1)}Z`;
 let iMin=0;gSerie.forEach((v,i)=>{if(v<gSerie[iMin])iMin=i});
-const vMin=gSerie[iMin],fim=gSerie[n-1],hojeD=t.getDate();
+const vMin=gSerie[iMin],fim=gSerie[n-1],hojeD=(t.getFullYear()===y&&t.getMonth()===m)?t.getDate():99;
 const ticks=[1,10,20,n].map(d=>`<text x="${X(d)}" y="${H-6}" text-anchor="${d===1?"start":d===n?"end":"middle"}">${d}</text>`).join("");
 const minLbl=vMin<0?`<circle cx="${X(iMin+1)}" cy="${Y(vMin)}" r="4" fill="var(--bar-out)" stroke="var(--surface)" stroke-width="2"/><text class="forte" x="${Math.min(Math.max(X(iMin+1),40),W-40)}" y="${Math.min(Y(vMin)+16,H-B+12)}" text-anchor="middle">${brl(vMin)}</text>`:"";
 const desc=`Saldo acumulado do mês. Termina em ${brl(fim)}.`+(vMin<0?` Fica mais apertado no dia ${iMin+1}, com ${brl(vMin)}.`:" Não fica negativo em nenhum dia.");
@@ -646,33 +673,32 @@ svg.addEventListener("keydown",e=>{if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")
 svg.addEventListener("blur",()=>{tip.hidden=true;pt.setAttribute("visibility","hidden")});
 }
 document.querySelector(".graf").addEventListener("click",e=>{const f=e.target.closest("[data-fatia]");
-if(f){const i=+f.dataset.fatia;gFatia=gFatia===i?null:i;renderGraficos(gMes);const nb=document.querySelector(`.leg [data-fatia="${i}"]`);if(nb&&f.tagName==="BUTTON")nb.focus();return}
+if(f){const i=+f.dataset.fatia;gFatia=gFatia===i?null:i;renderGraficos();const nb=document.querySelector(`.leg [data-fatia="${i}"]`);if(nb&&f.tagName==="BUTTON")nb.focus();return}
 const b=e.target.closest("[data-g],[data-gs]");if(!b)return;
-if(b.dataset.g)gAba=b.dataset.g;else{gSentido=b.dataset.gs;gFatia=null}renderGraficos(gMes)});
-document.querySelector(".tabs.mini").addEventListener("keydown",e=>{const i=GABAS.indexOf(gAba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:null;if(n==null)return;e.preventDefault();gAba=GABAS[(n+3)%3];renderGraficos(gMes);$("gt-"+gAba).focus()});
-let agSel=null;
+if(b.dataset.g)gAba=b.dataset.g;else{gSentido=b.dataset.gs;gFatia=null}renderGraficos()});
+document.querySelector(".tabs.mini").addEventListener("keydown",e=>{const i=GABAS.indexOf(gAba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:null;if(n==null)return;e.preventDefault();gAba=GABAS[(n+3)%3];renderGraficos();$("gt-"+gAba).focus()});
 function itemAgenda(a,df){const ent=isEntrada(a.it);
 const st=a.it.tipo==="avulso"?(ent?"Entrada avulsa":"Gasto avulso"):a.pago?(ent?"Recebido":"Pago"):df<0?(ent?"Não recebido":"Atrasado"):df===0?(ent?"Entra hoje":"Vence hoje"):(ent?"A receber":"A pagar");
 return `<div class="ag-it"><div><b>${esc(a.it.nome)}</b><small class="${!a.pago&&df<0?"c-out":""}">${st}</small></div><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(a.valor)}</strong></div>`}
 function renderAgenda(rolar){
-const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m),dias={};
+const t=hoje(),y=gAno,m=gMes,n=diasNoMes(y,m),dias={},atual=t.getFullYear()===y&&t.getMonth()===m,dfd=d=>diffDias(new Date(y,m,d),t);
 for(const a of agendaMes){const k=a.d.getDate();(dias[k]=dias[k]||[]).push(a)}
-if(agSel==null)agSel=t.getDate();
-$("agTit").textContent=`Agenda de ${MESES[m]}`;
+if(agSel==null)agSel=atual?t.getDate():1;
+$("agTit").textContent=`Agenda de ${nomeMes(y,m)}`;
 const ini=new Date(y,m,1).getDay();
 let cal=["D","S","T","Q","Q","S","S"].map((l,i)=>`<span class="sem" aria-hidden="true">${l}</span>`).join("")+"<span></span>".repeat(ini);
-for(let d=1;d<=n;d++){const its=dias[d]||[],df=d-t.getDate();
+for(let d=1;d<=n;d++){const its=dias[d]||[],df=dfd(d);
 const temIn=its.some(a=>isEntrada(a.it)),temOut=its.some(a=>!isEntrada(a.it)),atraso=its.some(a=>!a.pago&&df<0&&!isEntrada(a.it));
-const lbl=`${d} de ${MESES[m]}${d===t.getDate()?", hoje":""}: `+(its.length?`${its.length} conta${its.length>1?"s":""}${atraso?", com atraso":""}`:"nada");
+const lbl=`${d} de ${MESES[m]}${df===0?", hoje":""}: `+(its.length?`${its.length} conta${its.length>1?"s":""}${atraso?", com atraso":""}`:"nada");
 cal+=`<button type="button" data-dia="${d}" class="${df<0?"passado":""}${df===0?" hoje":""}" aria-pressed="${d===agSel}" aria-label="${lbl}"><span>${d}</span><span class="dots" aria-hidden="true">${temOut?`<i class="${atraso?"late":"out"}"></i>`:""}${temIn?'<i class="in"></i>':""}</span></button>`}
-const sel=dias[agSel]||[],dsel=new Date(y,m,agSel),dfs=agSel-t.getDate();
+const sel=dias[agSel]||[],dsel=new Date(y,m,agSel),dfs=dfd(agSel);
 const ks=Object.keys(dias).map(Number).sort((a,b)=>a-b);
 $("agLista").innerHTML=`<div class="cal" id="agCal">${cal}</div>
 <div class="cal-leg"><span><i class="out"></i>Saída</span><span><i class="in"></i>Entrada</span><span><i class="late"></i>Saída atrasada</span></div>
 <h3 class="ag-sub">${dfs===0?"Hoje · ":""}${DIAS[dsel.getDay()]}, ${dm(dsel)}</h3>
 ${sel.length?`<section class="ag-dia">${sel.map(a=>itemAgenda(a,dfs)).join("")}</section>`:`<p class="note">Nenhuma conta neste dia.</p>`}
 <h3 class="ag-sub">Mês inteiro</h3>
-${ks.length?ks.map(d=>{const dd=new Date(y,m,d),df=d-t.getDate();
+${ks.length?ks.map(d=>{const dd=new Date(y,m,d),df=dfd(d);
 return `<section class="ag-dia${df<0?" passado":df===0?" hoje":""}"><h3>${df===0?"Hoje · ":""}${DIAS[dd.getDay()]}, ${dm(dd)}</h3>${dias[d].map(a=>itemAgenda(a,df)).join("")}</section>`}).join(""):`<div class="empty"><b>Nada neste mês</b><span>As contas que você cadastrar aparecem aqui.</span></div>`}`;
 }
 function renderAvisos(){
@@ -1162,6 +1188,10 @@ $("pfContaTxt").textContent=logado?`Conectado como ${usuario.email}. Suas contas
 $("pfNota").textContent=logado?"Seus dados ficam na sua conta, protegidos pelo login.":"Seu perfil e suas contas ficam guardados só neste celular.";
 if(logado&&ehAdmin)renderAdmin();$("perfil").showModal()});
 $("fecharPerfil").addEventListener("click",()=>$("perfil").close());
+$("mesAnt").addEventListener("click",()=>irMes(mesVer-1));
+$("mesProx").addEventListener("click",()=>irMes(mesVer+1));
+$("mesHoje").addEventListener("click",()=>irMes(0));
+$("proxMeses").addEventListener("click",e=>{const b=e.target.closest("[data-mes]");if(b)irMes(+b.dataset.mes)});
 $("verAgenda").addEventListener("click",()=>{agSel=null;renderAgenda();$("agenda").showModal()});
 $("agLista").addEventListener("click",e=>{const b=e.target.closest("[data-dia]");if(!b)return;agSel=+b.dataset.dia;renderAgenda();$("agLista").querySelector(`[data-dia="${agSel}"]`).focus()});
 $("fecharAgenda").addEventListener("click",()=>$("agenda").close());
