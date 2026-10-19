@@ -102,6 +102,7 @@ header{display:flex;flex-direction:column;gap:2px;padding:0 2px}
 .row-info{flex:1;min-width:0}
 .row-info b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;overflow-wrap:anywhere}
 .row-info span{font-size:.82rem;color:var(--muted)}
+.nw{white-space:nowrap}
 .row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .row-right strong{font-weight:700;white-space:nowrap}
 .pill{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
@@ -285,9 +286,16 @@ async function desfazer(it,data){
 const k=pagoKey(it.id,data);
 if(db){await db.collection("pagos").doc(k).delete()} else {delete pagos[k];lsSave();render()}
 }
-function primeiraParcela(it){const c=fromYmd(it.criado||ymd(hoje()));let d=occMes(it.dia,c.getFullYear(),c.getMonth());if(d<c)d=occMes(it.dia,c.getFullYear(),c.getMonth()+1);return d}
-function numParcela(it,d){const f=primeiraParcela(it);return (d.getFullYear()-f.getFullYear())*12+(d.getMonth()-f.getMonth())+1}
-const temParcelas=it=>it.tipo==="fixo"&&it.parcelas>0;
+function primeiraParcela(it){const c=fromYmd(it.criado||ymd(hoje()));let d;
+if(isQuinz(it)){d=occQuinz(it.data,c);if(d<c)d.setDate(d.getDate()+14);return d}
+if(it.tipo==="semanal"){d=occSemana(it.dia,c);if(d<c)d.setDate(d.getDate()+7);return d}
+d=occMes(it.dia,c.getFullYear(),c.getMonth());if(d<c)d=occMes(it.dia,c.getFullYear(),c.getMonth()+1);return d}
+function numParcela(it,d){const f=primeiraParcela(it);
+if(isQuinz(it))return Math.round(diffDias(d,f)/14)+1;
+if(it.tipo==="semanal")return Math.round(diffDias(d,f)/7)+1;
+return (d.getFullYear()-f.getFullYear())*12+(d.getMonth()-f.getMonth())+1}
+const aceitaParcelas=t=>t==="fixo"||t==="semanal"||t==="quinzenal";
+const temParcelas=it=>aceitaParcelas(it.tipo)&&it.parcelas>0;
 function status(it){
 const t=hoje();
 if(it.tipo==="avulso") return {kind:"done",label:dm(fromYmd(it.data)),avulso:true};
@@ -313,8 +321,9 @@ return {kind:"done",data:cur,label:isEntrada(it)?"Recebido":"Pago",pago:pc,proxi
 function quando(it){
 if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada avulsa":"Gasto avulso"} · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
 if(isMensal(it)) return (isEntrada(it)?`Entra todo dia ${it.dia}`:`Vence todo dia ${it.dia}`)+(temParcelas(it)?` · ${it.parcelas}x`:"");
-if(isQuinz(it)) return `${isEntrada(it)?"Entra":"Sai"} a cada 15 dias`;
-return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`;
+const px=temParcelas(it)?` · ${it.parcelas}x`:"";
+if(isQuinz(it)) return `${isEntrada(it)?"Entra":"Sai"} a cada 15 dias`+px;
+return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`+px;
 }
 function resumo(){
 const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
@@ -363,7 +372,9 @@ function rowHtml(it){
 const s=status(it), open=aberto===it.id, ent=isEntrada(it);
 const valorMostrado=s.kind==="done"&&s.pago?s.pago.valor:it.valor;
 let sub=quando(it);
-if(temParcelas(it)){const k=Math.min(numParcela(it,s.data),it.parcelas);sub=`Dia ${it.dia} · parcela ${Math.max(1,k)}/${it.parcelas}`}
+if(temParcelas(it)){const k=Math.max(1,Math.min(numParcela(it,s.data),it.parcelas)),falta=it.parcelas-k+(s.kind==="done"?0:1);
+const base=isMensal(it)?`Dia ${it.dia}`:isQuinz(it)?"A cada 15 dias":`Toda ${DIAS[it.dia]}`;
+sub=`${base} · <span class="nw">parcela ${k}/${it.parcelas}</span> · <span class="nw">${falta>0?`falta${falta>1?"m":""} ${falta}`:"última paga"}</span>`}
 if(s.quitado) sub=`${it.parcelas} parcelas · ${ent?"tudo recebido":"tudo pago"}`;
 else if(s.kind==="done"&&!s.avulso&&s.proxima) sub+=` · próxima ${dm(s.proxima)}`;
 if(it.tipo==="avulso") sub=quando(it);
@@ -449,7 +460,7 @@ ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-
 <div class="field"><label for="f-valor">${form.tipo==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="f-valor" inputmode="decimal" value="${form.valor===""?"":fmtInput(form.valor)}" placeholder="0,00"></div>
 <div class="field"><label for="f-dia">${avulso?"Data":quinz?"Próxima vez":semanal?"Dia da semana":ent?"Dia que entra":"Dia do vencimento"}</label>${diaCampo}</div>
 </div>
-${form.tipo==="fixo"?`<div class="field"><label for="f-parc">${ent?"Se for parcelado, quantas parcelas faltam receber?":"Se for prestação, quantas parcelas faltam?"}</label><input id="f-parc" inputmode="numeric" value="${form.parcelas||""}" placeholder="Deixa vazio se não tiver fim"></div>`:""}
+${aceitaParcelas(form.tipo)?`<div class="field"><label for="f-parc">${ent?"Se for parcelado, quantas parcelas faltam receber?":"Se for prestação, quantas parcelas faltam?"}</label><input id="f-parc" inputmode="numeric" value="${form.parcelas||""}" placeholder="Deixa vazio se não tiver fim"></div>`:""}
 <p class="err" id="f-err" hidden></p>
 <div class="inline"><button class="btn primary" type="submit">${editando?"Salvar":"Adicionar"}</button><button class="btn ghost" type="button" data-act="cancelar">Cancelar</button></div>
 </form>`;
@@ -480,7 +491,7 @@ const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).s
 if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
 it.sentido=form.sentido==="entrada"?"entrada":"saida";
-if(form.tipo==="fixo"&&form.parcelas>0)it.parcelas=form.parcelas;
+if(aceitaParcelas(form.tipo)&&form.parcelas>0)it.parcelas=form.parcelas;
 try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
 catch(x){err.textContent=x?.code==="quota_exceeded"?"Limite de registros atingido. Exclua contas antigas para continuar.":"Não consegui salvar. Verifique a conexão e tente de novo.";err.hidden=false}
 });
@@ -586,7 +597,10 @@ const conta=acharConta(frase);
 if(conta&&!parcelas&&!mensalForte&&!semanalForte&&/\b(paguei|pago|pagou|quitei|recebi|caiu|entrou|acertei)\b/.test(tn))
 return {tipo:"pagar",item:conta,valor:valor??conta.valor,nome:"",dia:null,data:null,parcelas:null};
 let tipo=null;
-if(parcelas){tipo=ent?"fixo-entrada":"fixo";if(dia==null)dia=hoje().getDate()}
+const quinzForte=/\b(quinzena|quinzenas|quinzenal|quinzenalmente|de (15|quinze) em (15|quinze)|a cada (15|quinze) dias|cada (15|quinze) dias|a cada (2|duas) semanas|semana sim,? semana nao)\b/.test(tn);
+if(parcelas&&quinzForte)tipo=ent?"quinzenal-entrada":"quinzenal-saida";
+else if(parcelas&&(semanalForte||dow!==null))tipo=ent?"semanal-entrada":"semanal-saida";
+else if(parcelas){tipo=ent?"fixo-entrada":"fixo";if(dia==null)dia=hoje().getDate()}
 else if(/\bvariave/.test(tn))tipo="variavel";
 else if(/\b(quinzena|quinzenas|quinzenal|quinzenalmente|de (15|quinze) em (15|quinze)|a cada (15|quinze) dias|cada (15|quinze) dias|a cada (2|duas) semanas|semana sim,? semana nao)\b/.test(tn))tipo=ent?"quinzenal-entrada":"quinzenal-saida";
 else if(/\bfix[oa]s?\b/.test(tn))tipo=ent?"fixo-entrada":"fixo";
@@ -604,8 +618,8 @@ else if(dia!==null){d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth(
 data=ymd(d);
 }
 if(tipo.startsWith("quinzenal")){let d=hoje();if(data)d=fromYmd(data);else if(dow!==null){const k=(dow-d.getDay()+7)%7;d.setDate(d.getDate()+k)}else if(dia!==null){d.setDate(Math.min(dia,diasNoMes(d.getFullYear(),d.getMonth())));if(d<hoje())d.setDate(d.getDate()+14)}data=ymd(d);
-return {tipo,nome,valor,dia:null,data,item:null,parcelas:null}}
-return {tipo,nome,valor,dia:tipo.startsWith("semanal")?dow:(tipo.startsWith("avulso")?null:dia),data:tipo.startsWith("avulso")?data:null,item:null,parcelas:tipo.startsWith("fixo")?parcelas:null};
+return {tipo,nome,valor,dia:null,data,item:null,parcelas}}
+return {tipo,nome,valor,dia:tipo.startsWith("semanal")?dow:(tipo.startsWith("avulso")?null:dia),data:tipo.startsWith("avulso")?data:null,item:null,parcelas:tipo.startsWith("fixo")||tipo.startsWith("semanal")?parcelas:null};
 }
 function interpretarVarios(frase){
 const segs=partes(frase);const out=[];let nomePendente="";
@@ -674,7 +688,7 @@ let quandoCampo;
 if(t.startsWith("semanal"))quandoCampo=`<div class="field"><label for="cDia">Dia da semana</label><select id="cDia"><option value="">Escolhe</option>${[1,2,3,4,5,6,0].map(d=>`<option value="${d}" ${A.dia===d?"selected":""}>${DIAS[d][0].toUpperCase()+DIAS[d].slice(1)}</option>`).join("")}</select></div>`;
 else if(t.startsWith("avulso")||t.startsWith("quinzenal"))quandoCampo=`<div class="field"><label for="cData">${t.startsWith("quinzenal")?"Próxima vez":"Data"}</label><input id="cData" type="date" value="${esc(A.data||ymd(hoje()))}"></div>`;
 else quandoCampo=`<div class="field"><label for="cDia">${t.endsWith("entrada")?"Dia que entra":"Dia do vencimento"}</label><input id="cDia" inputmode="numeric" placeholder="1 a 31" value="${A.dia??""}"></div>`;
-const parcCampo=(t==="fixo"||t==="fixo-entrada")?`<div class="field"><label for="cParc">${t==="fixo-entrada"?"Parcelas que faltam receber (se for parcelado)":"Parcelas que faltam (se for prestação)"}</label><input id="cParc" inputmode="numeric" placeholder="Vazio = sem fim" value="${A.parcelas||""}"></div>`:"";
+const parcCampo=/^(fixo|semanal|quinzenal)/.test(t)?`<div class="field"><label for="cParc">${t.endsWith("entrada")?"Parcelas que faltam receber (se for parcelado)":"Parcelas que faltam (se for prestação)"}</label><input id="cParc" inputmode="numeric" placeholder="Vazio = sem fim" value="${A.parcelas||""}"></div>`:"";
 campos=`<div class="field"><label for="cNome">Nome</label><input id="cNome" value="${esc(A.nome)}" placeholder="Ex.: aluguel"></div>
 <div class="two"><div class="field"><label for="cValor">${t==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="cValor" inputmode="decimal" value="${A.valor!=null?fmtInput(A.valor):""}" placeholder="0,00"></div>${quandoCampo}</div>${parcCampo}`;
 }
@@ -699,7 +713,8 @@ let sampleFn=null;
 function faltaEm(x){const f=[];if(x.tipo==="pagar"){if(!x.item)f.push("a conta");if(x.valor==null)f.push("o valor");return f}
 if(!x.nome)f.push("o nome");if(x.valor==null)f.push("o valor");if(x.tipo.startsWith("semanal")&&x.dia==null)f.push("o dia da semana");if((x.tipo.startsWith("fixo")||x.tipo.startsWith("variavel"))&&x.dia==null)f.push("o dia");if(x.tipo.startsWith("quinzenal")&&!x.data)f.push("a data");return f}
 function descQuando(x){if(x.tipo==="pagar")return "vencimento "+dm(status(x.item).data);const lb=tipoLabel(x.tipo);
-if(x.tipo.startsWith("semanal"))return lb+" · toda "+DIAS[x.dia];if(x.tipo.startsWith("avulso"))return lb+" · "+dm(fromYmd(x.data));if(x.tipo.startsWith("quinzenal"))return lb+" · a cada 15 dias, próxima "+dm(fromYmd(x.data));return lb+" · todo dia "+x.dia+(x.parcelas?` · ${x.parcelas}x`:"")}
+const px=x.parcelas?` · ${x.parcelas}x`:"";
+if(x.tipo.startsWith("semanal"))return lb+" · toda "+DIAS[x.dia]+px;if(x.tipo.startsWith("avulso"))return lb+" · "+dm(fromYmd(x.data));if(x.tipo.startsWith("quinzenal"))return lb+" · a cada 15 dias, próxima "+dm(fromYmd(x.data))+px;return lb+" · todo dia "+x.dia+(x.parcelas?` · ${x.parcelas}x`:"")}
 function tipoLabel(k){return (TIPOS.find(t=>t[0]===k)||[,""])[1]}
 async function processar(txt){
 txt=String(txt||"").trim();
@@ -730,7 +745,7 @@ const [tipo,sentido]=x.tipo.split("-");
 const it={id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:x.nome[0].toUpperCase()+x.nome.slice(1),valor:x.valor,tipo};
 if(tipo==="avulso")it.data=x.data;else if(tipo==="quinzenal"){it.data=x.data;it.criado=ymd(hoje())}else{it.dia=x.dia;it.criado=ymd(hoje())}
 it.sentido=sentido||"saida";
-if(tipo==="fixo"&&x.parcelas>0)it.parcelas=x.parcelas;
+if(aceitaParcelas(tipo)&&x.parcelas>0)it.parcelas=x.parcelas;
 await salvarItem(it);return tipo;
 }
 async function salvarTudo(){
@@ -801,9 +816,10 @@ const s=status(it);if(s.quitado)continue;
 const ini=s.kind==="done"&&s.proxima?s.proxima:s.data;if(!ini)continue;
 let rr;
 if(isMensal(it)){rr="FREQ=MONTHLY;"+(it.dia>28?`BYMONTHDAY=${Array.from({length:it.dia-27},(_,i)=>28+i).join(",")};BYSETPOS=-1`:`BYMONTHDAY=${it.dia}`);
-if(temParcelas(it)){const n=it.parcelas-numParcela(it,ini)+1;if(n<1)continue;rr+=`;COUNT=${n}`}}
+}
 else if(isQuinz(it))rr=`FREQ=WEEKLY;INTERVAL=2;BYDAY=${ICS_DIA[ini.getDay()]}`;
 else rr=`FREQ=WEEKLY;BYDAY=${ICS_DIA[it.dia]}`;
+if(temParcelas(it)){const n=it.parcelas-numParcela(it,ini)+1;if(n<1)continue;rr+=`;COUNT=${n}`}
 const fim=new Date(ini);fim.setDate(fim.getDate()+1);
 const ent=isEntrada(it),tit=`${ent?"Entra":"Vence"}: ${it.nome} (${brl(it.valor)})`;
 ev.push(["BEGIN:VEVENT",`UID:${it.id}@contas-em-dia`,`DTSTAMP:${ag}`,`DTSTART;VALUE=DATE:${icsData(ini)}`,`DTEND;VALUE=DATE:${icsData(fim)}`,`RRULE:${rr}`,
