@@ -358,6 +358,9 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <h1>Contas em Dia</h1></div>
 <button class="eu" type="button" id="abrirPerfil" aria-label="Meu perfil" aria-haspopup="dialog"></button>
 </header>
+<section id="alertsWrap" aria-label="Avisos" hidden>
+<div class="alerts" id="alerts"></div>
+</section>
 <section class="hero" aria-label="Resumo do mês">
 <div class="mes-nav"><button type="button" id="mesAnt" aria-label="Mês anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><span class="hero-label" id="sMes" aria-live="polite">Saldo previsto</span><button type="button" id="mesProx" aria-label="Próximo mês"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>
 <button type="button" class="mes-hoje" id="mesHoje" hidden>Voltar para este mês</button>
@@ -380,9 +383,6 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div id="gPainel" role="tabpanel" aria-labelledby="gt-dia"></div>
 </section>
 <section id="assist" aria-label="Assistente de voz" aria-live="polite"></section>
-<section id="alertsWrap" aria-label="Avisos" hidden>
-<div class="alerts" id="alerts"></div>
-</section>
 <div id="sheetHost"></div>
 <h2 class="sec-title">Suas contas</h2>
 <div class="tabs" role="tablist" aria-label="Tipos de conta">
