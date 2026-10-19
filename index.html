@@ -177,6 +177,49 @@ input[type="date"]::-webkit-date-and-time-value{text-align:left}
 .pensando{display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:600;margin:0}
 .pensando i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:gira .8s linear infinite}
 @keyframes gira{to{transform:rotate(360deg)}}
+/* cores escolhidas no perfil */
+:root[data-cor="roxo"]{--accent:#6B3FD0;--accent-soft:#EFE8FD;--hero-a:#5530B0;--hero-b:#7E50E6}
+:root[data-cor="verde"]{--accent:#0E7A55;--accent-soft:#DDF3EA;--hero-a:#0B6347;--hero-b:#14855E}
+:root[data-cor="rosa"]{--accent:#B4235A;--accent-soft:#FBE4EC;--hero-a:#93184A;--hero-b:#BE2C63}
+:root[data-cor="laranja"]{--accent:#B04A00;--accent-soft:#FDEBDD;--hero-a:#8F3C00;--hero-b:#B85308}
+:root[data-cor="grafite"]{--accent:#2F3A4A;--accent-soft:#E5E8ED;--hero-a:#1F2733;--hero-b:#46546A}
+@media (prefers-color-scheme: dark){
+:root[data-cor="roxo"]:not([data-theme="light"]){--accent:#B79BFF;--accent-soft:#33275A;--hero-a:#3E2585;--hero-b:#5A3BB5}
+:root[data-cor="verde"]:not([data-theme="light"]){--accent:#5FD3A6;--accent-soft:#163A2E;--hero-a:#0E4C38;--hero-b:#17694D}
+:root[data-cor="rosa"]:not([data-theme="light"]){--accent:#FF8FB8;--accent-soft:#4A1F31;--hero-a:#6E1638;--hero-b:#93254F}
+:root[data-cor="laranja"]:not([data-theme="light"]){--accent:#FFAA6B;--accent-soft:#45291A;--hero-a:#6B2F07;--hero-b:#8F430F}
+:root[data-cor="grafite"]:not([data-theme="light"]){--accent:#C3CCD9;--accent-soft:#2A3140;--hero-a:#252C38;--hero-b:#3A4558}
+}
+:root[data-cor="roxo"][data-theme="dark"]{--accent:#B79BFF;--accent-soft:#33275A;--hero-a:#3E2585;--hero-b:#5A3BB5}
+:root[data-cor="verde"][data-theme="dark"]{--accent:#5FD3A6;--accent-soft:#163A2E;--hero-a:#0E4C38;--hero-b:#17694D}
+:root[data-cor="rosa"][data-theme="dark"]{--accent:#FF8FB8;--accent-soft:#4A1F31;--hero-a:#6E1638;--hero-b:#93254F}
+:root[data-cor="laranja"][data-theme="dark"]{--accent:#FFAA6B;--accent-soft:#45291A;--hero-a:#6B2F07;--hero-b:#8F430F}
+:root[data-cor="grafite"][data-theme="dark"]{--accent:#C3CCD9;--accent-soft:#2A3140;--hero-a:#252C38;--hero-b:#3A4558}
+:root.texto-grande{font-size:118%}
+/* perfil */
+.top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
+.eu{flex:none;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-family:var(--display);font-weight:800;font-size:1.2rem;display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow)}
+.eu svg{width:24px;height:24px}
+dialog.perfil{border:0;padding:0;margin:auto auto 0;width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--bg);color:var(--ink);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
+.perfil-in{display:flex;flex-direction:column;gap:16px;padding:12px 18px calc(24px + env(safe-area-inset-bottom,0px))}
+.perfil-alca{width:40px;height:5px;border-radius:99px;background:var(--line);margin:0 auto}
+.perfil-topo{display:flex;justify-content:space-between;align-items:center}
+.perfil-cab{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+.perfil-cab .eu{width:80px;height:80px;font-size:2rem;cursor:default}
+.perfil-cab .eu svg{width:38px;height:38px}
+.perfil-cab b{font-family:var(--display);font-size:1.35rem;font-weight:600}
+.perfil-cab small{color:var(--muted)}
+.cartao{background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+.numeros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.numeros b{display:block;font-family:var(--display);font-size:1.4rem;font-weight:800}
+.numeros small{font-size:.75rem;color:var(--muted)}
+.cores{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;justify-items:center}
+.cor{width:100%;max-width:48px;aspect-ratio:1;min-height:40px;height:auto;border-radius:50%;border:3px solid transparent;cursor:pointer;display:grid;place-items:center;color:#fff;padding:0}
+.cor svg{width:20px;height:20px;opacity:0}
+.cor[aria-checked="true"]{border-color:var(--ink)}
+.cor[aria-checked="true"] svg{opacity:1}
+.seg.tres{grid-template-columns:repeat(3,1fr)}
 /* mais opções */
 .menu{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 16px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative}
@@ -196,9 +239,10 @@ input[type="date"]::-webkit-date-and-time-value{text-align:left}
 </head>
 <body>
 <div class="wrap">
-<header>
-<span class="eyebrow" id="hoje"></span>
-<h1>Contas em Dia</h1>
+<header class="top">
+<div><span class="eyebrow" id="hoje"></span>
+<h1>Contas em Dia</h1></div>
+<button class="eu" type="button" id="abrirPerfil" aria-label="Meu perfil" aria-haspopup="dialog"></button>
 </header>
 <section class="hero" aria-label="Resumo do mês">
 <span class="hero-label" id="sMes">Saldo previsto</span>
@@ -239,6 +283,32 @@ input[type="date"]::-webkit-date-and-time-value{text-align:left}
 </div>
 <p class="note">Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho.</p>
 </div>
+<dialog class="perfil" id="perfil" aria-labelledby="perfilNome">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
+<div class="perfil-topo"><span class="eyebrow">Meu perfil</span><button class="btn ghost" type="button" id="fecharPerfil">Fechar</button></div>
+<div class="perfil-cab"><span class="eu" id="perfilFoto" aria-hidden="true"></span><b id="perfilNome">Você</b><small id="perfilDesde"></small></div>
+<div class="cartao numeros">
+<div><b class="num" id="pnContas">0</b><small>contas cadastradas</small></div>
+<div><b class="num" id="pnPagas">0</b><small>pagas este mês</small></div>
+<div><b class="num" id="pnAtraso">0</b><small>atrasadas</small></div>
+</div>
+<div class="cartao">
+<h2>Seus dados</h2>
+<div class="field"><label for="pfNome">Como quer ser chamado?</label><input id="pfNome" autocomplete="given-name" placeholder="Seu nome"></div>
+<div class="field"><label for="pfEmail">E-mail (opcional)</label><input id="pfEmail" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com"></div>
+</div>
+<div class="cartao">
+<h2>Aparência</h2>
+<div class="field"><span class="eyebrow" id="lbCor">Cor do app</span><div class="cores" role="radiogroup" aria-labelledby="lbCor"><button type="button" class="cor" role="radio" data-cor="azul" aria-label="Azul" style="background:#3446C9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="roxo" aria-label="Roxo" style="background:#6B3FD0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="verde" aria-label="Verde" style="background:#0E7A55"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="rosa" aria-label="Rosa" style="background:#B4235A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="laranja" aria-label="Laranja" style="background:#B04A00"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="grafite" aria-label="Grafite" style="background:#2F3A4A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button></div></div>
+<div class="field"><span class="eyebrow" id="lbTema">Tema</span><div class="seg tres" role="group" aria-labelledby="lbTema">
+<button type="button" data-tema="auto">Automático</button><button type="button" data-tema="light">Claro</button><button type="button" data-tema="dark">Escuro</button></div></div>
+<div class="field"><span class="eyebrow" id="lbTexto">Tamanho do texto</span><div class="seg" role="group" aria-labelledby="lbTexto">
+<button type="button" data-texto="normal">Normal</button><button type="button" data-texto="grande">Grande</button></div></div>
+</div>
+<p class="note">Seu perfil e suas contas ficam guardados só neste celular.</p>
+</div>
+</dialog>
 <button class="fab" id="fab" type="button" aria-label="Adicionar conta" title="Adicionar conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -797,12 +867,50 @@ if(a==="voltarlista"){const v2=A.voltar;A={fase:"lista",lista:v2.lista,texto:v2.
 });
 $("assist").addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="aTxt"){e.preventDefault();pararMic();processar(e.target.value)}});
 renderAssist();
-(function(){const t=hoje();$("hoje").textContent=`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`})();
+const LS_PERFIL="contas-em-dia-perfil";
+const CORES_TEMA={"azul": "#3446C9", "roxo": "#6B3FD0", "verde": "#0E7A55", "rosa": "#B4235A", "laranja": "#B04A00", "grafite": "#2F3A4A"};
+let perfil={};
+function perfilLoad(){try{perfil=JSON.parse(localStorage.getItem(LS_PERFIL)||"{}")}catch(e){perfil={}}if(!perfil.desde){perfil.desde=ymd(hoje());perfilSave()}}
+function perfilSave(){try{localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}}
+const ICO_PESSOA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+function aplicarPerfil(){
+const h=document.documentElement,cor=CORES_TEMA[perfil.cor]?perfil.cor:"azul";
+if(cor==="azul")h.removeAttribute("data-cor");else h.dataset.cor=cor;
+if(perfil.tema==="light"||perfil.tema==="dark")h.dataset.theme=perfil.tema;else h.removeAttribute("data-theme");
+h.classList.toggle("texto-grande",perfil.texto==="grande");
+document.querySelector('meta[name="theme-color"]').content=CORES_TEMA[cor];
+const nome=(perfil.nome||"").trim(),ini=nome?esc(nome[0].toUpperCase()):ICO_PESSOA;
+$("abrirPerfil").innerHTML=ini;$("perfilFoto").innerHTML=ini;
+$("perfilNome").textContent=nome||"Você";
+$("perfilDesde").textContent=(perfil.email?perfil.email+" · ":"")+"usando desde "+dm(fromYmd(perfil.desde))+"/"+fromYmd(perfil.desde).getFullYear();
+const t=hoje();$("hoje").textContent=(nome?`Olá, ${nome.split(/\s+/)[0]} · `:"")+`${DIAS[t.getDay()]}, ${t.getDate()} de ${MESES[t.getMonth()]}`;
+for(const b of document.querySelectorAll(".cor")){b.setAttribute("aria-checked",b.dataset.cor===cor);b.tabIndex=b.dataset.cor===cor?0:-1}
+for(const b of document.querySelectorAll("[data-tema]"))b.setAttribute("aria-pressed",b.dataset.tema===(perfil.tema||"auto"));
+for(const b of document.querySelectorAll("[data-texto]"))b.setAttribute("aria-pressed",b.dataset.texto===(perfil.texto||"normal"));
+}
+function numerosPerfil(){
+let pagas=0,atraso=0;const t=hoje();
+for(const it of itens){const s=status(it);if(s.kind==="late")atraso++}
+for(const k of Object.keys(pagos)){const d=fromYmd(pagos[k].data);if(d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear())pagas++}
+$("pnContas").textContent=itens.length;$("pnPagas").textContent=pagas;$("pnAtraso").textContent=atraso;
+}
+$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();$("perfil").showModal()});
+$("fecharPerfil").addEventListener("click",()=>$("perfil").close());
+$("perfil").addEventListener("click",e=>{
+if(e.target===$("perfil")){$("perfil").close();return}
+const b=e.target.closest("button");if(!b)return;
+if(b.dataset.cor){perfil.cor=b.dataset.cor}else if(b.dataset.tema){perfil.tema=b.dataset.tema}else if(b.dataset.texto){perfil.texto=b.dataset.texto}else return;
+perfilSave();aplicarPerfil()});
+$("perfil").addEventListener("keydown",e=>{const rs=[...document.querySelectorAll(".cor")],i=rs.indexOf(document.activeElement);if(i<0)return;
+const n=e.key==="ArrowRight"||e.key==="ArrowDown"?i+1:e.key==="ArrowLeft"||e.key==="ArrowUp"?i-1:null;if(n==null)return;e.preventDefault();const b=rs[(n+rs.length)%rs.length];b.focus();b.click()});
+$("pfNome").addEventListener("input",e=>{perfil.nome=e.target.value.slice(0,40);perfilSave();aplicarPerfil()});
+$("pfEmail").addEventListener("input",e=>{perfil.email=e.target.value.trim().slice(0,80);perfilSave();aplicarPerfil()});
+perfilLoad();aplicarPerfil();
 function iniciar(){lsLoad();pronto=true;render()}
 window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
 $("alerts").addEventListener("click",e=>{if(e.target.closest("[data-act=backup]"))$("bkSalvar").click()});
 $("bkSalvar").addEventListener("click",()=>{
-const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos},null,2)],{type:"application/json"});
+const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos,perfil},null,2)],{type:"application/json"});
 const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
 document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);try{localStorage.setItem(LS_BK,ymd(hoje()))}catch(e){}renderAvisos();toast("Cópia salva");
 });
@@ -849,7 +957,7 @@ catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
 });
 document.querySelector("label[for=bkArquivo]").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("bkArquivo").click()}});
 $("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
-$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};lsSave();bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
 iniciar();
 setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
 </script>
