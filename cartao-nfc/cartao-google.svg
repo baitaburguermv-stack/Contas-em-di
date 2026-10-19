@@ -15,8 +15,8 @@
     <path d="M 14.24 40.78 A 16 16 0 0 1 16.14 30" stroke="#FBBC05"/>
   </g>
 
-  <text x="30" y="33.6" text-anchor="middle" class="txt" font-size="4.1" font-weight="400">Nos <tspan font-weight="700">avalie</tspan> no</text>
-  <text x="30" y="43.8" text-anchor="middle" font-family="'Outfit', 'Poppins', Arial, sans-serif" font-size="8.3" font-weight="500" letter-spacing="-0.1"><tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan></text>
+  <text x="30" y="18.2" text-anchor="middle" class="txt" font-size="4.6" font-weight="400">Nos <tspan font-weight="700">avalie</tspan> no</text>
+  <text x="30" y="40.9" text-anchor="middle" font-family="'Outfit', 'Poppins', Arial, sans-serif" font-size="7.9" font-weight="500" letter-spacing="-0.1"><tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan></text>
 
   <!-- ícone NFC: ondas + mão segurando o celular -->
   <g fill="none" stroke="#fff" stroke-width="0.42" stroke-linecap="round" stroke-linejoin="round">
