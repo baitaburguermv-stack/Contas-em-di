@@ -334,6 +334,30 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .acesso-it b{display:block;font-weight:600;overflow-wrap:anywhere}
 .acesso-it small{color:var(--muted);font-size:.8rem}
 .acesso-it .btn{padding:6px 12px;min-height:38px;font-size:.85rem}
+/* jurema */
+.ju{display:flex;flex-direction:column;gap:14px}
+.ju-hero{background:linear-gradient(140deg,var(--hero-a),var(--hero-b));color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.ju-hero small{opacity:.85;font-size:.8rem}
+.ju-hero .big{font-family:var(--display);font-weight:800;font-size:2rem;line-height:1.05}
+.ju-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ju-grid div{background:rgba(255,255,255,.12);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ju-grid b{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ju-sub{font-size:.78rem;opacity:.9}
+.ju-card{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.ju-main{display:flex;gap:12px;align-items:center;width:100%;padding:14px 16px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.ju-main:active{background:var(--bg)}
+.ju-main > div{flex:1;min-width:0}
+.ju-main b.nome{display:block;font-weight:600;font-size:1rem;overflow-wrap:anywhere}
+.ju-main small{display:block;font-size:.82rem;color:var(--muted)}
+.ju-main .dir{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px;max-width:50%}
+.ju-main .dir strong{font-weight:800;white-space:nowrap}
+.ju-det{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.ju-linhas{display:grid;grid-template-columns:1fr auto;gap:6px 12px;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:.9rem}
+.ju-linhas span{color:var(--muted)}
+.ju-linhas b{text-align:right;font-weight:700;white-space:nowrap}
+.ju-linhas .tot{border-top:1px dashed var(--line);padding-top:6px}
+.ju-h{margin:4px 2px 0;font-family:var(--display);font-weight:600;font-size:1.05rem}
+.ju .sheet{box-shadow:var(--shadow)}
 /* mais opções */
 .menu{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 16px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative}
@@ -412,6 +436,13 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div class="porta" id="porta" hidden>
 <div class="porta-in" id="portaIn" aria-live="polite"></div>
 </div>
+<dialog class="perfil" id="jurema" aria-labelledby="juTit">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
+<div class="perfil-topo"><h2 id="juTit">Jurema</h2><button class="btn ghost" type="button" id="fecharJurema">Fechar</button></div>
+<div id="juCorpo" class="ju"></div>
+</div>
+</dialog>
 <dialog class="perfil" id="agenda" aria-labelledby="agTit">
 <div class="perfil-in">
 <div class="perfil-alca" aria-hidden="true"></div>
@@ -453,6 +484,9 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div id="admLista"></div>
 <div class="field"><label for="admEmail">Liberar um e-mail direto</label><div class="resp"><input id="admEmail" type="email" inputmode="email" placeholder="pessoa@email.com"><button class="btn primary" type="button" id="admAdd">Liberar</button></div></div>
 </div>
+<div class="menu">
+<button class="menu-item" type="button" id="abrirJurema"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><span><b>Jurema</b><small>Empréstimos com juros ao mês</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</div>
 <p class="note" id="pfNota">Seu perfil e suas contas ficam guardados só neste celular.</p>
 </div>
 </dialog>
@@ -486,11 +520,12 @@ const isQuinz=it=>it.tipo==="quinzenal";
 function occQuinz(anc,ref){const a=fromYmd(anc);const k=Math.floor(diffDias(ref,a)/14);const d=new Date(a);if(k>0)d.setDate(a.getDate()+14*k);return d}
 const noMes=(it,y,m)=>{const d=fromYmd(it.data);return d.getFullYear()===y&&d.getMonth()===m};
 let fauth=null,fdb=null,usuario=null,nuvemDoc=null,nuvemStop=null,nvT=null,ehAdmin=false,portaModo="entrar",jaLogou=false;
+let jurema=[];
 let itens=[], pagos={}, db=null, pronto=false, aba="fixo", aberto=null, editando=null, confirmarExcluir=null;
 const pagoKey=(id,data)=>`${id}__${data}`;
 const LS="contas-em-dia-v1";
-function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{}}catch(e){}}
-function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos}))}catch(e){}nuvemSalvar()}
+function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{};jurema=s.jurema||[]}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos,jurema}))}catch(e){}nuvemSalvar()}
 async function salvarItem(it){
 const i=itens.findIndex(x=>x.id===it.id);i>=0?itens[i]=it:itens.push(it);lsSave();render()
 }
@@ -1215,7 +1250,7 @@ const FIREBASE_CONFIG={apiKey:"AIzaSyBfsiU9iXQDd_pou-WT4iSRUxWYyslcmm8",authDoma
 const ADMIN_EMAIL="pereiramercadolivre2023@gmail.com";
 const FB_VER="10.12.2",LS_DONO="contas-em-dia-dono";
 function nuvemSalvar(){if(!nuvemDoc)return;clearTimeout(nvT);nvT=setTimeout(()=>{
-nuvemDoc.set({itens,pagos,perfil,atualizado:Date.now()}).catch(e=>{if(e&&e.code==="permission-denied")sairPorBloqueio();else toast("Sem internet. Salvo no celular, envio quando voltar.")})},400)}
+nuvemDoc.set({itens,pagos,perfil,jurema,atualizado:Date.now()}).catch(e=>{if(e&&e.code==="permission-denied")sairPorBloqueio();else toast("Sem internet. Salvo no celular, envio quando voltar.")})},400)}
 function carregarScript(src){return new Promise((ok,erro)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=erro;document.head.appendChild(s)})}
 const ERROS_LOGIN={"auth/invalid-email":"E-mail inválido.","auth/missing-password":"Digite a senha.","auth/weak-password":"A senha precisa ter pelo menos 6 caracteres.","auth/email-already-in-use":"Já existe uma conta com esse e-mail. Toque em Entrar.","auth/invalid-credential":"E-mail ou senha errados.","auth/wrong-password":"E-mail ou senha errados.","auth/user-not-found":"Não achei conta com esse e-mail.","auth/too-many-requests":"Muitas tentativas. Espere um pouco e tente de novo.","auth/network-request-failed":"Sem internet. Verifique a conexão.","auth/popup-closed-by-user":"Login cancelado.","auth/unauthorized-domain":"Este endereço não está autorizado no Firebase (Authentication > Configurações > Domínios autorizados)."};
 const erroLogin=e=>ERROS_LOGIN[e&&e.code]||"Não deu certo. Tente de novo.";
@@ -1278,7 +1313,7 @@ if(st!=="liberado"){try{await fdb.collection("pedidos").doc(u.uid).set({email:em
 entrarNoApp(u)}
 function entrarNoApp(u){
 let dono=null;try{dono=localStorage.getItem(LS_DONO)}catch(e){}
-if(dono&&dono!==u.uid){itens=[];pagos={};perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_BK);localStorage.removeItem(LS_PERFIL)}catch(e){}}
+if(dono&&dono!==u.uid){itens=[];pagos={};jurema=[];perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_BK);localStorage.removeItem(LS_PERFIL)}catch(e){}}
 jaLogou=true;
 try{localStorage.setItem(LS_DONO,u.uid)}catch(e){}
 if(!perfil.nome&&u.displayName)perfil.nome=u.displayName;perfil.email=u.email;
@@ -1288,15 +1323,15 @@ if(doc.metadata.hasPendingWrites)return;
 const d=doc.data();
 if(!d){if(doc.metadata.fromCache)return;if(primeira){primeira=false;nuvemDoc=ref;nuvemSalvar()}return}
 primeira=false;nuvemDoc=ref;
-itens=d.itens||[];pagos=d.pagos||{};if(d.perfil)perfil={...perfil,...d.perfil,email:u.email};
-try{localStorage.setItem(LS,JSON.stringify({itens,pagos}));localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}
+itens=d.itens||[];pagos=d.pagos||{};jurema=d.jurema||[];if(d.perfil)perfil={...perfil,...d.perfil,email:u.email};
+try{localStorage.setItem(LS,JSON.stringify({itens,pagos,jurema}));localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}
 aplicarPerfil();pronto=true;render();esconderPorta();
 },e=>{if(e.code==="permission-denied")sairPorBloqueio();else toast("Sem conexão com a nuvem. Usando o que está no celular.")});
 pronto=true;aplicarPerfil();render();esconderPorta();
 }
 function pararNuvem(){if(nuvemStop)nuvemStop();nuvemStop=null;nuvemDoc=null;clearTimeout(nvT);ehAdmin=false;
 if(!jaLogou)return;jaLogou=false;
-itens=[];pagos={};pronto=false;perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_PERFIL);localStorage.removeItem(LS_BK)}catch(e){}aplicarPerfil();if($("perfil").open)$("perfil").close()}
+itens=[];pagos={};jurema=[];pronto=false;perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_PERFIL);localStorage.removeItem(LS_BK)}catch(e){}aplicarPerfil();if($("perfil").open)$("perfil").close()}
 function sairPorBloqueio(){pararNuvem();mostrarPorta("bloqueado")}
 // --- painel do dono do app
 async function renderAdmin(){const L=$("admLista");L.innerHTML='<p class="pensando"><i></i>Carregando…</p>';
@@ -1314,10 +1349,117 @@ toast(act==="liberar"?"Acesso liberado":act==="bloquear"?"Acesso bloqueado":"Ped
 $("admAdd").addEventListener("click",async()=>{const em=$("admEmail").value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast("Digite um e-mail válido");return}
 try{await fdb.collection("acesso").doc(em).set({status:"liberado",em:firebase.firestore.FieldValue.serverTimestamp()});$("admEmail").value="";toast("Acesso liberado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.")}});
 $("pfSair").addEventListener("click",()=>{if(fauth)fauth.signOut()});
+// ===================== JUREMA (empréstimos com juros ao mês) =====================
+let juForm=null,juAberto=null,juConf=null;
+function juVencs(e){// vencimentos do empréstimo, do primeiro até hoje (ou até a quitação)
+const ini=fromYmd(e.inicio);let y=ini.getFullYear(),m=ini.getMonth();if(occMes(e.dia,y,m)<=ini)m++;
+const fim=e.quitado?fromYmd(e.quitado):hoje(),out=[];let next=null;
+for(let k=0;k<600;k++){const d=occMes(e.dia,y,m+k);if(d>fim){next=d;break}out.push(d)}
+return {passados:out,proximo:next};
+}
+function juCalc(e){
+const {passados,proximo}=juVencs(e),pg=new Set(e.pagos||[]),jm=Math.round(e.valor*e.taxa)/100;
+const abertos=passados.filter(d=>!pg.has(ymd(d)));
+const t=hoje(),atraso=abertos.length?diffDias(t,abertos[0]):0;
+const jurosAberto=Math.round(abertos.length*jm*100)/100;
+return {jm,abertos,proximo,atraso,jurosAberto,total:e.valor+jurosAberto,recebido:(e.pagos||[]).length*jm};
+}
+function juStatus(e,c){
+if(e.quitado)return {kind:"done",label:"Quitado"};
+if(c.abertos.length&&c.atraso>0)return {kind:"late",label:`Atrasado ${c.atraso} dia${c.atraso>1?"s":""}${c.abertos.length>1?` · ${c.abertos.length} meses`:""}`};
+if(c.abertos.length)return {kind:"warn",label:"Vence hoje"};
+const d=diffDias(c.proximo,hoje());return {kind:d<=5?"warn":"ok",label:d===1?"Amanhã":`Em ${d} dias`};
+}
+const pctBR=v=>String(v).replace(".",",")+"%";
+function renderJurema(){
+const C=$("juCorpo"),ativos=jurema.filter(e=>!e.quitado),quit=jurema.filter(e=>e.quitado);
+const soma=(lista,f)=>lista.reduce((a,e)=>a+f(e,juCalc(e)),0);
+const rec=ativos.filter(e=>e.sentido!=="saida"),dev=ativos.filter(e=>e.sentido==="saida");
+let h="";
+if(rec.length||!dev.length){const tot=soma(rec,(e,c)=>c.total),na=soma(rec,e=>e.valor),jm=soma(rec,(e,c)=>c.jm),ab=soma(rec,(e,c)=>c.jurosAberto);
+h+=`<section class="ju-hero" aria-label="Resumo do que você tem a receber"><div><small>Total a receber hoje</small><div class="big num">${brl(tot)}</div></div>
+<div class="ju-grid"><div><small>Emprestado</small><b class="num">${curto(na)}</b></div><div><small>Juros por mês</small><b class="num">${curto(jm)}</b></div><div><small>Juros em aberto</small><b class="num">${curto(ab)}</b></div></div>
+${na>0?`<span class="ju-sub">Rende em média ${pctBR(Math.round(jm/na*1000)/10)} ao mês sobre o que está emprestado.</span>`:""}</section>`}
+if(dev.length){const tot=soma(dev,(e,c)=>c.total),jm=soma(dev,(e,c)=>c.jm);
+h+=`<div class="cartao"><h2>Você deve</h2><div class="ju-linhas"><span>Total para quitar hoje</span><b class="num c-out">${brl(tot)}</b><span>Juros por mês</span><b class="num">${brl(jm)}</b></div></div>`}
+h+=juForm?formJurema():`<button class="btn primary" type="button" data-ju="novo">+ Novo empréstimo</button>`;
+const lista=(arr,tit)=>arr.length?`<h3 class="ju-h">${tit}</h3>`+arr.map(cardJurema).join(""):"";
+const ord=a=>a.slice().sort((x,y)=>{const cx=juCalc(x),cy=juCalc(y);return (cy.atraso-cx.atraso)||((cx.proximo||0)-(cy.proximo||0))});
+h+=lista(ord(rec),"Emprestei (vou receber)")+lista(ord(dev),"Peguei emprestado (vou pagar)")+lista(quit,"Quitados");
+if(!jurema.length&&!juForm)h+=`<div class="empty"><b>Nenhum empréstimo ainda</b><span>Toque em "+ Novo empréstimo" e coloque quem pegou, quanto, os juros ao mês e o dia do pagamento.</span></div>`;
+C.innerHTML=h;
+}
+function cardJurema(e){
+const c=juCalc(e),st=juStatus(e,c),aberto=juAberto===e.id,ent=e.sentido!=="saida";
+const dir=e.quitado?`<strong class="num">${brl(e.valorQuitado||e.valor)}</strong>`:`<strong class="num ${st.kind==="late"?"c-out":ent?"c-in":""}">${brl(c.total)}</strong>`;
+let det="";
+if(aberto){
+const conf=juConf===e.id;
+det=`<div class="ju-det"><div class="ju-linhas">
+<span>Valor ${ent?"emprestado":"que peguei"}</span><b class="num">${brl(e.valor)}</b>
+<span>Juros</span><b class="num">${pctBR(e.taxa)} ao mês = ${brl(c.jm)}</b>
+<span>Pagamento</span><b>todo dia ${e.dia}</b>
+<span>Desde</span><b>${dm(fromYmd(e.inicio))}/${fromYmd(e.inicio).getFullYear()}</b>
+${e.quitado?`<span>Quitado em</span><b>${dm(fromYmd(e.quitado))}</b>`:`<span>Juros em aberto</span><b class="num ${c.jurosAberto?"c-out":""}">${brl(c.jurosAberto)}${c.abertos.length?` (${c.abertos.length} ${c.abertos.length>1?"meses":"mês"})`:""}</b>
+<span>${c.abertos.length?"Vencido desde":"Próximo vencimento"}</span><b class="${c.abertos.length?"c-out":""}">${c.abertos.length?dm(c.abertos[0]):dm(c.proximo)}</b>
+<span class="tot">Total para quitar hoje</span><b class="tot num">${brl(c.total)}</b>`}
+${(e.pagos||[]).length?`<span>Juros já ${ent?"recebidos":"pagos"}</span><b class="num">${brl(c.recebido)} (${e.pagos.length}x)</b>`:""}
+</div>
+${e.quitado?`<div class="inline"><button class="btn" type="button" data-ju="reabrir" data-id="${e.id}">Desfazer quitação</button></div>`:`<div class="inline">
+<button class="btn primary" type="button" data-ju="juros" data-id="${e.id}">${ent?"Recebi":"Paguei"} os juros${c.abertos.length?` de ${dm(c.abertos[0])}`:` de ${dm(c.proximo)}`} (${brl(c.jm)})</button>
+<button class="btn" type="button" data-ju="quitar" data-id="${e.id}">Quitou tudo (${brl(c.total)})</button></div>`}
+<div class="inline">${(e.pagos||[]).length&&!e.quitado?`<button class="btn ghost" type="button" data-ju="desfazer" data-id="${e.id}">Desfazer último</button>`:""}
+<button class="btn ghost" type="button" data-ju="editar" data-id="${e.id}">Editar</button>
+${conf?`<button class="btn danger" type="button" data-ju="excluir-sim" data-id="${e.id}">Confirmar exclusão</button>`:`<button class="btn ghost" type="button" data-ju="excluir" data-id="${e.id}">Excluir</button>`}</div></div>`}
+return `<div class="ju-card"><button class="ju-main" type="button" data-ju="abrir" data-id="${e.id}" aria-expanded="${aberto}"><span class="avatar ${e.quitado?"done":ent?"in":"out"}" aria-hidden="true">${e.quitado?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
+<div><b class="nome">${esc(e.nome)}</b><small>${brl(e.valor)} a ${pctBR(e.taxa)} ao mês · dia ${e.dia}</small>${!e.quitado&&c.jurosAberto?`<small class="c-out">+ ${brl(c.jurosAberto)} de juros em aberto</small>`:""}</div>
+<div class="dir">${dir}<span class="pill ${st.kind}">${st.label}</span></div></button>${det}</div>`;
+}
+function formJurema(){const f=juForm,ed=!!f.id;
+return `<form class="sheet" id="juF" novalidate><h2>${ed?"Editar empréstimo":"Novo empréstimo"}</h2>
+<div class="seg" role="group" aria-label="Tipo"><button type="button" data-jus="entrada" aria-pressed="${f.sentido!=="saida"}">Emprestei</button><button type="button" data-jus="saida" aria-pressed="${f.sentido==="saida"}">Peguei emprestado</button></div>
+<div class="field"><label for="juNome">${f.sentido==="saida"?"De quem":"Quem pegou"}</label><input id="juNome" value="${esc(f.nome||"")}" placeholder="Ex.: João"></div>
+<div class="two"><div class="field"><label for="juValor">Valor (R$)</label><input id="juValor" inputmode="decimal" value="${f.valor?fmtInput(f.valor):""}" placeholder="1.000,00"></div>
+<div class="field"><label for="juTaxa">Juros ao mês (%)</label><input id="juTaxa" inputmode="decimal" value="${f.taxa?String(f.taxa).replace(".",","):""}" placeholder="Ex.: 30"></div></div>
+<div class="two"><div class="field"><label for="juDia">Dia do pagamento</label><input id="juDia" inputmode="numeric" value="${f.dia||""}" placeholder="1 a 31"></div>
+<div class="field"><label for="juIni">Data do empréstimo</label><input id="juIni" type="date" value="${esc(f.inicio||ymd(hoje()))}"></div></div>
+<p class="note" id="juPrev"></p>
+<p class="err" id="juErr" hidden></p>
+<div class="inline"><button class="btn primary" type="submit">${ed?"Salvar":"Adicionar"}</button><button class="btn ghost" type="button" data-ju="cancelar">Cancelar</button></div></form>`}
+function juPrevia(){const v=parseValor(($("juValor")||{}).value),t=parseValor(($("juTaxa")||{}).value),el=$("juPrev");if(!el)return;
+el.textContent=v>0&&t>0?`Juros de ${brl(Math.round(v*t)/100)} por mês. Se não pagar no dia, soma mais ${brl(Math.round(v*t)/100)} a cada mês de atraso.`:""}
+function lerJuForm(){juForm.nome=$("juNome").value;juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value}
+function salvarJurema(){lsSave();renderJurema()}
+$("abrirJurema").addEventListener("click",()=>{$("perfil").close();juForm=null;juConf=null;renderJurema();$("jurema").showModal()});
+$("fecharJurema").addEventListener("click",()=>$("jurema").close());
+$("jurema").addEventListener("click",e=>{if(e.target===$("jurema")){$("jurema").close();return}
+const b=e.target.closest("[data-ju],[data-jus]");if(!b)return;
+if(b.dataset.jus){lerJuForm();juForm.sentido=b.dataset.jus;renderJurema();juPrevia();return}
+const a=b.dataset.ju,id=b.dataset.id,emp=jurema.find(x=>x.id===id);
+if(a==="novo"){juForm={sentido:"entrada",inicio:ymd(hoje())};renderJurema();setTimeout(()=>$("juNome").focus(),30);return}
+if(a==="cancelar"){juForm=null;renderJurema();return}
+if(a==="abrir"){juAberto=juAberto===id?null:id;juConf=null;renderJurema();return}
+if(!emp)return;
+if(a==="juros"){const c=juCalc(emp),alvo=c.abertos.length?c.abertos[0]:c.proximo;emp.pagos=[...(emp.pagos||[]),ymd(alvo)];salvarJurema();toast(`Juros de ${dm(alvo)} ${emp.sentido==="saida"?"pagos":"recebidos"}`)}
+else if(a==="quitar"){const c=juCalc(emp);emp.valorQuitado=c.total;emp.quitado=ymd(hoje());salvarJurema();toast("Empréstimo quitado")}
+else if(a==="reabrir"){delete emp.quitado;delete emp.valorQuitado;salvarJurema()}
+else if(a==="desfazer"){emp.pagos=(emp.pagos||[]).slice(0,-1);salvarJurema();toast("Último pagamento desfeito")}
+else if(a==="editar"){juForm={...emp};renderJurema();$("juCorpo").scrollIntoView({block:"start"});juPrevia()}
+else if(a==="excluir"){juConf=id;renderJurema()}
+else if(a==="excluir-sim"){jurema=jurema.filter(x=>x.id!==id);juConf=null;juAberto=null;salvarJurema();toast("Empréstimo excluído")}
+});
+$("jurema").addEventListener("input",e=>{if(e.target.id==="juValor"||e.target.id==="juTaxa")juPrevia()});
+$("jurema").addEventListener("submit",e=>{e.preventDefault();lerJuForm();const f=juForm,dia=parseInt(f.dia,10),err=$("juErr");
+const msg=!f.nome.trim()?"Coloque o nome.":!(f.valor>0)?"Coloque o valor, por exemplo 1.000,00.":!(f.taxa>=0)||isNaN(f.taxa)?"Coloque os juros ao mês, por exemplo 30.":!(dia>=1&&dia<=31)?"O dia do pagamento vai de 1 a 31.":!/^\d{4}-\d{2}-\d{2}$/.test(f.inicio||"")?"Escolha a data do empréstimo.":"";
+if(msg){err.textContent=msg;err.hidden=false;return}
+const novo={id:f.id||("j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),valor:f.valor,taxa:f.taxa,dia,inicio:f.inicio,sentido:f.sentido==="saida"?"saida":"entrada",pagos:f.pagos||[]};
+if(f.quitado){novo.quitado=f.quitado;novo.valorQuitado=f.valorQuitado}
+const i=jurema.findIndex(x=>x.id===novo.id);i>=0?jurema[i]=novo:jurema.push(novo);
+juForm=null;juAberto=novo.id;salvarJurema();toast(i>=0?"Empréstimo atualizado":"Empréstimo adicionado")});
 window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
 $("alerts").addEventListener("click",e=>{if(e.target.closest("[data-act=backup]"))$("bkSalvar").click()});
 $("bkSalvar").addEventListener("click",()=>{
-const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos,perfil},null,2)],{type:"application/json"});
+const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos,perfil,jurema},null,2)],{type:"application/json"});
 const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
 document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);try{localStorage.setItem(LS_BK,ymd(hoje()))}catch(e){}renderAvisos();toast("Cópia salva");
 });
@@ -1364,7 +1506,7 @@ catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
 });
 document.querySelector("label[for=bkArquivo]").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("bkArquivo").click()}});
 $("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
-$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};jurema=bkDados.jurema||[];lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
 iniciar();
 setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
 </script>
