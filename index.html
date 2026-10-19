@@ -24,7 +24,7 @@ body{margin:0}
 --in:#0F7A57; --in-soft:#DFF4EB; --out:#C0392B; --out-soft:#FBE6E3;
 --warn:#946000; --warn-soft:#FDF1D8;
 --hero-a:#2B3BB0; --hero-b:#4A5BE0; --hero-in:#B9F2D9; --hero-out:#FFD0C9;
---tab-sel:#FFFFFF; --shadow:0 1px 2px rgba(21,26,45,.04),0 4px 16px rgba(21,26,45,.06);
+--bar-in:#0F7A57; --bar-out:#C0392B; --tab-sel:#FFFFFF; --shadow:0 1px 2px rgba(21,26,45,.04),0 4px 16px rgba(21,26,45,.06);
 --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
 --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -33,13 +33,13 @@ body{margin:0}
 --accent:#8E9BFF; --accent-ink:#0F1430; --accent-soft:#252C52;
 --in:#5FD3A6; --in-soft:#163A2E; --out:#FF8A7D; --out-soft:#3D2220;
 --warn:#F2B84B; --warn-soft:#3A2E14;
---hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; color-scheme:dark}}
+--hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; --bar-in:#2E9E8A; --bar-out:#E8664F; color-scheme:dark}}
 :root[data-theme="dark"]{
 --bg:#0E1117; --surface:#181C26; --surface-2:#222735; --ink:#EAEDF4; --muted:#9CA4B6; --line:#2A3041;
 --accent:#8E9BFF; --accent-ink:#0F1430; --accent-soft:#252C52;
 --in:#5FD3A6; --in-soft:#163A2E; --out:#FF8A7D; --out-soft:#3D2220;
 --warn:#F2B84B; --warn-soft:#3A2E14;
---hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; color-scheme:dark}
+--hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; --bar-in:#2E9E8A; --bar-out:#E8664F; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:.9375rem;line-height:1.45;
@@ -220,6 +220,37 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .cor[aria-checked="true"]{border-color:var(--ink)}
 .cor[aria-checked="true"] svg{opacity:1}
 .seg.tres{grid-template-columns:repeat(3,1fr)}
+/* gráficos */
+.graf h3{margin:0;font-size:.95rem;font-weight:600}
+.graf .sub{margin:-6px 0 0;font-size:.82rem;color:var(--muted)}
+.gl{display:flex;flex-direction:column;gap:12px}
+.gi{display:flex;flex-direction:column;gap:5px}
+.gi-top{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}
+.gi-top span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gi-top b{font-weight:700;white-space:nowrap}
+.gi-top small{color:var(--muted);font-weight:500}
+.gtrack{height:10px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.gtrack i{display:block;height:100%;min-width:4px;border-radius:4px}
+.gtrack i.in{background:var(--bar-in)} .gtrack i.out{background:var(--bar-out)}
+.sobra{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:10px;font-size:.9rem}
+.sobra b{font-family:var(--display);font-size:1.2rem}
+.graf .empty{padding:12px 0}
+.graf-sep{border:0;border-top:1px solid var(--line);margin:4px 0}
+.hero-link{align-self:flex-start;display:flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-weight:600;font-size:.88rem;cursor:pointer}
+.hero-link svg{width:16px;height:16px}
+/* agenda */
+.ag-dia{display:flex;flex-direction:column;background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.ag-dia.passado{opacity:.7}
+.ag-dia h3{margin:0;padding:10px 16px 4px;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.ag-dia.hoje h3{color:var(--accent)}
+.ag-it{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line)}
+.ag-dia h3 + .ag-it{border-top:0}
+.ag-it div{flex:1;min-width:0}
+.ag-it b{display:block;font-weight:600;overflow-wrap:anywhere}
+.ag-it small{font-size:.8rem;color:var(--muted)}
+.ag-it small.c-out{color:var(--out);font-weight:600}
+.ag-it strong{white-space:nowrap}
+.ag-lista{display:flex;flex-direction:column;gap:10px}
 /* mais opções */
 .menu{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 16px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative}
@@ -252,6 +283,7 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div class="stat"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><div><small>Saídas</small><b class="num" id="sSai">—</b><small class="num" id="sSaiR"></small></div></div>
 </div>
 <div class="prog"><div class="bar" id="pBarWrap" role="progressbar" aria-label="Contas pagas no mês" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
+<button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Ver agenda do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </section>
 <section id="assist" aria-label="Assistente de voz" aria-live="polite"></section>
 <section id="alertsWrap" aria-label="Avisos" hidden>
@@ -268,6 +300,16 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 </div>
 <section class="list" id="list" role="tabpanel" aria-labelledby="tab-fixo"></section>
 <p class="note" id="tabNote"></p>
+<h2 class="sec-title" id="grafTit">Gráficos do mês</h2>
+<section class="cartao graf" aria-labelledby="grafTit">
+<h3>Entradas × Saídas</h3>
+<div class="gl" id="gEntSai"></div>
+<div class="sobra" id="gSobra"></div>
+<hr class="graf-sep">
+<h3>Para onde vai o dinheiro</h3>
+<p class="sub">Saídas do mês por conta</p>
+<div class="gl" id="gConta"></div>
+</section>
 <h2 class="sec-title">Mais opções</h2>
 <div class="menu">
 <button class="menu-item" type="button" id="calExportar"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span><b>Lembretes no calendário</b><small>Aviso na véspera e no dia de cada conta</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -283,6 +325,13 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 </div>
 <p class="note">Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho.</p>
 </div>
+<dialog class="perfil" id="agenda" aria-labelledby="agTit">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
+<div class="perfil-topo"><h2 id="agTit">Agenda do mês</h2><button class="btn ghost" type="button" id="fecharAgenda">Fechar</button></div>
+<div class="ag-lista" id="agLista"></div>
+</div>
+</dialog>
 <dialog class="perfil" id="perfil" aria-labelledby="perfilNome">
 <div class="perfil-in">
 <div class="perfil-alca" aria-hidden="true"></div>
@@ -400,9 +449,9 @@ return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`+px;
 }
 function resumo(){
 const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
-let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;
+let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;const porConta={};agendaMes=[];
 for(const it of itens){
-if(it.tipo==="avulso"){if(noMes(it,y,m)){if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
+if(it.tipo==="avulso"){if(noMes(it,y,m)){agendaMes.push({d:fromYmd(it.data),it,valor:it.valor,pago:true});if(!isEntrada(it))porConta[it.id]=(porConta[it.id]||0)+it.valor;if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
 const datas=[];
 if(isMensal(it)) datas.push(occMes(it.dia,y,m));
 else if(isQuinz(it)){let d=occQuinz(it.data,new Date(y,m,1));if(d<new Date(y,m,1))d.setDate(d.getDate()+14);while(d.getMonth()===m&&d.getFullYear()===y){datas.push(new Date(d));d.setDate(d.getDate()+14)}}
@@ -412,6 +461,7 @@ const p=pagos[pagoKey(it.id,ymd(d))];
 if(!p&&it.criado&&ymd(d)<it.criado)continue;
 if(temParcelas(it)&&numParcela(it,d)>it.parcelas&&!p)continue;
 const prev=p?p.valor:it.valor;
+agendaMes.push({d,it,valor:prev,pago:!!p});if(!isEntrada(it))porConta[it.id]=(porConta[it.id]||0)+prev;
 if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
 else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
 }
@@ -424,6 +474,34 @@ $("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}
 const saldo=entPrev-saiPrev;
 $("sSaldo").textContent=brl(saldo);$("sSaldo").className="num hero-saldo "+(saldo<0?"c-out":"");
 $("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
+renderGraficos(entPrev,saiPrev,porConta,m);
+}
+let agendaMes=[];
+const barra=(rot,val,max,cls,extra="")=>`<div class="gi"><div class="gi-top"><span>${rot}</span><b class="num">${brl(val)}${extra}</b></div><div class="gtrack" aria-hidden="true"><i class="${cls}" style="width:${max>0?Math.max(2,val/max*100):0}%"></i></div></div>`;
+function renderGraficos(ent,sai,porConta,m){
+$("grafTit").textContent=`Gráficos de ${MESES[m]}`;
+if(!ent&&!sai){$("gEntSai").innerHTML=`<p class="empty">Cadastre suas contas e entradas que o gráfico aparece aqui.</p>`;$("gSobra").innerHTML="";$("gConta").innerHTML="";return}
+const mx=Math.max(ent,sai);
+$("gEntSai").innerHTML=barra("Entradas",ent,mx,"in")+barra("Saídas",sai,mx,"out");
+const sobra=ent-sai;
+$("gSobra").innerHTML=`<span>${sobra>=0?"Sobra no mês":"Falta no mês"}</span><b class="num ${sobra>=0?"c-in":"c-out"}">${brl(Math.abs(sobra))}</b>`;
+const lista=Object.entries(porConta).map(([id,v])=>({nome:(itens.find(x=>x.id===id)||{}).nome||"Conta",v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+if(!lista.length){$("gConta").innerHTML=`<p class="empty">Nenhuma saída neste mês.</p>`;return}
+let top=lista.slice(0,5);if(lista.length>5)top.push({nome:`Outras (${lista.length-5})`,v:lista.slice(5).reduce((a,b)=>a+b.v,0)});
+const max=top[0].v;
+$("gConta").innerHTML=top.map(x=>barra(esc(x.nome),x.v,max,"out",` <small>· ${Math.round(x.v/sai*100)}%</small>`)).join("");
+}
+function renderAgenda(){
+const t=hoje(),dias={};
+for(const a of agendaMes){const k=ymd(a.d);(dias[k]=dias[k]||[]).push(a)}
+const ks=Object.keys(dias).sort();
+$("agTit").textContent=`Agenda de ${MESES[t.getMonth()]}`;
+if(!ks.length){$("agLista").innerHTML=`<div class="empty"><b>Nada neste mês</b><span>As contas que você cadastrar aparecem aqui, dia a dia.</span></div>`;return}
+$("agLista").innerHTML=ks.map(k=>{const d=fromYmd(k),df=diffDias(d,t);
+return `<section class="ag-dia${df<0?" passado":df===0?" hoje":""}"><h3>${df===0?"Hoje · ":""}${DIAS[d.getDay()]}, ${dm(d)}</h3>${dias[k].map(a=>{const ent=isEntrada(a.it);
+const st=a.it.tipo==="avulso"?(ent?"Entrada avulsa":"Gasto avulso"):a.pago?(ent?"Recebido":"Pago"):df<0?(ent?"Não recebido":"Atrasado"):df===0?(ent?"Entra hoje":"Vence hoje"):(ent?"A receber":"A pagar");
+return `<div class="ag-it"><div><b>${esc(a.it.nome)}</b><small class="${!a.pago&&df<0?"c-out":""}">${st}</small></div><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(a.valor)}</strong></div>`}).join("")}</section>`}).join("");
+const h=$("agLista").querySelector(".ag-dia:not(.passado)");if(h)setTimeout(()=>h.scrollIntoView({block:"start"}),80);
 }
 function renderAvisos(){
 const lista=itens.map(it=>({it,s:status(it)})).filter(x=>x.s.kind==="warn"||x.s.kind==="late")
@@ -896,6 +974,9 @@ $("pnContas").textContent=itens.length;$("pnPagas").textContent=pagas;$("pnAtras
 }
 $("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();$("perfil").showModal()});
 $("fecharPerfil").addEventListener("click",()=>$("perfil").close());
+$("verAgenda").addEventListener("click",()=>{renderAgenda();$("agenda").showModal()});
+$("fecharAgenda").addEventListener("click",()=>$("agenda").close());
+$("agenda").addEventListener("click",e=>{if(e.target===$("agenda"))$("agenda").close()});
 $("perfil").addEventListener("click",e=>{
 if(e.target===$("perfil")){$("perfil").close();return}
 const b=e.target.closest("button");if(!b)return;
