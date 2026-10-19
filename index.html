@@ -188,6 +188,12 @@ button:active,.btn:active{opacity:.75}
 </div>
 <section class="list" id="list" role="tabpanel" aria-labelledby="tab-fixo"></section>
 <p class="note" id="tabNote"></p>
+<section class="backup" aria-label="Lembretes no calendário">
+<h2>Lembretes no calendário</h2>
+<p>Coloca as contas no Calendário do celular, com aviso na véspera e no dia do vencimento. Com o widget do Calendário na tela de início, as próximas contas aparecem lá.</p>
+<div class="inline"><button class="btn" type="button" id="calExportar">Adicionar ao calendário</button></div>
+<p id="calDica" hidden>Se você mudar ou excluir uma conta aqui, apague os eventos antigos no Calendário e adicione de novo.</p>
+</section>
 <section class="backup" aria-label="Cópia de segurança">
 <h2>Cópia de segurança</h2>
 <p>Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho ou limpar o navegador.</p>
@@ -753,6 +759,39 @@ $("bkSalvar").addEventListener("click",()=>{
 const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos},null,2)],{type:"application/json"});
 const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
 document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);try{localStorage.setItem(LS_BK,ymd(hoje()))}catch(e){}renderAvisos();toast("Cópia salva");
+});
+const ICS_DIA=["SU","MO","TU","WE","TH","FR","SA"];
+const icsTxt=t=>String(t).replace(/[\\;,]/g,m=>"\\"+m).replace(/\n/g,"\\n");
+const icsData=d=>ymd(d).replace(/-/g,"");
+function icsDobra(l){let o="";while(l.length>73){o+=l.slice(0,73)+"\r\n ";l=l.slice(73)}return o+l}
+function gerarIcs(){
+const ag=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,"");
+const ev=[];
+for(const it of itens){
+if(it.tipo==="avulso")continue;
+const s=status(it);if(s.quitado)continue;
+const ini=s.kind==="done"&&s.proxima?s.proxima:s.data;if(!ini)continue;
+let rr;
+if(isMensal(it)){rr="FREQ=MONTHLY;"+(it.dia>28?`BYMONTHDAY=${Array.from({length:it.dia-27},(_,i)=>28+i).join(",")};BYSETPOS=-1`:`BYMONTHDAY=${it.dia}`);
+if(temParcelas(it)){const n=it.parcelas-numParcela(it,ini)+1;if(n<1)continue;rr+=`;COUNT=${n}`}}
+else if(isQuinz(it))rr=`FREQ=WEEKLY;INTERVAL=2;BYDAY=${ICS_DIA[ini.getDay()]}`;
+else rr=`FREQ=WEEKLY;BYDAY=${ICS_DIA[it.dia]}`;
+const fim=new Date(ini);fim.setDate(fim.getDate()+1);
+const ent=isEntrada(it),tit=`${ent?"Entra":"Vence"}: ${it.nome} (${brl(it.valor)})`;
+ev.push(["BEGIN:VEVENT",`UID:${it.id}@contas-em-dia`,`DTSTAMP:${ag}`,`DTSTART;VALUE=DATE:${icsData(ini)}`,`DTEND;VALUE=DATE:${icsData(fim)}`,`RRULE:${rr}`,
+`SUMMARY:${icsTxt(tit)}`,`DESCRIPTION:${icsTxt(quando(it)+" · Contas em Dia")}`,"TRANSP:TRANSPARENT",
+"BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${icsTxt(tit+" amanhã")}`,"TRIGGER:-PT15H","END:VALARM",
+"BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${icsTxt(tit+" hoje")}`,"TRIGGER:PT9H","END:VALARM","END:VEVENT"].map(icsDobra).join("\r\n"));
+}
+if(!ev.length)return null;
+return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Contas em Dia//PT-BR","CALSCALE:GREGORIAN","X-WR-CALNAME:Contas em Dia",...ev,"END:VCALENDAR",""].join("\r\n");
+}
+$("calExportar").addEventListener("click",()=>{
+const ics=gerarIcs();if(!ics){toast("Nenhuma conta que se repete para colocar no calendário");return}
+const url=URL.createObjectURL(new Blob([ics],{type:"text/calendar;charset=utf-8"}));
+if(/iPhone|iPad|iPod/.test(navigator.userAgent))location.href=url;
+else{const a=document.createElement("a");a.href=url;a.download="contas-em-dia.ics";document.body.appendChild(a);a.click();a.remove()}
+setTimeout(()=>URL.revokeObjectURL(url),60000);$("calDica").hidden=false;
 });
 let bkDados=null;
 $("bkArquivo").addEventListener("change",async e=>{
