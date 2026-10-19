@@ -1,49 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="156mm" height="91.6mm" viewBox="0 0 156 91.6">
-  <!-- Peça 150 x 85,6 mm com 3 mm de sangria: Google | Instagram | WhatsApp -->
+  <!-- Peça 150 x 85,6 mm com 3 mm de sangria: Instagram | Google | WhatsApp -->
   <defs><clipPath id="painel"><rect x="5" y="0" width="50" height="91.6"/></clipPath></defs>
   <rect width="156" height="91.6" fill="#0d0d0d"/>
   <g transform="translate(-2 0)" clip-path="url(#painel)">
-  <!-- Cartão CR80 vertical (54 x 85,6 mm) + 3 mm de sangria em cada lado -->
-  <defs>
-    <style>
-      .txt { font-family: 'Outfit', 'Poppins', Arial, sans-serif; fill: #fff; }
-    </style>
-  </defs>
-  
-
-  <!-- anel colorido -->
-  <g fill="none" stroke-width="1.15" stroke-linecap="butt">
-    <path d="M 16.14 30 A 16 16 0 0 1 43.86 30" stroke="#EA4335" transform="rotate(0 30 38)"/>
-    <path d="M 43.86 30 A 16 16 0 0 1 24.53 53.04" stroke="#4285F4"/>
-    <path d="M 24.53 53.04 A 16 16 0 0 1 14.24 40.78" stroke="#34A853"/>
-    <path d="M 14.24 40.78 A 16 16 0 0 1 16.14 30" stroke="#FBBC05"/>
-  </g>
-
-  <text x="30" y="33.6" text-anchor="middle" class="txt" font-size="4.1" font-weight="400">Nos <tspan font-weight="700">avalie</tspan> no</text>
-  <text x="30" y="43.8" text-anchor="middle" font-family="'Outfit', 'Poppins', Arial, sans-serif" font-size="8.3" font-weight="500" letter-spacing="-0.1"><tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan></text>
-
-  <!-- ícone NFC: ondas + mão segurando o celular -->
-  <g fill="none" stroke="#fff" stroke-width="0.42" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="21.2" y="59.2" width="13.5" height="7.6" rx="3.8"/>
-    <path d="M 24.6 61.4 Q 25.6 63 24.6 64.6"/>
-    <path d="M 25.8 60.7 Q 27.3 63 25.8 65.3"/>
-    <path d="M 27.0 60.0 Q 29.0 63 27.0 66.0"/>
-    <!-- celular -->
-    <g transform="rotate(-14 33 62.6)">
-      <rect x="30.6" y="57.8" width="4.6" height="8.6" rx="0.7" fill="#0d0d0d"/>
-      <line x1="32.3" y1="58.5" x2="33.5" y2="58.5"/>
-    </g>
-    <!-- mão -->
-    <path d="M 30.6 64.7 C 30.8 66.9 32.4 68.3 34.2 68.1 C 35.6 67.9 36.6 66.6 36.5 65.2" fill="#0d0d0d"/>
-    <path d="M 36.5 65.2 C 37.4 65.0 37.4 64.0 36.3 63.9 C 37.2 63.7 37.1 62.7 36.0 62.6 C 36.8 62.4 36.7 61.4 35.7 61.4"/>
-    <path d="M 30.6 64.7 C 29.6 64.3 29.7 63.0 30.7 63.2 L 32.3 63.7"/>
-    <path d="M 32.1 68.0 L 31.7 70.0"/>
-    <path d="M 35.9 67.0 L 36.9 69.0"/>
-  </g>
-
-  <text x="30" y="75" text-anchor="middle" class="txt" font-size="2.55" font-weight="500" letter-spacing="0.32">APROXIME SEU CELULAR</text>
-</g>
-  <g transform="translate(48 0)" clip-path="url(#painel)">
   <!-- Cartão CR80 vertical (54 x 85,6 mm) + 3 mm de sangria em cada lado -->
   <defs>
     <style>
@@ -75,6 +34,47 @@
   <circle cx="33.85" cy="29.95" r="0.85" fill="#D62976"/>
 
   <text x="30" y="47.8" text-anchor="middle" font-family="'Grand Hotel', 'Outfit', cursive" font-size="6.6" fill="#fff">Instagram</text>
+
+  <!-- ícone NFC: ondas + mão segurando o celular -->
+  <g fill="none" stroke="#fff" stroke-width="0.42" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="21.2" y="59.2" width="13.5" height="7.6" rx="3.8"/>
+    <path d="M 24.6 61.4 Q 25.6 63 24.6 64.6"/>
+    <path d="M 25.8 60.7 Q 27.3 63 25.8 65.3"/>
+    <path d="M 27.0 60.0 Q 29.0 63 27.0 66.0"/>
+    <!-- celular -->
+    <g transform="rotate(-14 33 62.6)">
+      <rect x="30.6" y="57.8" width="4.6" height="8.6" rx="0.7" fill="#0d0d0d"/>
+      <line x1="32.3" y1="58.5" x2="33.5" y2="58.5"/>
+    </g>
+    <!-- mão -->
+    <path d="M 30.6 64.7 C 30.8 66.9 32.4 68.3 34.2 68.1 C 35.6 67.9 36.6 66.6 36.5 65.2" fill="#0d0d0d"/>
+    <path d="M 36.5 65.2 C 37.4 65.0 37.4 64.0 36.3 63.9 C 37.2 63.7 37.1 62.7 36.0 62.6 C 36.8 62.4 36.7 61.4 35.7 61.4"/>
+    <path d="M 30.6 64.7 C 29.6 64.3 29.7 63.0 30.7 63.2 L 32.3 63.7"/>
+    <path d="M 32.1 68.0 L 31.7 70.0"/>
+    <path d="M 35.9 67.0 L 36.9 69.0"/>
+  </g>
+
+  <text x="30" y="75" text-anchor="middle" class="txt" font-size="2.55" font-weight="500" letter-spacing="0.32">APROXIME SEU CELULAR</text>
+</g>
+  <g transform="translate(48 0)" clip-path="url(#painel)">
+  <!-- Cartão CR80 vertical (54 x 85,6 mm) + 3 mm de sangria em cada lado -->
+  <defs>
+    <style>
+      .txt { font-family: 'Outfit', 'Poppins', Arial, sans-serif; fill: #fff; }
+    </style>
+  </defs>
+  
+
+  <!-- anel colorido -->
+  <g fill="none" stroke-width="1.15" stroke-linecap="butt">
+    <path d="M 16.14 30 A 16 16 0 0 1 43.86 30" stroke="#EA4335" transform="rotate(0 30 38)"/>
+    <path d="M 43.86 30 A 16 16 0 0 1 24.53 53.04" stroke="#4285F4"/>
+    <path d="M 24.53 53.04 A 16 16 0 0 1 14.24 40.78" stroke="#34A853"/>
+    <path d="M 14.24 40.78 A 16 16 0 0 1 16.14 30" stroke="#FBBC05"/>
+  </g>
+
+  <text x="30" y="33.6" text-anchor="middle" class="txt" font-size="4.1" font-weight="400">Nos <tspan font-weight="700">avalie</tspan> no</text>
+  <text x="30" y="43.8" text-anchor="middle" font-family="'Outfit', 'Poppins', Arial, sans-serif" font-size="8.3" font-weight="500" letter-spacing="-0.1"><tspan fill="#4285F4">G</tspan><tspan fill="#EA4335">o</tspan><tspan fill="#FBBC05">o</tspan><tspan fill="#4285F4">g</tspan><tspan fill="#34A853">l</tspan><tspan fill="#EA4335">e</tspan></text>
 
   <!-- ícone NFC: ondas + mão segurando o celular -->
   <g fill="none" stroke="#fff" stroke-width="0.42" stroke-linecap="round" stroke-linejoin="round">
