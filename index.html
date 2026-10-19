@@ -24,7 +24,7 @@ body{margin:0}
 --in:#0F7A57; --in-soft:#DFF4EB; --out:#C0392B; --out-soft:#FBE6E3;
 --warn:#946000; --warn-soft:#FDF1D8;
 --hero-a:#2B3BB0; --hero-b:#4A5BE0; --hero-in:#B9F2D9; --hero-out:#FFD0C9;
---tab-sel:#FFFFFF; --shadow:0 1px 2px rgba(21,26,45,.04),0 4px 16px rgba(21,26,45,.06);
+--bar-in:#0F7A57; --bar-out:#C0392B; --tab-sel:#FFFFFF; --shadow:0 1px 2px rgba(21,26,45,.04),0 4px 16px rgba(21,26,45,.06);
 --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
 --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -33,13 +33,13 @@ body{margin:0}
 --accent:#8E9BFF; --accent-ink:#0F1430; --accent-soft:#252C52;
 --in:#5FD3A6; --in-soft:#163A2E; --out:#FF8A7D; --out-soft:#3D2220;
 --warn:#F2B84B; --warn-soft:#3A2E14;
---hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; color-scheme:dark}}
+--hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; --bar-in:#2E9E8A; --bar-out:#E8664F; color-scheme:dark}}
 :root[data-theme="dark"]{
 --bg:#0E1117; --surface:#181C26; --surface-2:#222735; --ink:#EAEDF4; --muted:#9CA4B6; --line:#2A3041;
 --accent:#8E9BFF; --accent-ink:#0F1430; --accent-soft:#252C52;
 --in:#5FD3A6; --in-soft:#163A2E; --out:#FF8A7D; --out-soft:#3D2220;
 --warn:#F2B84B; --warn-soft:#3A2E14;
---hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; color-scheme:dark}
+--hero-a:#232D80; --hero-b:#3443AE; --shadow:none; --tab-sel:#363D52; --bar-in:#2E9E8A; --bar-out:#E8664F; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:.9375rem;line-height:1.45;
@@ -220,6 +220,93 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .cor[aria-checked="true"]{border-color:var(--ink)}
 .cor[aria-checked="true"] svg{opacity:1}
 .seg.tres{grid-template-columns:repeat(3,1fr)}
+/* gráficos */
+.graf{gap:14px}
+.tabs.mini button{font-size:.82rem;min-height:36px;padding:6px 12px}
+#gPainel{display:flex;flex-direction:column;gap:12px}
+.graf h3{margin:0;font-size:.95rem;font-weight:600}
+.gwrap{position:relative}
+.gwrap svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.gwrap svg:focus{outline:none}
+.gwrap svg:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px}
+.gwrap text{font-family:var(--body);font-size:10px;fill:var(--muted)}
+.gwrap text.forte{fill:var(--ink);font-weight:700}
+.gtip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:6px 10px;border-radius:10px;font-size:.78rem;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.gtip small{display:block;font-weight:500;opacity:.8}
+.gfatos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gfato{background:var(--bg);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.gfato small{font-size:.75rem;color:var(--muted)}
+.gfato b{font-weight:700}
+.chips.mini .chip{padding:6px 12px;font-size:.82rem;min-height:36px}
+.graf .sub{margin:-6px 0 0;font-size:.82rem;color:var(--muted)}
+.gl{display:flex;flex-direction:column;gap:12px}
+.gi{display:flex;flex-direction:column;gap:5px}
+.gi-top{display:flex;justify-content:space-between;gap:10px;font-size:.88rem}
+.gi-top span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gi-top b{font-weight:700;white-space:nowrap}
+.gi-top small{color:var(--muted);font-weight:500}
+.gtrack{height:10px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.gtrack i{display:block;height:100%;min-width:4px;border-radius:4px}
+.gtrack i.in{background:var(--bar-in)} .gtrack i.out{background:var(--bar-out)}
+.sobra{display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:10px;font-size:.9rem}
+.sobra b{font-family:var(--display);font-size:1.2rem}
+.graf .empty{padding:12px 0}
+.graf-sep{border:0;border-top:1px solid var(--line);margin:4px 0}
+.hero-link{align-self:flex-start;display:flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:0;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;font:inherit;font-weight:600;font-size:.88rem;cursor:pointer}
+.hero-link svg{width:16px;height:16px}
+/* agenda */
+.ag-dia{display:flex;flex-direction:column;background:var(--surface);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.ag-dia.passado{opacity:.7}
+.ag-dia h3{margin:0;padding:10px 16px 4px;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.ag-dia.hoje h3{color:var(--accent)}
+.ag-it{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid var(--line)}
+.ag-dia h3 + .ag-it{border-top:0}
+.ag-it div{flex:1;min-width:0}
+.ag-it b{display:block;font-weight:600;overflow-wrap:anywhere}
+.ag-it small{font-size:.8rem;color:var(--muted)}
+.ag-it small.c-out{color:var(--out);font-weight:600}
+.ag-it strong{white-space:nowrap}
+.ag-lista{display:flex;flex-direction:column;gap:10px}
+.cal{background:var(--surface);border-radius:20px;padding:12px;box-shadow:var(--shadow);display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .sem{text-align:center;font-size:.72rem;font-weight:600;color:var(--muted);padding:4px 0}
+.cal button{position:relative;aspect-ratio:1;min-height:40px;border:0;border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0}
+.cal button.passado{color:var(--muted)}
+.cal button.hoje{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.cal .dots{display:flex;gap:3px;height:6px}
+.cal .dots i{width:6px;height:6px;border-radius:50%}
+.cal .dots i.in{background:var(--bar-in)} .cal .dots i.out{background:var(--bar-out)}
+.cal .dots i.late{background:transparent;box-shadow:inset 0 0 0 1.5px var(--bar-out)}
+.cal button[aria-pressed="true"] .dots i{box-shadow:0 0 0 1.5px var(--accent-ink)}
+.cal-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted);padding:0 4px}
+.cal-leg span{display:flex;align-items:center;gap:6px}
+.cal-leg i{width:8px;height:8px;border-radius:50%}
+.cal-leg i.in{background:var(--bar-in)} .cal-leg i.out{background:var(--bar-out)} .cal-leg i.late{box-shadow:inset 0 0 0 1.5px var(--bar-out)}
+.cal-nav{display:flex;align-items:center;justify-content:space-between}
+.ag-sub{font-family:var(--display);font-weight:600;font-size:1.05rem;margin:6px 2px 0}
+/* login */
+.porta{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;display:flex;flex-direction:column;align-items:center;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.porta-in{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px;margin:auto 0}
+.porta-marca{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.porta-marca img{width:72px;height:72px;border-radius:20px;box-shadow:var(--shadow)}
+.porta-marca h1{font-size:1.9rem}
+.porta-marca p{margin:0;color:var(--muted)}
+.porta .cartao{gap:14px}
+.porta .btn{width:100%}
+.porta .btn.google{display:flex;align-items:center;justify-content:center;gap:10px}
+.porta .btn.google svg{width:18px;height:18px}
+.porta-sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.8rem}
+.porta-sep::before,.porta-sep::after{content:"";flex:1;border-top:1px solid var(--line)}
+.porta-link{background:none;border:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;padding:8px;min-height:40px}
+.porta-msg{margin:0;text-align:center;color:var(--muted)}
+.porta-ico{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto;background:var(--accent-soft);color:var(--accent)}
+.porta-ico svg{width:30px;height:30px}
+.acesso-it{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 0;border-top:1px solid var(--line)}
+.acesso-it:first-child{border-top:0}
+.acesso-it div{flex:1 1 160px;min-width:0}
+.acesso-it b{display:block;font-weight:600;overflow-wrap:anywhere}
+.acesso-it small{color:var(--muted);font-size:.8rem}
+.acesso-it .btn{padding:6px 12px;min-height:38px;font-size:.85rem}
 /* mais opções */
 .menu{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:12px 16px;background:none;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;position:relative}
@@ -252,6 +339,16 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div class="stat"><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg></span><div><small>Saídas</small><b class="num" id="sSai">—</b><small class="num" id="sSaiR"></small></div></div>
 </div>
 <div class="prog"><div class="bar" id="pBarWrap" role="progressbar" aria-label="Contas pagas no mês" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
+<button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Calendário do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</section>
+<section class="cartao graf" aria-labelledby="grafTit">
+<h2 id="grafTit">Gráficos do mês</h2>
+<div class="tabs mini" role="tablist" aria-label="Tipo de gráfico">
+<button role="tab" id="gt-dia" data-g="dia" aria-controls="gPainel" aria-selected="true" tabindex="0">Dia a dia</button>
+<button role="tab" id="gt-es" data-g="es" aria-controls="gPainel" aria-selected="false" tabindex="-1">Entradas × Saídas</button>
+<button role="tab" id="gt-conta" data-g="conta" aria-controls="gPainel" aria-selected="false" tabindex="-1">Por conta</button>
+</div>
+<div id="gPainel" role="tabpanel" aria-labelledby="gt-dia"></div>
 </section>
 <section id="assist" aria-label="Assistente de voz" aria-live="polite"></section>
 <section id="alertsWrap" aria-label="Avisos" hidden>
@@ -283,6 +380,16 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 </div>
 <p class="note">Suas contas ficam guardadas só neste celular. Salve uma cópia de vez em quando para não perder nada se trocar de aparelho.</p>
 </div>
+<div class="porta" id="porta" hidden>
+<div class="porta-in" id="portaIn" aria-live="polite"></div>
+</div>
+<dialog class="perfil" id="agenda" aria-labelledby="agTit">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
+<div class="perfil-topo"><h2 id="agTit">Agenda do mês</h2><button class="btn ghost" type="button" id="fecharAgenda">Fechar</button></div>
+<div class="ag-lista" id="agLista"></div>
+</div>
+</dialog>
 <dialog class="perfil" id="perfil" aria-labelledby="perfilNome">
 <div class="perfil-in">
 <div class="perfil-alca" aria-hidden="true"></div>
@@ -306,7 +413,18 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 <div class="field"><span class="eyebrow" id="lbTexto">Tamanho do texto</span><div class="seg" role="group" aria-labelledby="lbTexto">
 <button type="button" data-texto="normal">Normal</button><button type="button" data-texto="grande">Grande</button></div></div>
 </div>
-<p class="note">Seu perfil e suas contas ficam guardados só neste celular.</p>
+<div class="cartao" id="pfConta" hidden>
+<h2>Conta</h2>
+<p class="note" id="pfContaTxt"></p>
+<button class="btn" type="button" id="pfSair">Sair da conta</button>
+</div>
+<div class="cartao" id="pfAdmin" hidden>
+<h2>Controle de acesso</h2>
+<p class="note">Quem criar conta aparece aqui. Só entra no app quem você liberar.</p>
+<div id="admLista"></div>
+<div class="field"><label for="admEmail">Liberar um e-mail direto</label><div class="resp"><input id="admEmail" type="email" inputmode="email" placeholder="pessoa@email.com"><button class="btn primary" type="button" id="admAdd">Liberar</button></div></div>
+</div>
+<p class="note" id="pfNota">Seu perfil e suas contas ficam guardados só neste celular.</p>
 </div>
 </dialog>
 <button class="fab" id="fab" type="button" aria-label="Adicionar conta" title="Adicionar conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -338,11 +456,12 @@ const isEntrada=it=>it.sentido==="entrada";
 const isQuinz=it=>it.tipo==="quinzenal";
 function occQuinz(anc,ref){const a=fromYmd(anc);const k=Math.floor(diffDias(ref,a)/14);const d=new Date(a);if(k>0)d.setDate(a.getDate()+14*k);return d}
 const noMes=(it,y,m)=>{const d=fromYmd(it.data);return d.getFullYear()===y&&d.getMonth()===m};
+let fauth=null,fdb=null,usuario=null,nuvemDoc=null,nuvemStop=null,nvT=null,ehAdmin=false,portaModo="entrar",jaLogou=false;
 let itens=[], pagos={}, db=null, pronto=false, aba="fixo", aberto=null, editando=null, confirmarExcluir=null;
 const pagoKey=(id,data)=>`${id}__${data}`;
 const LS="contas-em-dia-v1";
 function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{}}catch(e){}}
-function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos}))}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos}))}catch(e){}nuvemSalvar()}
 async function salvarItem(it){
 const i=itens.findIndex(x=>x.id===it.id);i>=0?itens[i]=it:itens.push(it);lsSave();render()
 }
@@ -400,9 +519,9 @@ return `${isEntrada(it)?"Entra":"Sai"} toda ${DIAS[it.dia]}`+px;
 }
 function resumo(){
 const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m);
-let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;
+let entPrev=0,saiPrev=0,entReal=0,saiReal=0,falta=0,nPagas=0,nTotal=0;agendaMes=[];
 for(const it of itens){
-if(it.tipo==="avulso"){if(noMes(it,y,m)){if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
+if(it.tipo==="avulso"){if(noMes(it,y,m)){agendaMes.push({d:fromYmd(it.data),it,valor:it.valor,pago:true});if(isEntrada(it)){entPrev+=it.valor;entReal+=it.valor}else{saiPrev+=it.valor;saiReal+=it.valor}}continue}
 const datas=[];
 if(isMensal(it)) datas.push(occMes(it.dia,y,m));
 else if(isQuinz(it)){let d=occQuinz(it.data,new Date(y,m,1));if(d<new Date(y,m,1))d.setDate(d.getDate()+14);while(d.getMonth()===m&&d.getFullYear()===y){datas.push(new Date(d));d.setDate(d.getDate()+14)}}
@@ -412,6 +531,7 @@ const p=pagos[pagoKey(it.id,ymd(d))];
 if(!p&&it.criado&&ymd(d)<it.criado)continue;
 if(temParcelas(it)&&numParcela(it,d)>it.parcelas&&!p)continue;
 const prev=p?p.valor:it.valor;
+agendaMes.push({d,it,valor:prev,pago:!!p});
 if(isEntrada(it)){entPrev+=prev;if(p)entReal+=p.valor}
 else{saiPrev+=prev;nTotal++;if(p){saiReal+=p.valor;nPagas++}else falta+=it.valor}
 }
@@ -424,6 +544,99 @@ $("pTxt").textContent=nTotal?`${nPagas} de ${nTotal} contas pagas em ${MESES[m]}
 const saldo=entPrev-saiPrev;
 $("sSaldo").textContent=brl(saldo);$("sSaldo").className="num hero-saldo "+(saldo<0?"c-out":"");
 $("sMes").textContent=`Saldo previsto de ${MESES[m]}`;
+renderGraficos(m);
+}
+let agendaMes=[];
+const barra=(rot,val,max,cls,extra="")=>`<div class="gi"><div class="gi-top"><span>${rot}</span><b class="num">${brl(val)}${extra}</b></div><div class="gtrack" aria-hidden="true"><i class="${cls}" style="width:${max>0?Math.max(2,val/max*100):0}%"></i></div></div>`;
+let gAba="dia",gSentido="saida",gMes=0,gSerie=[];
+const GABAS=["dia","es","conta"];
+function renderGraficos(m){gMes=m;
+$("grafTit").textContent=`Gráficos de ${MESES[m]}`;
+for(const k of GABAS){const b=$("gt-"+k);b.setAttribute("aria-selected",k===gAba);b.tabIndex=k===gAba?0:-1}
+$("gPainel").setAttribute("aria-labelledby","gt-"+gAba);
+let ent=0,sai=0;for(const a of agendaMes)isEntrada(a.it)?ent+=a.valor:sai+=a.valor;
+const P=$("gPainel");
+if(!ent&&!sai){P.innerHTML=`<p class="empty">Cadastre suas contas e entradas que o gráfico aparece aqui.</p>`;return}
+if(gAba==="dia"){P.innerHTML=graficoDia(m);ligarGraficoDia();return}
+if(gAba==="es"){const mx=Math.max(ent,sai),sobra=ent-sai;
+P.innerHTML=`<div class="gl">${barra("Entradas",ent,mx,"in")+barra("Saídas",sai,mx,"out")}</div>
+<div class="sobra"><span>${sobra>=0?"Sobra no mês":"Falta no mês"}</span><b class="num ${sobra>=0?"c-in":"c-out"}">${brl(Math.abs(sobra))}</b></div>`;return}
+const soma={};for(const a of agendaMes){if((gSentido==="entrada")!==isEntrada(a.it))continue;soma[a.it.id]=(soma[a.it.id]||0)+a.valor}
+const tot=gSentido==="entrada"?ent:sai;
+const lista=Object.entries(soma).map(([id,v])=>({nome:(itens.find(x=>x.id===id)||{}).nome||"Conta",v})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v);
+let top=lista.slice(0,5);if(lista.length>5)top.push({nome:`Outras (${lista.length-5})`,v:lista.slice(5).reduce((a,b)=>a+b.v,0)});
+P.innerHTML=`<div class="chips mini" role="group" aria-label="Mostrar"><button class="chip${gSentido==="saida"?" sel":""}" type="button" data-gs="saida" aria-pressed="${gSentido==="saida"}">Para onde vai</button><button class="chip${gSentido==="entrada"?" sel":""}" type="button" data-gs="entrada" aria-pressed="${gSentido==="entrada"}">De onde vem</button></div>
+<div class="gl">${top.length?top.map(x=>barra(esc(x.nome),x.v,top[0].v,gSentido==="entrada"?"in":"out",` <small>· ${Math.round(x.v/tot*100)}%</small>`)).join(""):`<p class="empty">${gSentido==="entrada"?"Nenhuma entrada":"Nenhuma saída"} neste mês.</p>`}</div>`;
+}
+function graficoDia(m){
+const t=hoje(),y=t.getFullYear(),n=diasNoMes(y,m),delta=new Array(n+1).fill(0);
+for(const a of agendaMes)delta[a.d.getDate()]+=isEntrada(a.it)?a.valor:-a.valor;
+gSerie=[];let c=0;for(let d=1;d<=n;d++){c+=delta[d];gSerie.push(c)}
+const W=340,H=170,L=6,R=6,T=22,B=24,mx=Math.max(0,...gSerie),mn=Math.min(0,...gSerie),span=(mx-mn)||1;
+const X=d=>L+(d-1)/(n-1)*(W-L-R),Y=v=>T+(mx-v)/span*(H-T-B),y0=Y(0);
+let path=`M${X(1)},${Y(gSerie[0])}`;for(let d=2;d<=n;d++)path+=`H${X(d)}V${Y(gSerie[d-1])}`;
+const area=`${path}V${y0}H${X(1)}Z`;
+let iMin=0;gSerie.forEach((v,i)=>{if(v<gSerie[iMin])iMin=i});
+const vMin=gSerie[iMin],fim=gSerie[n-1],hojeD=t.getDate();
+const ticks=[1,10,20,n].map(d=>`<text x="${X(d)}" y="${H-6}" text-anchor="${d===1?"start":d===n?"end":"middle"}">${d}</text>`).join("");
+const minLbl=vMin<0?`<circle cx="${X(iMin+1)}" cy="${Y(vMin)}" r="4" fill="var(--bar-out)" stroke="var(--surface)" stroke-width="2"/><text class="forte" x="${Math.min(Math.max(X(iMin+1),40),W-40)}" y="${Math.min(Y(vMin)+16,H-B+12)}" text-anchor="middle">${brl(vMin)}</text>`:"";
+const desc=`Saldo acumulado do mês. Termina em ${brl(fim)}.`+(vMin<0?` Fica mais apertado no dia ${iMin+1}, com ${brl(vMin)}.`:" Não fica negativo em nenhum dia.");
+return `<div class="gwrap" id="gDia"><svg viewBox="0 0 ${W} ${H}" role="img" tabindex="0" aria-label="${desc} Use as setas para ver cada dia.">
+<defs><clipPath id="cAc"><rect x="0" y="0" width="${W}" height="${y0+1.5}"/></clipPath><clipPath id="cAb"><rect x="0" y="${y0+1.5}" width="${W}" height="${H}"/></clipPath></defs>
+<path d="${area}" fill="var(--accent)" opacity=".12" clip-path="url(#cAc)"/><path d="${area}" fill="var(--bar-out)" opacity=".14" clip-path="url(#cAb)"/>
+<line x1="${L}" x2="${W-R}" y1="${y0}" y2="${y0}" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="${L}" y="${Math.min(y0+12,H-B-2)}">R$ 0</text>
+${hojeD<=n?`<line x1="${X(hojeD)}" x2="${X(hojeD)}" y1="${T-8}" y2="${H-B}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="2 3"/><text x="${X(hojeD)}" y="${T-12}" text-anchor="middle">hoje</text>`:""}
+<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" clip-path="url(#cAc)"/>
+<path d="${path}" fill="none" stroke="var(--bar-out)" stroke-width="2" stroke-linejoin="round" clip-path="url(#cAb)"/>
+${minLbl}${ticks}
+<circle id="gPt" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2" visibility="hidden"/>
+<rect id="gHit" x="0" y="0" width="${W}" height="${H}" fill="transparent"/>
+</svg><div class="gtip" id="gTip" hidden></div></div>
+<div class="gfatos"><div class="gfato"><small>Fim do mês</small><b class="num ${fim<0?"c-out":"c-in"}">${brl(fim)}</b></div>
+<div class="gfato"><small>${vMin<0?`Dia mais apertado · ${String(iMin+1).padStart(2,"0")}/${String(gMes+1).padStart(2,"0")}`:"Menor saldo"}</small><b class="num ${vMin<0?"c-out":""}">${brl(vMin)}</b></div></div>
+<p class="note">${vMin<0?"Nos dias em vermelho, o que sai é maior do que o que entrou até ali.":"Linha do saldo somando entradas e tirando saídas, dia a dia."} Toque no gráfico para ver cada dia.</p>`;
+}
+function ligarGraficoDia(){
+const svg=$("gDia").querySelector("svg"),tip=$("gTip"),pt=$("gPt"),n=gSerie.length;let cur=null;
+const W=340,H=170,L=6,R=6,T=22,B=24,mx=Math.max(0,...gSerie),mn=Math.min(0,...gSerie),span=(mx-mn)||1;
+const X=d=>L+(d-1)/(n-1)*(W-L-R),Y=v=>T+(mx-v)/span*(H-T-B);
+function mostrar(d){cur=d;const v=gSerie[d-1],x=X(d);pt.setAttribute("cx",x);pt.setAttribute("cy",Y(v));pt.setAttribute("fill",v<0?"var(--bar-out)":"var(--accent)");pt.setAttribute("visibility","visible");
+const k=svg.getBoundingClientRect().width/W;tip.style.left=Math.min(Math.max(x*k,60),svg.getBoundingClientRect().width-60)+"px";
+tip.innerHTML=`${d} de ${MESES[gMes]}<small>Saldo ${brl(v)}</small>`;tip.hidden=false}
+const dia=e=>{const r=svg.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W;return Math.min(n,Math.max(1,Math.round((x-L)/(W-L-R)*(n-1))+1))};
+svg.addEventListener("pointermove",e=>mostrar(dia(e)));svg.addEventListener("pointerdown",e=>mostrar(dia(e)));
+svg.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"){tip.hidden=true;pt.setAttribute("visibility","hidden")}});
+svg.addEventListener("keydown",e=>{if(e.key!=="ArrowRight"&&e.key!=="ArrowLeft")return;e.preventDefault();mostrar(Math.min(n,Math.max(1,(cur||hoje().getDate())+(e.key==="ArrowRight"?1:-1))))});
+svg.addEventListener("blur",()=>{tip.hidden=true;pt.setAttribute("visibility","hidden")});
+}
+document.querySelector(".graf").addEventListener("click",e=>{const b=e.target.closest("[data-g],[data-gs]");if(!b)return;
+if(b.dataset.g)gAba=b.dataset.g;else gSentido=b.dataset.gs;renderGraficos(gMes)});
+document.querySelector(".tabs.mini").addEventListener("keydown",e=>{const i=GABAS.indexOf(gAba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:null;if(n==null)return;e.preventDefault();gAba=GABAS[(n+3)%3];renderGraficos(gMes);$("gt-"+gAba).focus()});
+let agSel=null;
+function itemAgenda(a,df){const ent=isEntrada(a.it);
+const st=a.it.tipo==="avulso"?(ent?"Entrada avulsa":"Gasto avulso"):a.pago?(ent?"Recebido":"Pago"):df<0?(ent?"Não recebido":"Atrasado"):df===0?(ent?"Entra hoje":"Vence hoje"):(ent?"A receber":"A pagar");
+return `<div class="ag-it"><div><b>${esc(a.it.nome)}</b><small class="${!a.pago&&df<0?"c-out":""}">${st}</small></div><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(a.valor)}</strong></div>`}
+function renderAgenda(rolar){
+const t=hoje(),y=t.getFullYear(),m=t.getMonth(),n=diasNoMes(y,m),dias={};
+for(const a of agendaMes){const k=a.d.getDate();(dias[k]=dias[k]||[]).push(a)}
+if(agSel==null)agSel=t.getDate();
+$("agTit").textContent=`Agenda de ${MESES[m]}`;
+const ini=new Date(y,m,1).getDay();
+let cal=["D","S","T","Q","Q","S","S"].map((l,i)=>`<span class="sem" aria-hidden="true">${l}</span>`).join("")+"<span></span>".repeat(ini);
+for(let d=1;d<=n;d++){const its=dias[d]||[],df=d-t.getDate();
+const temIn=its.some(a=>isEntrada(a.it)),temOut=its.some(a=>!isEntrada(a.it)),atraso=its.some(a=>!a.pago&&df<0&&!isEntrada(a.it));
+const lbl=`${d} de ${MESES[m]}${d===t.getDate()?", hoje":""}: `+(its.length?`${its.length} conta${its.length>1?"s":""}${atraso?", com atraso":""}`:"nada");
+cal+=`<button type="button" data-dia="${d}" class="${df<0?"passado":""}${df===0?" hoje":""}" aria-pressed="${d===agSel}" aria-label="${lbl}"><span>${d}</span><span class="dots" aria-hidden="true">${temOut?`<i class="${atraso?"late":"out"}"></i>`:""}${temIn?'<i class="in"></i>':""}</span></button>`}
+const sel=dias[agSel]||[],dsel=new Date(y,m,agSel),dfs=agSel-t.getDate();
+const ks=Object.keys(dias).map(Number).sort((a,b)=>a-b);
+$("agLista").innerHTML=`<div class="cal" id="agCal">${cal}</div>
+<div class="cal-leg"><span><i class="out"></i>Saída</span><span><i class="in"></i>Entrada</span><span><i class="late"></i>Saída atrasada</span></div>
+<h3 class="ag-sub">${dfs===0?"Hoje · ":""}${DIAS[dsel.getDay()]}, ${dm(dsel)}</h3>
+${sel.length?`<section class="ag-dia">${sel.map(a=>itemAgenda(a,dfs)).join("")}</section>`:`<p class="note">Nenhuma conta neste dia.</p>`}
+<h3 class="ag-sub">Mês inteiro</h3>
+${ks.length?ks.map(d=>{const dd=new Date(y,m,d),df=d-t.getDate();
+return `<section class="ag-dia${df<0?" passado":df===0?" hoje":""}"><h3>${df===0?"Hoje · ":""}${DIAS[dd.getDay()]}, ${dm(dd)}</h3>${dias[d].map(a=>itemAgenda(a,df)).join("")}</section>`}).join(""):`<div class="empty"><b>Nada neste mês</b><span>As contas que você cadastrar aparecem aqui.</span></div>`}`;
 }
 function renderAvisos(){
 const lista=itens.map(it=>({it,s:status(it)})).filter(x=>x.s.kind==="warn"||x.s.kind==="late")
@@ -871,7 +1084,7 @@ const LS_PERFIL="contas-em-dia-perfil";
 const CORES_TEMA={"azul": "#3446C9", "roxo": "#6B3FD0", "verde": "#0E7A55", "rosa": "#B4235A", "laranja": "#B04A00", "grafite": "#2F3A4A"};
 let perfil={};
 function perfilLoad(){try{perfil=JSON.parse(localStorage.getItem(LS_PERFIL)||"{}")}catch(e){perfil={}}if(!perfil.desde){perfil.desde=ymd(hoje());perfilSave()}}
-function perfilSave(){try{localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}}
+function perfilSave(){try{localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}nuvemSalvar()}
 const ICO_PESSOA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 function aplicarPerfil(){
 const h=document.documentElement,cor=CORES_TEMA[perfil.cor]?perfil.cor:"azul";
@@ -894,8 +1107,16 @@ for(const it of itens){const s=status(it);if(s.kind==="late")atraso++}
 for(const k of Object.keys(pagos)){const d=fromYmd(pagos[k].data);if(d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear())pagas++}
 $("pnContas").textContent=itens.length;$("pnPagas").textContent=pagas;$("pnAtraso").textContent=atraso;
 }
-$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();$("perfil").showModal()});
+$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();
+const logado=!!(fauth&&usuario);$("pfEmail").readOnly=logado;$("pfConta").hidden=!logado;$("pfAdmin").hidden=!(logado&&ehAdmin);
+$("pfContaTxt").textContent=logado?`Conectado como ${usuario.email}. Suas contas ficam salvas na nuvem e aparecem em qualquer celular em que você entrar.`:"";
+$("pfNota").textContent=logado?"Seus dados ficam na sua conta, protegidos pelo login.":"Seu perfil e suas contas ficam guardados só neste celular.";
+if(logado&&ehAdmin)renderAdmin();$("perfil").showModal()});
 $("fecharPerfil").addEventListener("click",()=>$("perfil").close());
+$("verAgenda").addEventListener("click",()=>{agSel=null;renderAgenda();$("agenda").showModal()});
+$("agLista").addEventListener("click",e=>{const b=e.target.closest("[data-dia]");if(!b)return;agSel=+b.dataset.dia;renderAgenda();$("agLista").querySelector(`[data-dia="${agSel}"]`).focus()});
+$("fecharAgenda").addEventListener("click",()=>$("agenda").close());
+$("agenda").addEventListener("click",e=>{if(e.target===$("agenda"))$("agenda").close()});
 $("perfil").addEventListener("click",e=>{
 if(e.target===$("perfil")){$("perfil").close();return}
 const b=e.target.closest("button");if(!b)return;
@@ -906,7 +1127,114 @@ const n=e.key==="ArrowRight"||e.key==="ArrowDown"?i+1:e.key==="ArrowLeft"||e.key
 $("pfNome").addEventListener("input",e=>{perfil.nome=e.target.value.slice(0,40);perfilSave();aplicarPerfil()});
 $("pfEmail").addEventListener("input",e=>{perfil.email=e.target.value.trim().slice(0,80);perfilSave();aplicarPerfil()});
 perfilLoad();aplicarPerfil();
-function iniciar(){lsLoad();pronto=true;render()}
+function iniciar(){lsLoad();if(FIREBASE_CONFIG){iniciarNuvem();return}pronto=true;render()}
+// ===================== LOGIN (Firebase) =====================
+// Cole aqui a configuração do seu projeto Firebase (Configurações do projeto > Seus apps > Web).
+// Enquanto ficar null, o app funciona sem login, guardando tudo só neste celular.
+const FIREBASE_CONFIG=null;
+// E-mail de quem libera o acesso (o dono do app). Tem que ser o mesmo e-mail escrito nas regras do Firestore.
+const ADMIN_EMAIL="";
+const FB_VER="10.12.2",LS_DONO="contas-em-dia-dono";
+function nuvemSalvar(){if(!nuvemDoc)return;clearTimeout(nvT);nvT=setTimeout(()=>{
+nuvemDoc.set({itens,pagos,perfil,atualizado:Date.now()}).catch(e=>{if(e&&e.code==="permission-denied")sairPorBloqueio();else toast("Sem internet. Salvo no celular, envio quando voltar.")})},400)}
+function carregarScript(src){return new Promise((ok,erro)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=erro;document.head.appendChild(s)})}
+const ERROS_LOGIN={"auth/invalid-email":"E-mail inválido.","auth/missing-password":"Digite a senha.","auth/weak-password":"A senha precisa ter pelo menos 6 caracteres.","auth/email-already-in-use":"Já existe uma conta com esse e-mail. Toque em Entrar.","auth/invalid-credential":"E-mail ou senha errados.","auth/wrong-password":"E-mail ou senha errados.","auth/user-not-found":"Não achei conta com esse e-mail.","auth/too-many-requests":"Muitas tentativas. Espere um pouco e tente de novo.","auth/network-request-failed":"Sem internet. Verifique a conexão.","auth/popup-closed-by-user":"Login cancelado.","auth/unauthorized-domain":"Este endereço não está autorizado no Firebase (Authentication > Configurações > Domínios autorizados)."};
+const erroLogin=e=>ERROS_LOGIN[e&&e.code]||"Não deu certo. Tente de novo.";
+const ICO_G='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+const ICO_CARTA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+const ICO_RELOGIO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+const ICO_TRAVA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+function mostrarPorta(modo,msg){portaModo=modo;$("porta").hidden=false;document.body.style.overflow="hidden";
+const marca=`<div class="porta-marca"><img src="icone.png" alt=""><h1>Contas em Dia</h1><p>Suas contas organizadas, todo mês.</p></div>`;
+const err=msg?`<p class="err" role="alert">${esc(msg)}</p>`:"";
+let h="";
+if(modo==="carregando")h=`${marca}<p class="pensando" style="justify-content:center"><i></i>Carregando…</p>`;
+else if(modo==="entrar"||modo==="criar")h=`${marca}<form class="cartao" id="fLogin" novalidate>
+<h2>${modo==="criar"?"Criar conta":"Entrar"}</h2>
+${modo==="criar"?`<div class="field"><label for="lgNome">Seu nome</label><input id="lgNome" autocomplete="name" placeholder="Como quer ser chamado"></div>`:""}
+<div class="field"><label for="lgEmail">E-mail</label><input id="lgEmail" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com"></div>
+<div class="field"><label for="lgSenha">Senha</label><input id="lgSenha" type="password" autocomplete="${modo==="criar"?"new-password":"current-password"}" placeholder="${modo==="criar"?"Pelo menos 6 caracteres":"Sua senha"}"></div>
+${err}<button class="btn primary" type="submit">${modo==="criar"?"Criar conta":"Entrar"}</button>
+${modo==="entrar"?`<button class="porta-link" type="button" data-p="esqueci">Esqueci minha senha</button>`:""}
+<div class="porta-sep">ou</div>
+<button class="btn google" type="button" data-p="google">${ICO_G}Entrar com Google</button>
+</form>
+<button class="porta-link" type="button" data-p="${modo==="criar"?"entrar":"criar"}">${modo==="criar"?"Já tenho conta · Entrar":"Não tem conta? Criar conta"}</button>`;
+else if(modo==="verificar")h=`${marca}<div class="cartao"><span class="porta-ico">${ICO_CARTA}</span><h2 style="text-align:center">Confirme seu e-mail</h2>
+<p class="porta-msg">Enviamos um link para <b>${esc(usuario&&usuario.email)}</b>. Abra o e-mail, toque no link e depois volte aqui. Veja também a caixa de spam.</p>${err}
+<button class="btn primary" type="button" data-p="jaconfirmei">Já confirmei</button><button class="btn" type="button" data-p="reenviar">Reenviar e-mail</button><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
+else if(modo==="aguardando")h=`${marca}<div class="cartao"><span class="porta-ico">${ICO_RELOGIO}</span><h2 style="text-align:center">Aguardando liberação</h2>
+<p class="porta-msg">Sua conta <b>${esc(usuario&&usuario.email)}</b> foi criada. Agora é só esperar o responsável pelo app liberar seu acesso.</p>${err}
+<button class="btn primary" type="button" data-p="checar">Verificar de novo</button><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
+else if(modo==="bloqueado")h=`${marca}<div class="cartao"><span class="porta-ico">${ICO_TRAVA}</span><h2 style="text-align:center">Acesso bloqueado</h2>
+<p class="porta-msg">O acesso de <b>${esc(usuario&&usuario.email)}</b> foi bloqueado. Fale com o responsável pelo app.</p><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
+$("portaIn").innerHTML=h;const f=$("portaIn").querySelector("input");if(f&&modo!=="carregando")setTimeout(()=>f.focus(),50)}
+function esconderPorta(){$("porta").hidden=true;document.body.style.overflow=""}
+$("porta").addEventListener("submit",async e=>{e.preventDefault();const em=$("lgEmail").value.trim(),se=$("lgSenha").value,b=e.target.querySelector("[type=submit]");b.disabled=true;
+try{if(portaModo==="criar"){const c=await fauth.createUserWithEmailAndPassword(em,se);const nm=($("lgNome")||{}).value;if(nm){await c.user.updateProfile({displayName:nm.trim()});perfil.nome=nm.trim();perfilSave()}await c.user.sendEmailVerification()}
+else await fauth.signInWithEmailAndPassword(em,se)}catch(x){mostrarPorta(portaModo,erroLogin(x))}});
+$("porta").addEventListener("click",async e=>{const b=e.target.closest("[data-p]");if(!b)return;const a=b.dataset.p;
+try{if(a==="entrar"||a==="criar")mostrarPorta(a);
+else if(a==="google"){const pr=new firebase.auth.GoogleAuthProvider();try{await fauth.signInWithPopup(pr)}catch(x){if(/popup-blocked|operation-not-supported|web-storage/.test(x.code||""))await fauth.signInWithRedirect(pr);else throw x}}
+else if(a==="esqueci"){const em=$("lgEmail").value.trim();if(!em){mostrarPorta("entrar","Digite seu e-mail acima e toque de novo em Esqueci minha senha.");return}await fauth.sendPasswordResetEmail(em);toast("Enviamos um link para criar outra senha")}
+else if(a==="reenviar"){await usuario.sendEmailVerification();toast("E-mail reenviado")}
+else if(a==="jaconfirmei"){await usuario.reload();await usuario.getIdToken(true);checarAcesso(fauth.currentUser)}
+else if(a==="checar")checarAcesso(usuario);
+else if(a==="sair")fauth.signOut()}catch(x){mostrarPorta(portaModo==="carregando"?"entrar":portaModo,erroLogin(x))}});
+async function iniciarNuvem(){mostrarPorta("carregando");
+try{const u=`https://www.gstatic.com/firebasejs/${FB_VER}/`;await carregarScript(u+"firebase-app-compat.js");await Promise.all([carregarScript(u+"firebase-auth-compat.js"),carregarScript(u+"firebase-firestore-compat.js")])}
+catch(e){mostrarPorta("entrar","Sem internet para abrir o login. Verifique a conexão e abra o app de novo.");return}
+firebase.initializeApp(FIREBASE_CONFIG);fauth=firebase.auth();fdb=firebase.firestore();
+try{fdb.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
+fauth.getRedirectResult().catch(x=>mostrarPorta("entrar",erroLogin(x)));
+fauth.onAuthStateChanged(u=>{usuario=u;if(!u){pararNuvem();mostrarPorta("entrar");return}checarAcesso(u)});
+}
+async function checarAcesso(u){if(!u)return;usuario=u;
+if(!u.emailVerified){mostrarPorta("verificar");return}
+const em=u.email.toLowerCase();ehAdmin=!!ADMIN_EMAIL&&em===ADMIN_EMAIL.trim().toLowerCase();
+if(!ehAdmin){mostrarPorta("carregando");let st=null;
+try{const a=await fdb.collection("acesso").doc(em).get();st=a.exists?a.data().status:null}catch(e){if(e.code==="unavailable"){mostrarPorta("aguardando","Sem internet para conferir o acesso.");return}}
+if(st==="bloqueado"){mostrarPorta("bloqueado");return}
+if(st!=="liberado"){try{await fdb.collection("pedidos").doc(u.uid).set({email:em,nome:u.displayName||perfil.nome||"",em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}mostrarPorta("aguardando");return}}
+entrarNoApp(u)}
+function entrarNoApp(u){
+let dono=null;try{dono=localStorage.getItem(LS_DONO)}catch(e){}
+if(dono&&dono!==u.uid){itens=[];pagos={};perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_BK);localStorage.removeItem(LS_PERFIL)}catch(e){}}
+jaLogou=true;
+try{localStorage.setItem(LS_DONO,u.uid)}catch(e){}
+if(!perfil.nome&&u.displayName)perfil.nome=u.displayName;perfil.email=u.email;
+const ref=fdb.collection("usuarios").doc(u.uid);let primeira=true;
+nuvemStop=ref.onSnapshot(doc=>{
+if(doc.metadata.hasPendingWrites)return;
+const d=doc.data();
+if(!d){if(doc.metadata.fromCache)return;if(primeira){primeira=false;nuvemDoc=ref;nuvemSalvar()}return}
+primeira=false;nuvemDoc=ref;
+itens=d.itens||[];pagos=d.pagos||{};if(d.perfil)perfil={...perfil,...d.perfil,email:u.email};
+try{localStorage.setItem(LS,JSON.stringify({itens,pagos}));localStorage.setItem(LS_PERFIL,JSON.stringify(perfil))}catch(e){}
+aplicarPerfil();pronto=true;render();esconderPorta();
+},e=>{if(e.code==="permission-denied")sairPorBloqueio();else toast("Sem conexão com a nuvem. Usando o que está no celular.")});
+pronto=true;aplicarPerfil();render();esconderPorta();
+}
+function pararNuvem(){if(nuvemStop)nuvemStop();nuvemStop=null;nuvemDoc=null;clearTimeout(nvT);ehAdmin=false;
+if(!jaLogou)return;jaLogou=false;
+itens=[];pagos={};pronto=false;perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_PERFIL);localStorage.removeItem(LS_BK)}catch(e){}aplicarPerfil();if($("perfil").open)$("perfil").close()}
+function sairPorBloqueio(){pararNuvem();mostrarPorta("bloqueado")}
+// --- painel do dono do app
+async function renderAdmin(){const L=$("admLista");L.innerHTML='<p class="pensando"><i></i>Carregando…</p>';
+try{const [ped,ace]=await Promise.all([fdb.collection("pedidos").get(),fdb.collection("acesso").get()]);
+const ps=ped.docs.map(d=>({uid:d.id,...d.data()})),as=ace.docs.map(d=>({email:d.id,...d.data()})).sort((a,b)=>a.email.localeCompare(b.email));
+const pend=ps.filter(p=>!as.some(a=>a.email===p.email&&a.status==="liberado"));
+L.innerHTML=(pend.length?`<h3 class="eyebrow">Pedindo acesso (${pend.length})</h3>`+pend.map(p=>`<div class="acesso-it"><div><b>${esc(p.nome||p.email)}</b><small>${esc(p.email)}</small></div><button class="btn primary" type="button" data-adm="liberar" data-email="${esc(p.email)}" data-uid="${esc(p.uid)}">Liberar</button><button class="btn ghost" type="button" data-adm="recusar" data-email="${esc(p.email)}" data-uid="${esc(p.uid)}">Recusar</button></div>`).join(""):`<p class="note">Ninguém pedindo acesso agora.</p>`)+
+(as.length?`<h3 class="eyebrow" style="margin-top:12px">Pessoas (${as.length})</h3>`+as.map(a=>`<div class="acesso-it"><div><b>${esc(a.email)}</b><small class="${a.status==="bloqueado"?"c-out":"c-in"}">${a.status==="bloqueado"?"Bloqueado":"Liberado"}</small></div>${a.status==="bloqueado"?`<button class="btn" type="button" data-adm="liberar" data-email="${esc(a.email)}">Liberar</button>`:`<button class="btn danger" type="button" data-adm="bloquear" data-email="${esc(a.email)}">Bloquear</button>`}</div>`).join(""):"")}
+catch(e){L.innerHTML=`<p class="err">Não consegui carregar. Confira se as regras do Firestore têm o seu e-mail.</p>`}}
+$("pfAdmin").addEventListener("click",async e=>{const b=e.target.closest("[data-adm]");if(!b)return;const em=b.dataset.email,act=b.dataset.adm,ts=firebase.firestore.FieldValue.serverTimestamp();b.disabled=true;
+try{if(act==="liberar"||act==="bloquear")await fdb.collection("acesso").doc(em).set({status:act==="liberar"?"liberado":"bloqueado",em:ts});
+if(act==="recusar")await fdb.collection("acesso").doc(em).set({status:"bloqueado",em:ts});
+if(b.dataset.uid)await fdb.collection("pedidos").doc(b.dataset.uid).delete();
+toast(act==="liberar"?"Acesso liberado":act==="bloquear"?"Acesso bloqueado":"Pedido recusado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.");b.disabled=false}});
+$("admAdd").addEventListener("click",async()=>{const em=$("admEmail").value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast("Digite um e-mail válido");return}
+try{await fdb.collection("acesso").doc(em).set({status:"liberado",em:firebase.firestore.FieldValue.serverTimestamp()});$("admEmail").value="";toast("Acesso liberado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.")}});
+$("pfSair").addEventListener("click",()=>{if(fauth)fauth.signOut()});
 window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
 $("alerts").addEventListener("click",e=>{if(e.target.closest("[data-act=backup]"))$("bkSalvar").click()});
 $("bkSalvar").addEventListener("click",()=>{
