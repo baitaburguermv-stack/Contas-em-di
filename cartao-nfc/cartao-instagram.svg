@@ -29,7 +29,7 @@
   </g>
   <circle cx="33.85" cy="29.95" r="0.85" fill="#D62976"/>
 
-  <text x="30" y="48.4" text-anchor="middle" font-family="'Grand Hotel', 'Outfit', cursive" font-size="7.6" fill="#fff">Instagram</text>
+  <text x="30" y="47.8" text-anchor="middle" font-family="'Grand Hotel', 'Outfit', cursive" font-size="6.6" fill="#fff">Instagram</text>
 
   <!-- ícone NFC: ondas + mão segurando o celular -->
   <g fill="none" stroke="#fff" stroke-width="0.42" stroke-linecap="round" stroke-linejoin="round">
