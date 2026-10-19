@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novelinha das Frutas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<style>
+  :root {
+    --fundo: #fff6ef; --painel: #ffffff; --texto: #2b1a22; --suave: #7a5a68;
+    --borda: #f0d9e2; --destaque: #e8255b; --destaque-2: #ff9f1c; --palco: #2b0d1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fundo: #170a10; --painel: #24121a; --texto: #fbe9f0; --suave: #c49aab;
+      --borda: #3d2230; --destaque: #ff4d7e; --destaque-2: #ffb347; --palco: #0b0307;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fundo: #170a10; --painel: #24121a; --texto: #fbe9f0; --suave: #c49aab;
+    --borda: #3d2230; --destaque: #ff4d7e; --destaque-2: #ffb347; --palco: #0b0307;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font-family: "Baloo 2", "Trebuchet MS", sans-serif; }
+  header { padding: 18px 24px 4px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 30px; line-height: 1; }
+  header h1 span { color: var(--destaque); }
+  header p { margin: 0; color: var(--suave); }
+  main { display: grid; grid-template-columns: minmax(0, auto) minmax(300px, 420px); gap: 24px; padding: 16px 24px 32px; align-items: start; }
+  .palco { background: var(--palco); border-radius: 20px; padding: 14px; display: flex; justify-content: center; }
+  #tela { display: block; height: min(78vh, 900px); max-width: 100%; border-radius: 12px; background: #000; aspect-ratio: 9 / 16; }
+  .horizontal #tela { height: auto; width: 100%; aspect-ratio: 16 / 9; }
+  .controles { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .controles input[type=range] { flex: 1; accent-color: var(--destaque); }
+  .tempo { font-variant-numeric: tabular-nums; color: var(--suave); min-width: 92px; text-align: right; }
+  button { font: inherit; font-weight: 700; border: 2px solid var(--borda); background: var(--painel); color: var(--texto);
+    border-radius: 999px; padding: 6px 16px; cursor: pointer; }
+  button:hover { border-color: var(--destaque); }
+  button.principal { background: var(--destaque); color: #fff; border-color: var(--destaque); }
+  button.gravando { background: #c62828; border-color: #c62828; color: #fff; }
+  aside { display: flex; flex-direction: column; gap: 16px; }
+  .cartao { background: var(--painel); border: 2px solid var(--borda); border-radius: 18px; padding: 16px; }
+  .cartao h2 { margin: 0 0 10px; font-size: 19px; }
+  .episodios { display: grid; gap: 8px; }
+  .ep { text-align: left; border-radius: 14px; padding: 8px 14px; display: flex; flex-direction: column; line-height: 1.2; }
+  .ep small { color: var(--suave); font-weight: 500; }
+  .ep.ativo { border-color: var(--destaque); background: color-mix(in srgb, var(--destaque) 12%, var(--painel)); }
+  .linha { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .linha label { color: var(--suave); }
+  select { font: inherit; padding: 4px 10px; border-radius: 10px; border: 2px solid var(--borda); background: var(--painel); color: var(--texto); }
+  textarea { width: 100%; min-height: 260px; font: 12px/1.45 ui-monospace, Menlo, monospace; border-radius: 12px; border: 2px solid var(--borda);
+    background: var(--fundo); color: var(--texto); padding: 10px; resize: vertical; }
+  .erro { color: #e53935; font-size: 14px; min-height: 1em; }
+  .dica { color: var(--suave); font-size: 14px; margin: 8px 0 0; }
+  code { background: color-mix(in srgb, var(--destaque) 10%, transparent); padding: 1px 5px; border-radius: 6px; }
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 12px 16px 24px; }
+    header { padding: 14px 16px 0; }
+    #tela { height: auto; width: 100%; }
+  }
+  /* modo de renderização (exportar vídeo) */
+  body.render { background: #000; margin: 0; overflow: hidden; }
+  body.render header, body.render aside, body.render .controles { display: none; }
+  body.render main { display: block; padding: 0; }
+  body.render .palco { padding: 0; border-radius: 0; }
+  body.render #tela { height: auto; width: auto; border-radius: 0; aspect-ratio: auto; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Novelinha das <span>Frutas</span> 3D</h1>
+  <p>Escolha um capítulo, dê play e grave o vídeo.</p>
+</header>
+<main>
+  <section>
+    <div class="palco"><canvas id="tela"></canvas></div>
+    <div class="controles">
+      <button id="play" class="principal">▶ Play</button>
+      <input id="barra" type="range" min="0" max="1000" value="0" aria-label="Linha do tempo">
+      <span class="tempo" id="tempo">0:00 / 0:00</span>
+    </div>
+  </section>
+  <aside>
+    <div class="cartao">
+      <h2>Capítulos</h2>
+      <div class="episodios" id="episodios"></div>
+    </div>
+    <div class="cartao">
+      <h2>Gravar vídeo</h2>
+      <div class="linha">
+        <label for="formato">Formato</label>
+        <select id="formato">
+          <option value="vertical">Vertical 9:16 (Reels/TikTok/Shorts)</option>
+          <option value="horizontal">Horizontal 16:9 (YouTube)</option>
+        </select>
+      </div>
+      <div class="linha" style="margin-top:10px">
+        <button id="gravar">● Gravar com som</button>
+        <span id="statusGravacao" class="dica" style="margin:0"></span>
+      </div>
+      <p class="dica">Grava em tempo real direto do navegador. Para MP4 em alta qualidade, use <code>npm run render</code> (veja o README).</p>
+    </div>
+    <div class="cartao">
+      <h2>Roteiro (edite e crie a sua novelinha)</h2>
+      <textarea id="roteiro" spellcheck="false"></textarea>
+      <div class="linha" style="margin-top:8px">
+        <button id="aplicar" class="principal">Aplicar roteiro</button>
+        <button id="baixarRoteiro">Baixar .json</button>
+      </div>
+      <div class="erro" id="erro"></div>
+      <p class="dica">Tipos: maca, laranja, morango, banana, abacaxi, uva, limao, melancia. Cenários: sala, mansao, feira, hospital.
+        Expressões: neutro, feliz, triste, chorando, bravo, chocado, apaixonado, malvado, nervoso, tonto, desconfiado.
+        Gestos: acenar, apontar, comemorar, maos_rosto, cintura, tapa, pular, tremer, dancar, pensar, abracar, desmaiar, caido.</p>
+    </div>
+  </aside>
+</main>
+<script type="module">
+  import { Estudio } from './js/motor.js';
+  import { EPISODIOS } from './js/episodios.js';
+  import { agendarAudio, renderizarWav } from './js/audio.js';
+
+  const q = new URLSearchParams(location.search);
+  const modoRender = q.has('render');
+  const tela = document.getElementById('tela');
+  const tamanhos = { vertical: [720, 1280], horizontal: [1280, 720] };
+  let formato = q.get('formato') || 'vertical';
+  const [w0, h0] = q.has('w') ? [+q.get('w'), +q.get('h')] : tamanhos[formato];
+  if (modoRender) document.body.classList.add('render');
+  document.body.classList.toggle('horizontal', formato === 'horizontal');
+
+  try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 2500))]); } catch {}
+  try { await document.fonts.load('800 40px "Baloo 2"'); } catch {}
+
+  const estudio = new Estudio(tela, { largura: w0, altura: h0 });
+  window.estudio = estudio;
+
+  let roteiroAtual = EPISODIOS.find((e) => e.id === q.get('ep')) || EPISODIOS[0];
+  if (window.ROTEIRO_EXTERNO) roteiroAtual = window.ROTEIRO_EXTERNO;
+  estudio.carregar(roteiroAtual);
+
+  if (modoRender) {
+    window.renderizarAudio = async () => {
+      const bytes = await renderizarWav(estudio.eventos, estudio.duracao);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      return btoa(bin);
+    };
+    window.quadro = (t, qualidade = 0.92) => { estudio.seek(t); return tela.toDataURL('image/jpeg', qualidade); };
+    window.estudioPronto = true;
+  } else {
+    iniciarInterface();
+  }
+
+  function iniciarInterface() {
+    const $ = (id) => document.getElementById(id);
+    const barra = $('barra'), tempo = $('tempo'), btnPlay = $('play');
+    let tocando = false, audio = null, inicioAudio = 0, inicioTempo = 0, aoTerminar = null;
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+    function desenharUI() {
+      barra.value = Math.round((estudio.tAtual / estudio.duracao) * 1000);
+      tempo.textContent = `${fmt(estudio.tAtual)} / ${fmt(estudio.duracao)}`;
+    }
+    function parar() {
+      tocando = false;
+      btnPlay.textContent = '▶ Play';
+      if (audio) { audio.close(); audio = null; }
+    }
+    function tocar(destinoExtra) {
+      if (estudio.tAtual >= estudio.duracao - 0.05) estudio.seek(0);
+      audio = new AudioContext();
+      const saida = audio.createGain();
+      saida.connect(audio.destination);
+      if (destinoExtra) saida.connect(destinoExtra(audio));
+      inicioTempo = estudio.tAtual;
+      agendarAudio(audio, estudio.eventos, estudio.duracao, inicioTempo, saida);
+      inicioAudio = audio.currentTime + 0.05;
+      tocando = true;
+      btnPlay.textContent = '❚❚ Pausar';
+      requestAnimationFrame(loop);
+    }
+    function loop() {
+      if (!tocando) return;
+      const t = inicioTempo + Math.max(0, audio.currentTime - inicioAudio);
+      if (t >= estudio.duracao) {
+        estudio.seek(estudio.duracao); desenharUI(); parar();
+        aoTerminar?.(); aoTerminar = null;
+        return;
+      }
+      estudio.seek(t); desenharUI();
+      requestAnimationFrame(loop);
+    }
+    btnPlay.onclick = () => (tocando ? parar() : tocar());
+    barra.oninput = () => { if (tocando) parar(); estudio.seek((barra.value / 1000) * estudio.duracao); desenharUI(); };
+
+    // episódios
+    const lista = $('episodios');
+    function montarLista() {
+      lista.innerHTML = '';
+      for (const ep of EPISODIOS) {
+        const b = document.createElement('button');
+        b.className = 'ep' + (ep === roteiroAtual ? ' ativo' : '');
+        b.innerHTML = `<span>Cap. ${ep.capitulo} — ${ep.titulo}</span><small>${ep.subtitulo}</small>`;
+        b.onclick = () => carregar(ep);
+        lista.appendChild(b);
+      }
+    }
+    const editor = $('roteiro'), erro = $('erro');
+    function carregar(ep) {
+      parar();
+      roteiroAtual = ep;
+      estudio.carregar(ep);
+      editor.value = JSON.stringify(ep, null, 2);
+      erro.textContent = '';
+      montarLista(); desenharUI();
+    }
+    $('aplicar').onclick = () => {
+      try {
+        const ep = JSON.parse(editor.value);
+        parar(); estudio.carregar(ep); roteiroAtual = ep; erro.textContent = '';
+        montarLista(); desenharUI();
+      } catch (e) { erro.textContent = 'Erro no roteiro: ' + e.message; }
+    };
+    $('baixarRoteiro').onclick = () => baixar(new Blob([editor.value], { type: 'application/json' }), `${roteiroAtual.id || 'novelinha'}.json`);
+
+    $('formato').value = formato;
+    $('formato').onchange = (e) => {
+      formato = e.target.value;
+      document.body.classList.toggle('horizontal', formato === 'horizontal');
+      estudio.redimensionar(...tamanhos[formato]);
+      desenharUI();
+    };
+
+    // gravação no navegador (MediaRecorder)
+    const btnGravar = $('gravar'), status = $('statusGravacao');
+    let gravador = null;
+    btnGravar.onclick = () => {
+      if (gravador) { gravador.stop(); return; }
+      const tipos = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'];
+      const mime = tipos.find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t));
+      if (!mime) { status.textContent = 'Seu navegador não grava vídeo.'; return; }
+      parar(); estudio.seek(0);
+      let destinoAudio;
+      tocar((ctx) => (destinoAudio = ctx.createMediaStreamDestination()));
+      const stream = new MediaStream([...tela.captureStream(30).getVideoTracks(), ...destinoAudio.stream.getAudioTracks()]);
+      const partes = [];
+      gravador = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+      gravador.ondataavailable = (e) => e.data.size && partes.push(e.data);
+      gravador.onstop = () => {
+        const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+        baixar(new Blob(partes, { type: mime.split(';')[0] }), `${roteiroAtual.id || 'novelinha'}-${formato}.${ext}`);
+        gravador = null; parar();
+        btnGravar.textContent = '● Gravar com som'; btnGravar.classList.remove('gravando');
+        status.textContent = 'Vídeo salvo!';
+      };
+      aoTerminar = () => gravador?.stop();
+      gravador.start(500);
+      btnGravar.textContent = '■ Parar'; btnGravar.classList.add('gravando');
+      status.textContent = 'Gravando...';
+    };
+
+    function baixar(blob, nome) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = nome; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    }
+
+    carregar(roteiroAtual);
+  }
+</script>
+</body>
+</html>

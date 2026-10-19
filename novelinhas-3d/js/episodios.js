@@ -1,0 +1,112 @@
+// Roteiros de exemplo. Cada cena pode ter:
+//   quem / fala  -> quem fala e o texto (a duração é calculada sozinha)
+//   camera       -> 'geral' | 'close:id' | 'dois:id1,id2' | 'drama:id'
+//   acoes        -> { id: { expr, gesto, ir:[x,z], entrar, de:[x,z], sair:[x,z], alvo, olhar, atraso, tempo } }
+//   efeito       -> 'coracoes:id' | 'confete' | 'tremor' | 'flash' | 'vinheta' | 'dun'  (ou uma lista)
+//   texto        -> onomatopeia grande na tela ("SOCORRO!")
+//   tipo         -> 'titulo' (abertura) ou 'fim' (Continua...)
+export const EPISODIOS = [
+  {
+    id: 'segredo-banana',
+    capitulo: 1,
+    titulo: 'O Segredo da Banana',
+    subtitulo: 'Um amor que vai virar vitamina',
+    cenario: 'sala',
+    personagens: {
+      morango: { tipo: 'morango', nome: 'Moranguinha', pos: [-0.95, 0.2], cilios: true, batom: true, acessorios: ['laco'] },
+      banana: { tipo: 'banana', nome: 'Bruno Banana', pos: [0.95, 0.2], acessorios: ['gravata'] },
+      maca: { tipo: 'maca', nome: 'Dona Maçã', pos: [5.5, 0.5], visivel: false, cilios: true, acessorios: ['colar'] },
+    },
+    cenas: [
+      { tipo: 'titulo', camera: 'geral' },
+      { quem: 'morango', fala: 'Bruno, eu nunca amei ninguém como eu amo você!', camera: 'dois:morango,banana', acoes: { morango: { expr: 'apaixonado' } }, efeito: 'coracoes:morango' },
+      { quem: 'banana', fala: 'Moranguinha... eu preciso te contar uma coisa.', acoes: { banana: { expr: 'nervoso' } } },
+      { quem: 'morango', fala: 'O quê?! Fala logo, Bruno!', acoes: { morango: { expr: 'chocado', gesto: 'pular' } } },
+      { quem: 'banana', fala: 'Eu... eu fui ADOTADO! Meus pais eram bananas-da-terra!', acoes: { banana: { expr: 'chorando', gesto: 'maos_rosto' } } },
+      { camera: 'drama:morango', acoes: { morango: { expr: 'chocado' } }, dur: 2.4 },
+      { quem: 'maca', fala: 'E tem mais! Eu sou a sua mãe verdadeira, Bruno!', camera: 'geral', acoes: { maca: { entrar: true, de: [5.5, 0.5], ir: [2.75, 0.4], expr: 'triste' } } },
+      { quem: 'banana', fala: 'Mas mãe... você é uma MAÇÃ!', camera: 'dois:banana,maca', acoes: { banana: { expr: 'chocado', gesto: 'apontar', olhar: 'maca' } } },
+      { quem: 'maca', fala: 'O amor não escolhe a fruta, meu filho!', camera: 'close:maca', acoes: { maca: { expr: 'chorando', gesto: 'maos_rosto' } } },
+      { quem: 'morango', fala: 'Ai... minha pressão caiu...', camera: 'geral', acoes: { morango: { expr: 'tonto', gesto: 'desmaiar' } }, dur: 3.4 },
+      { tipo: 'fim', legenda: 'Será que a Moranguinha vai perdoar?', acoes: { morango: { gesto: 'caido' }, banana: { expr: 'chocado' }, maca: { expr: 'nervoso' } } },
+    ],
+  },
+  {
+    id: 'heranca-abacaxi',
+    capitulo: 2,
+    titulo: 'A Herança do Abacaxi',
+    subtitulo: 'Dinheiro não dá em árvore... ou dá?',
+    cenario: 'mansao',
+    personagens: {
+      laranja: { tipo: 'laranja', nome: 'Lara Laranja', pos: [-1.85, 0.5], cilios: true, batom: true, acessorios: ['oculos_escuros', 'colar'] },
+      abacaxi: { tipo: 'abacaxi', nome: 'Barão Abacaxi', pos: [0, -0.4], acessorios: ['bigode', 'monoculo', 'papel'] },
+      uva: { tipo: 'uva', nome: 'Uvinha', pos: [1.85, 0.5], cilios: true, acessorios: ['avental'] },
+    },
+    cenas: [
+      { tipo: 'titulo', camera: 'geral' },
+      { quem: 'abacaxi', fala: 'Reuni a família para ler o meu testamento.', camera: 'geral', acoes: { abacaxi: { gesto: 'apontar', olhar: 'camera' } } },
+      { quem: 'laranja', fala: 'Finalmente! A fortuna vai ser toda MINHA!', acoes: { laranja: { expr: 'malvado', gesto: 'cintura' } } },
+      { quem: 'abacaxi', fala: 'Deixo a mansão, os iates e a fábrica de suco...', acoes: { abacaxi: { gesto: 'apontar', olhar: 'camera' } } },
+      { quem: 'laranja', fala: 'Eu sabia! Eu sou a herdeira!', camera: 'geral', acoes: { laranja: { expr: 'feliz', gesto: 'comemorar' } }, efeito: 'confete' },
+      { quem: 'abacaxi', fala: '...para a Uvinha, a nossa empregada!', acoes: { abacaxi: { expr: 'feliz', gesto: 'apontar', olhar: 'uva' } } },
+      { camera: 'drama:laranja', acoes: { laranja: { expr: 'chocado' } }, dur: 2.4 },
+      { quem: 'uva', fala: 'Pra mim?! Mas eu só trabalho aqui há dois dias!', acoes: { uva: { expr: 'chocado', gesto: 'maos_rosto' } } },
+      { quem: 'laranja', fala: 'Isso não vai ficar assim! Eu vou me VINGAR!', acoes: { laranja: { expr: 'bravo', gesto: 'tremer' } }, efeito: 'tremor' },
+      { quem: 'abacaxi', fala: 'E tem mais... descobri que você é SUCO DE CAIXINHA!', camera: 'dois:laranja,abacaxi', acoes: { abacaxi: { expr: 'malvado', gesto: 'apontar', olhar: 'laranja' } } },
+      { quem: 'laranja', fala: 'NÃÃÃÃÃO!', camera: 'drama:laranja', acoes: { laranja: { expr: 'chorando', gesto: 'maos_rosto' } }, dur: 2.6 },
+      { tipo: 'fim', legenda: 'Quem é a verdadeira Laranja?', acoes: { uva: { expr: 'feliz', gesto: 'dancar' }, laranja: { expr: 'chorando' } } },
+    ],
+  },
+  {
+    id: 'amor-feira',
+    capitulo: 3,
+    titulo: 'Amor na Feira',
+    subtitulo: 'Uma salada de sentimentos',
+    cenario: 'feira',
+    personagens: {
+      melancia: { tipo: 'melancia', nome: 'Mel Melancia', pos: [-1.35, 0.3], cilios: true, batom: true, acessorios: ['laco'] },
+      maca: { tipo: 'maca', nome: 'Marcos Maçã', pos: [0.15, 0.3], cor: 0xd62839, acessorios: ['oculos', 'gravata', 'flor'] },
+      uva: { tipo: 'uva', nome: 'Valentina Uva', pos: [6.5, 0.4], visivel: false, cilios: true, batom: true, acessorios: ['oculos_escuros', 'colar'] },
+    },
+    cenas: [
+      { tipo: 'titulo', camera: 'geral' },
+      { quem: 'maca', fala: 'Mel, você é a fruta mais linda da feira inteira!', camera: 'dois:melancia,maca', acoes: { maca: { expr: 'apaixonado', gesto: 'apontar' } }, efeito: 'coracoes:maca' },
+      { quem: 'melancia', fala: 'Ai, Marcos... assim você me deixa toda vermelhinha!', acoes: { melancia: { expr: 'apaixonado' } }, efeito: 'coracoes:melancia' },
+      { quem: 'uva', fala: 'Tira as mãos do MEU maçãzinho!', camera: 'geral', acoes: { uva: { entrar: true, de: [6.5, 0.4], ir: [2.0, 0.35], expr: 'bravo' } } },
+      { quem: 'melancia', fala: 'Valentina?! Você não tinha virado uva-passa?', acoes: { melancia: { expr: 'chocado', gesto: 'pular' } } },
+      { quem: 'uva', fala: 'Eu voltei... e mais doce do que nunca!', acoes: { uva: { expr: 'malvado', gesto: 'cintura' } } },
+      { quem: 'maca', fala: 'Meninas, calma! Dá pra fazer uma salada de frutas!', acoes: { maca: { expr: 'nervoso', gesto: 'tremer' } } },
+      { quem: 'uva', fala: 'MARCOS!', camera: 'dois:maca,uva', acoes: { uva: { expr: 'bravo', gesto: 'tapa', alvo: 'maca', ir: [1.55, 0.35], tempo: 0.35 } }, dur: 2.4 },
+      { quem: 'maca', fala: 'Ai... eu mereci essa.', acoes: { maca: { expr: 'tonto' } } },
+      { quem: 'melancia', fala: 'Vem, Valentina. Vamos tomar um suco... sem ele!', camera: 'geral', acoes: { melancia: { expr: 'feliz', sair: [-7, 1.6], atraso: 1.2, tempo: 2.4 }, uva: { expr: 'feliz', sair: [-7, 2.4], atraso: 1.4, tempo: 2.6 } }, dur: 4.6 },
+      { quem: 'maca', fala: 'E a salada de frutas?', camera: 'close:maca', acoes: { maca: { expr: 'triste', olhar: 'camera' } } },
+      { tipo: 'fim', legenda: 'Marcos vai ficar sozinho na feira?', acoes: { maca: { expr: 'chorando' } } },
+    ],
+  },
+  {
+    id: 'amnesia-limao',
+    capitulo: 4,
+    titulo: 'A Amnésia do Limão',
+    subtitulo: 'Um amor azedo... ou doce?',
+    cenario: 'hospital',
+    personagens: {
+      limao: { tipo: 'limao', nome: 'Léo Limão', pos: [0.2, 0.2], expr: 'tonto' },
+      uva: { tipo: 'uva', nome: 'Dra. Uva', pos: [1.95, 0.4], cor: 0x5e8f2f, acessorios: ['oculos'] },
+      morango: { tipo: 'morango', nome: 'Moranguinha', pos: [-6, 0.6], visivel: false, cilios: true, batom: true, acessorios: ['laco'] },
+    },
+    cenas: [
+      { tipo: 'titulo', camera: 'geral' },
+      { quem: 'uva', fala: 'Ele acordou! Mas eu tenho uma notícia ruim...', camera: 'geral', acoes: { uva: { expr: 'nervoso' } } },
+      { quem: 'limao', fala: 'Onde eu estou? Quem sou eu?', acoes: { limao: { expr: 'tonto' } } },
+      { quem: 'uva', fala: 'Ele está com AMNÉSIA! Perdeu toda a memória!', camera: 'drama:limao', acoes: { limao: { expr: 'chocado' } } },
+      { quem: 'morango', fala: 'Léo! Meu amor! Sou eu, a sua noiva!', camera: 'geral', acoes: { morango: { entrar: true, de: [-6, 0.6], ir: [-1.45, 0.35], expr: 'chorando' } } },
+      { quem: 'limao', fala: 'Noiva? Desculpa... eu nem gosto de morango.', acoes: { limao: { expr: 'desconfiado' } } },
+      { camera: 'drama:morango', acoes: { morango: { expr: 'chocado' } }, dur: 2.4 },
+      { quem: 'morango', fala: 'Ele esqueceu tudo... até o nosso milkshake!', acoes: { morango: { expr: 'chorando', gesto: 'maos_rosto' } } },
+      { quem: 'limao', fala: 'Milkshake de morango? Espera... eu me lembro!', acoes: { limao: { expr: 'feliz', gesto: 'comemorar' } }, efeito: 'coracoes:limao' },
+      { quem: 'morango', fala: 'LÉO! Meu limãozinho!', camera: 'dois:morango,limao', acoes: { morango: { expr: 'apaixonado', gesto: 'abracar', ir: [-1.0, 0.35], tempo: 0.4 }, limao: { expr: 'apaixonado', gesto: 'abracar' } }, efeito: 'coracoes:morango' },
+      { quem: 'uva', fala: 'Que lindo! Mas a conta do hospital chegou...', camera: 'close:uva', acoes: { uva: { expr: 'malvado' } } },
+      { tipo: 'fim', legenda: 'Quem vai pagar a conta?', acoes: { limao: { expr: 'chocado' }, morango: { expr: 'chocado' } } },
+    ],
+  },
+];
