@@ -1394,12 +1394,14 @@ fauth.getRedirectResult().catch(x=>mostrarPorta("entrar",erroLogin(x)));
 fauth.onAuthStateChanged(u=>{usuario=u;if(!u){pararNuvem();mostrarPorta("entrar");return}checarAcesso(u)});
 }
 async function checarAcesso(u){if(!u)return;usuario=u;
-if(!u.emailVerified){mostrarPorta("verificar");return}
-const em=u.email.toLowerCase();ehAdmin=!!ADMIN_EMAIL&&em===ADMIN_EMAIL.trim().toLowerCase();
+const em=(u.email||"").toLowerCase();ehAdmin=!!ADMIN_EMAIL&&em===ADMIN_EMAIL.trim().toLowerCase();
+if(ehAdmin&&!u.emailVerified){mostrarPorta("verificar");return}
 if(!ehAdmin){mostrarPorta("carregando");let st=null;
-try{const a=await fdb.collection("acesso").doc(em).get();st=a.exists?a.data().status:null}catch(e){if(e.code==="unavailable"){mostrarPorta("aguardando","Sem internet para conferir o acesso.");return}}
+try{const a=await fdb.collection("acesso").doc(u.uid).get();if(a.exists)st=a.data().status;
+if(st!=="bloqueado"&&st!=="liberado"&&u.emailVerified){const b=await fdb.collection("acesso").doc(em).get();if(b.exists)st=b.data().status}}
+catch(e){if(e.code==="unavailable"){mostrarPorta("aguardando","Sem internet para conferir o acesso.");return}}
 if(st==="bloqueado"){mostrarPorta("bloqueado");return}
-if(st!=="liberado"){try{await fdb.collection("pedidos").doc(u.uid).set({email:em,nome:u.displayName||perfil.nome||"",em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}mostrarPorta("aguardando");return}}
+if(st!=="liberado"){try{await fdb.collection("pedidos").doc(u.uid).set({email:em,nome:u.displayName||perfil.nome||"",verificado:!!u.emailVerified,em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}mostrarPorta("aguardando");return}}
 entrarNoApp(u)}
 function entrarNoApp(u){
 let dono=null;try{dono=localStorage.getItem(LS_DONO)}catch(e){}
@@ -1426,16 +1428,15 @@ function sairPorBloqueio(){pararNuvem();mostrarPorta("bloqueado")}
 // --- painel do dono do app
 async function renderAdmin(){const L=$("admLista");L.innerHTML='<p class="pensando"><i></i>Carregando…</p>';
 try{const [ped,ace]=await Promise.all([fdb.collection("pedidos").get(),fdb.collection("acesso").get()]);
-const ps=ped.docs.map(d=>({uid:d.id,...d.data()})),as=ace.docs.map(d=>({email:d.id,...d.data()})).sort((a,b)=>a.email.localeCompare(b.email));
-const pend=ps.filter(p=>!as.some(a=>a.email===p.email&&a.status==="liberado"));
-L.innerHTML=(pend.length?`<h3 class="eyebrow">Pedindo acesso (${pend.length})</h3>`+pend.map(p=>`<div class="acesso-it"><div><b>${esc(p.nome||p.email)}</b><small>${esc(p.email)}</small></div><button class="btn primary" type="button" data-adm="liberar" data-email="${esc(p.email)}" data-uid="${esc(p.uid)}">Liberar</button><button class="btn ghost" type="button" data-adm="recusar" data-email="${esc(p.email)}" data-uid="${esc(p.uid)}">Recusar</button></div>`).join(""):`<p class="note">Ninguém pedindo acesso agora.</p>`)+
-(as.length?`<h3 class="eyebrow" style="margin-top:12px">Pessoas (${as.length})</h3>`+as.map(a=>`<div class="acesso-it"><div><b>${esc(a.email)}</b><small class="${a.status==="bloqueado"?"c-out":"c-in"}">${a.status==="bloqueado"?"Bloqueado":"Liberado"}</small></div>${a.status==="bloqueado"?`<button class="btn" type="button" data-adm="liberar" data-email="${esc(a.email)}">Liberar</button>`:`<button class="btn danger" type="button" data-adm="bloquear" data-email="${esc(a.email)}">Bloquear</button>`}</div>`).join(""):"")}
+const ps=ped.docs.map(d=>({uid:d.id,...d.data()})),as=ace.docs.map(d=>({doc:d.id,...d.data(),email:d.data().email||d.id})).sort((a,b)=>a.email.localeCompare(b.email));
+const pend=ps.filter(p=>!as.some(a=>(a.doc===p.uid||a.doc===p.email)&&a.status==="liberado"));
+L.innerHTML=(pend.length?`<h3 class="eyebrow">Pedindo acesso (${pend.length})</h3>`+pend.map(p=>`<div class="acesso-it"><div><b>${esc(p.nome||p.email)}</b><small>${esc(p.email)}${p.verificado===false?' · <span class="c-out">e-mail não confirmado</span>':""}</small></div><button class="btn primary" type="button" data-adm="liberar" data-doc="${esc(p.uid)}" data-email="${esc(p.email)}" data-nome="${esc(p.nome||"")}" data-uid="${esc(p.uid)}">Liberar</button><button class="btn ghost" type="button" data-adm="recusar" data-doc="${esc(p.uid)}" data-email="${esc(p.email)}" data-nome="${esc(p.nome||"")}" data-uid="${esc(p.uid)}">Recusar</button></div>`).join(""):`<p class="note">Ninguém pedindo acesso agora.</p>`)+
+(as.length?`<h3 class="eyebrow" style="margin-top:12px">Pessoas (${as.length})</h3>`+as.map(a=>`<div class="acesso-it"><div><b>${esc(a.nome||a.email)}</b><small>${a.nome?esc(a.email)+" · ":""}<span class="${a.status==="bloqueado"?"c-out":"c-in"}">${a.status==="bloqueado"?"Bloqueado":"Liberado"}</span></small></div>${a.status==="bloqueado"?`<button class="btn" type="button" data-adm="liberar" data-doc="${esc(a.doc)}" data-email="${esc(a.email)}" data-nome="${esc(a.nome||"")}">Liberar</button>`:`<button class="btn danger" type="button" data-adm="bloquear" data-doc="${esc(a.doc)}" data-email="${esc(a.email)}" data-nome="${esc(a.nome||"")}">Bloquear</button>`}</div>`).join(""):"")}
 catch(e){L.innerHTML=`<p class="err">Não consegui carregar. Confira se as regras do Firestore têm o seu e-mail.</p>`}}
-$("pfAdmin").addEventListener("click",async e=>{const b=e.target.closest("[data-adm]");if(!b)return;const em=b.dataset.email,act=b.dataset.adm,ts=firebase.firestore.FieldValue.serverTimestamp();b.disabled=true;
-try{if(act==="liberar"||act==="bloquear")await fdb.collection("acesso").doc(em).set({status:act==="liberar"?"liberado":"bloqueado",em:ts});
-if(act==="recusar")await fdb.collection("acesso").doc(em).set({status:"bloqueado",em:ts});
+$("pfAdmin").addEventListener("click",async e=>{const b=e.target.closest("[data-adm]");if(!b)return;const act=b.dataset.adm,ts=firebase.firestore.FieldValue.serverTimestamp();b.disabled=true;
+try{await fdb.collection("acesso").doc(b.dataset.doc).set({status:act==="liberar"?"liberado":"bloqueado",email:b.dataset.email,nome:b.dataset.nome||"",em:ts});
 if(b.dataset.uid)await fdb.collection("pedidos").doc(b.dataset.uid).delete();
-toast(act==="liberar"?"Acesso liberado":act==="bloquear"?"Acesso bloqueado":"Pedido recusado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.");b.disabled=false}});
+toast(act==="liberar"?"Acesso liberado":act==="bloquear"?"Acesso bloqueado":"Pedido recusado");renderAdmin()}catch(x){toast("Não consegui salvar. Confira se atualizou as regras do Firestore.");b.disabled=false}});
 $("admAdd").addEventListener("click",async()=>{const em=$("admEmail").value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast("Digite um e-mail válido");return}
 try{await fdb.collection("acesso").doc(em).set({status:"liberado",em:firebase.firestore.FieldValue.serverTimestamp()});$("admEmail").value="";toast("Acesso liberado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.")}});
 $("pfSair").addEventListener("click",()=>{if(fauth)fauth.signOut()});
