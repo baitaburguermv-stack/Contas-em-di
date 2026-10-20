@@ -470,6 +470,13 @@ dialog.perfil,.porta .cartao{
 .cat-emoji{ flex:none; width:42px; height:42px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:1.15rem; cursor:pointer; }
 .cat-nome{ flex:1; min-width:0; }
 .cat-del{ flex:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--out); font-size:1rem; cursor:pointer; }
+
+/* ===== Botão flutuante do JARVIS (ao lado do +) ===== */
+.fab-jr{ right:calc(max(18px,env(safe-area-inset-right,0px)) + 72px) !important;
+  background:radial-gradient(circle at 35% 30%, #9ff4ff, #35e0ff 50%, #1b78c9 88%) !important; color:#04141b !important;
+  box-shadow:0 0 22px rgba(53,224,255,.55), 0 8px 24px rgba(0,0,0,.4) !important; }
+.fab-jr svg{ width:26px; height:26px; }
+@media (prefers-reduced-motion:no-preference){ .fab-jr{ animation:jrpulse 3.4s ease-in-out infinite } }
 </style>
 </head>
 <body>
@@ -608,6 +615,7 @@ dialog.perfil,.porta .cartao{
 <p class="note" id="pfNota">Seu perfil e suas contas ficam guardados só neste celular.</p>
 </div>
 </dialog>
+<button class="fab fab-jr" id="fabJarvis" type="button" aria-label="Falar com o JARVIS" title="Falar com o JARVIS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 20l1.4-4.2A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg></button>
 <button class="fab" id="fab" type="button" aria-label="Adicionar conta" title="Adicionar conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -946,11 +954,11 @@ function abrirForm(it){
 editando=it?it.id:null;
 form=it?{...it,sentido:it.sentido||"saida"}:{nome:"",valor:"",tipo:aba,sentido:"saida",dia:aba==="semanal"?5:10,data:ymd(hoje())};
 if(!form.data)form.data=ymd(hoje());
-renderForm();$("fab").hidden=true;
+renderForm();$("fab").hidden=true;$("fabJarvis").hidden=true;
 $("sheetHost").scrollIntoView({behavior:"smooth",block:"start"});
 setTimeout(()=>$("f-nome")?.focus({preventScroll:true}),30);
 }
-function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
+function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false;$("fabJarvis").hidden=false}
 const CATS_PADRAO=[{id:"alim",nome:"Alimentação",emoji:"🍽️"},{id:"merc",nome:"Mercado",emoji:"🛒"},{id:"transp",nome:"Transporte",emoji:"⛽"},{id:"moradia",nome:"Moradia",emoji:"🏠"},{id:"roupa",nome:"Roupas",emoji:"👕"},{id:"saude",nome:"Saúde",emoji:"🏥"},{id:"lazer",nome:"Lazer",emoji:"🎉"},{id:"contas",nome:"Contas",emoji:"🧾"},{id:"outros",nome:"Outros",emoji:"📦"}];
 const EMOJIS=["🍽️","🛒","⛽","🏠","👕","🏥","🎉","🧾","📦","🐾","✈️","💊","📚","🎮","💡","📱","🎁","☕","💅","🔧"];
 const getCats=()=>(typeof perfil!=="undefined"&&perfil&&Array.isArray(perfil.cats)&&perfil.cats.length)?perfil.cats:CATS_PADRAO;
@@ -1040,6 +1048,7 @@ document.querySelector(".tabs").addEventListener("keydown",e=>{
 const i=ABAS.indexOf(aba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ABAS.length-1:null;
 if(n==null)return;e.preventDefault();const k=ABAS[(n+ABAS.length)%ABAS.length];setAba(k);$("tab-"+k).focus()});
 $("fab").addEventListener("click",()=>abrirForm(null));
+$("fabJarvis").addEventListener("click",()=>{const j=$("jarvis");if(!j)return;j.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("jrInput")?.focus({preventScroll:true}),450)});
 let tt;function toast(m){const t=$("toast");t.textContent=m;clearTimeout(tt);tt=setTimeout(()=>t.textContent="",2600)}
 function render(){resumo();renderAvisos();renderLista()}
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
