@@ -1388,7 +1388,7 @@ else if(a==="sair")fauth.signOut()}catch(x){mostrarPorta(portaModo==="carregando
 async function iniciarNuvem(){mostrarPorta("carregando");
 try{const u=`https://www.gstatic.com/firebasejs/${FB_VER}/`;await carregarScript(u+"firebase-app-compat.js");await Promise.all([carregarScript(u+"firebase-auth-compat.js"),carregarScript(u+"firebase-firestore-compat.js")])}
 catch(e){mostrarPorta("entrar","Sem internet para abrir o login. Verifique a conexão e abra o app de novo.");return}
-firebase.initializeApp(FIREBASE_CONFIG);fauth=firebase.auth();fdb=firebase.firestore();
+firebase.initializeApp(FIREBASE_CONFIG);fauth=firebase.auth();fauth.languageCode="pt-BR";fdb=firebase.firestore();
 try{fdb.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
 fauth.getRedirectResult().catch(x=>mostrarPorta("entrar",erroLogin(x)));
 fauth.onAuthStateChanged(u=>{usuario=u;if(!u){pararNuvem();mostrarPorta("entrar");return}checarAcesso(u)});
