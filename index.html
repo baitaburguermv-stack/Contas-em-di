@@ -483,6 +483,11 @@ dialog.perfil,.porta .cartao{
   box-shadow:0 0 22px rgba(53,224,255,.55), 0 8px 24px rgba(0,0,0,.4) !important; }
 .fab-jr svg{ width:26px; height:26px; }
 @media (prefers-reduced-motion:no-preference){ .fab-jr{ animation:jrpulse 3.4s ease-in-out infinite } }
+/* JARVIS como janela (aba) */
+#jarvisDlg .perfil-in{ gap:12px; }
+#jarvisDlg .jr-chat{ max-height:46vh; }
+#jarvisDlg .jr-head{ flex-wrap:wrap; }
+#jrFechar{ margin-left:auto; }
 </style>
 </head>
 <body>
@@ -507,12 +512,15 @@ dialog.perfil,.porta .cartao{
 <div class="prox" id="proxMeses"></div>
 <button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Calendário do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </section>
-<section class="cartao jarvis" id="jarvis" aria-label="Assistente JARVIS">
+<dialog class="perfil jarvis-dlg" id="jarvisDlg" aria-label="Assistente JARVIS">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
 <div class="jr-head">
 <span class="jr-orb" aria-hidden="true"></span>
-<div class="jr-id"><b>JARVIS</b><small>Pergunte sobre suas contas — por voz ou escrevendo</small></div>
+<div class="jr-id"><b>JARVIS</b><small>Pergunte sobre suas contas</small></div>
 <button type="button" class="jr-voz" id="jrFala" aria-pressed="true" title="Ativar/desativar resposta falada" aria-label="Resposta falada">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg></button>
+<button class="btn ghost" type="button" id="jrFechar">Fechar</button>
 </div>
 <div class="jr-chat" id="jrChat" aria-live="polite"></div>
 <div class="jr-sug" id="jrSug"></div>
@@ -521,7 +529,8 @@ dialog.perfil,.porta .cartao{
 <button type="button" class="jr-mic" id="jrMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
 <button type="submit" class="jr-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
 </form>
-</section>
+</div>
+</dialog>
 <section class="cartao graf" aria-labelledby="grafTit">
 <h2 id="grafTit">Gráficos do mês</h2>
 <div class="tabs mini" role="tablist" aria-label="Tipo de gráfico">
@@ -1054,7 +1063,9 @@ document.querySelector(".tabs").addEventListener("keydown",e=>{
 const i=ABAS.indexOf(aba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ABAS.length-1:null;
 if(n==null)return;e.preventDefault();const k=ABAS[(n+ABAS.length)%ABAS.length];setAba(k);$("tab-"+k).focus()});
 $("fab").addEventListener("click",()=>abrirForm(null));
-$("fabJarvis").addEventListener("click",()=>{const j=$("jarvis");if(!j)return;j.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>$("jrInput")?.focus({preventScroll:true}),450)});
+$("fabJarvis").addEventListener("click",()=>{const d=$("jarvisDlg");if(!d)return;if(!d.open)d.showModal();setTimeout(()=>$("jrInput")?.focus({preventScroll:true}),120)});
+$("jrFechar").addEventListener("click",()=>$("jarvisDlg").close());
+$("jarvisDlg").addEventListener("click",e=>{if(e.target===$("jarvisDlg"))$("jarvisDlg").close()});
 let tt;function toast(m){const t=$("toast");t.textContent=m;clearTimeout(tt);tt=setTimeout(()=>t.textContent="",2600)}
 function render(){resumo();renderAvisos();renderLista()}
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
