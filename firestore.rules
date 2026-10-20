@@ -6,10 +6,14 @@ service cloud.firestore {
     function logado() { return request.auth != null && request.auth.token.email_verified == true; }
     function meuEmail() { return request.auth.token.email.lower(); }
     function admin() { return logado() && meuEmail() == "SEU_EMAIL@exemplo.com"; }
+    function docUid() { return /databases/$(database)/documents/acesso/$(request.auth.uid); }
+    function docEmail() { return /databases/$(database)/documents/acesso/$(meuEmail()); }
+    // Liberado pela conta (o dono tocou em Liberar no pedido) ou pelo e-mail confirmado (liberado direto pelo e-mail).
     function liberado() {
-      return logado()
-        && exists(/databases/$(database)/documents/acesso/$(meuEmail()))
-        && get(/databases/$(database)/documents/acesso/$(meuEmail())).data.status == "liberado";
+      return request.auth != null && (
+        (exists(docUid()) && get(docUid()).data.status == "liberado")
+        || (!exists(docUid()) && logado() && exists(docEmail()) && get(docEmail()).data.status == "liberado")
+      );
     }
 
     // Contas de cada pessoa: só ela mesma lê e grava, e só se estiver liberada.
@@ -18,14 +22,14 @@ service cloud.firestore {
     }
 
     // Lista de quem pode entrar: só o dono do app altera.
-    match /acesso/{email} {
-      allow read: if admin() || (logado() && meuEmail() == email);
+    match /acesso/{doc} {
+      allow read: if admin() || (request.auth != null && (request.auth.uid == doc || (logado() && meuEmail() == doc)));
       allow write: if admin();
     }
 
-    // Pedidos de acesso: a pessoa cria o próprio pedido, o dono do app vê e apaga.
+    // Pedidos de acesso: a pessoa cria o próprio pedido (mesmo sem confirmar o e-mail), o dono vê e apaga.
     match /pedidos/{uid} {
-      allow create, update: if logado() && request.auth.uid == uid && request.resource.data.email == meuEmail();
+      allow create, update: if request.auth != null && request.auth.uid == uid && request.resource.data.email == meuEmail();
       allow read: if admin() || (request.auth != null && request.auth.uid == uid);
       allow delete: if admin();
     }
