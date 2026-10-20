@@ -947,8 +947,8 @@ editando=it?it.id:null;
 form=it?{...it,sentido:it.sentido||"saida"}:{nome:"",valor:"",tipo:aba,sentido:"saida",dia:aba==="semanal"?5:10,data:ymd(hoje())};
 if(!form.data)form.data=ymd(hoje());
 renderForm();$("fab").hidden=true;
-setTimeout(()=>$("f-nome")?.focus(),30);
-window.scrollTo({top:0,behavior:"smooth"});
+$("sheetHost").scrollIntoView({behavior:"smooth",block:"start"});
+setTimeout(()=>$("f-nome")?.focus({preventScroll:true}),30);
 }
 function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
 const CATS_PADRAO=[{id:"alim",nome:"Alimentação",emoji:"🍽️"},{id:"merc",nome:"Mercado",emoji:"🛒"},{id:"transp",nome:"Transporte",emoji:"⛽"},{id:"moradia",nome:"Moradia",emoji:"🏠"},{id:"roupa",nome:"Roupas",emoji:"👕"},{id:"saude",nome:"Saúde",emoji:"🏥"},{id:"lazer",nome:"Lazer",emoji:"🎉"},{id:"contas",nome:"Contas",emoji:"🧾"},{id:"outros",nome:"Outros",emoji:"📦"}];
