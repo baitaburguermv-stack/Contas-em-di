@@ -427,6 +427,41 @@ dialog.perfil,.porta .cartao{
 /* o "avatar" de cada linha vira um chip de vidro */
 .avatar.in{ box-shadow:0 0 12px rgba(57,240,160,.25); }
 .avatar.out{ box-shadow:0 0 12px rgba(255,92,119,.22); }
+
+/* ===== JARVIS: assistente de voz + chat ===== */
+.jarvis{ display:flex; flex-direction:column; gap:12px; }
+.jr-head{ display:flex; align-items:center; gap:12px; }
+.jr-orb{ flex:none; width:38px; height:38px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #9ff4ff, #35e0ff 45%, #1b78c9 80%);
+  box-shadow:0 0 18px rgba(53,224,255,.7), 0 0 40px rgba(53,224,255,.35); }
+@media (prefers-reduced-motion:no-preference){ .jr-orb{ animation:jrpulse 3.4s ease-in-out infinite } @keyframes jrpulse{50%{box-shadow:0 0 10px rgba(53,224,255,.5),0 0 24px rgba(53,224,255,.25)}} }
+.jr-id{ flex:1; min-width:0; }
+.jr-id b{ font-family:var(--display); font-weight:800; letter-spacing:.14em; font-size:1rem; }
+.jr-id small{ display:block; color:var(--muted); font-size:.78rem; }
+.jr-voz{ flex:none; width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05); color:var(--muted); cursor:pointer; display:grid; place-items:center; }
+.jr-voz svg{ width:18px; height:18px; }
+.jr-voz[aria-pressed="true"]{ color:#35e0ff; border-color:rgba(53,224,255,.4); box-shadow:0 0 14px rgba(53,224,255,.25); }
+.jr-chat{ display:flex; flex-direction:column; gap:8px; max-height:300px; overflow-y:auto; padding:2px; }
+.jr-msg{ max-width:88%; padding:10px 13px; border-radius:16px; font-size:.92rem; line-height:1.45; white-space:pre-line; overflow-wrap:anywhere; }
+.jr-msg.eu{ align-self:flex-end; background:linear-gradient(180deg,#35e0ff,#1aa9d6); color:#04141b; font-weight:500; border-radius:16px 16px 4px 16px; }
+.jr-msg.jv{ align-self:flex-start; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); border-radius:16px 16px 16px 4px; }
+.jr-msg.jv b{ color:#9ff4ff; font-weight:700; }
+.jr-pensa{ align-self:flex-start; color:var(--muted); font-size:.85rem; display:flex; gap:6px; align-items:center; }
+.jr-pensa i{ width:6px; height:6px; border-radius:50%; background:#35e0ff; box-shadow:0 0 8px #35e0ff; animation:jrblink 1s infinite; }
+.jr-pensa i:nth-child(2){ animation-delay:.2s } .jr-pensa i:nth-child(3){ animation-delay:.4s }
+@keyframes jrblink{0%,100%{opacity:.25}50%{opacity:1}}
+.jr-sug{ display:flex; gap:8px; flex-wrap:wrap; }
+.jr-sug button{ font:inherit; font-size:.82rem; color:#bfe9f6; background:rgba(53,224,255,.08);
+  border:1px solid rgba(53,224,255,.25); border-radius:999px; padding:7px 12px; cursor:pointer; }
+.jr-sug button:active{ opacity:.7; }
+.jr-bar{ display:flex; gap:8px; align-items:center; }
+.jr-bar input{ flex:1; background:rgba(255,255,255,.05) !important; border:1px solid rgba(255,255,255,.12) !important; color:var(--ink); }
+.jr-mic,.jr-send{ flex:none; width:46px; height:46px; border-radius:50%; border:0; cursor:pointer; display:grid; place-items:center; }
+.jr-mic{ background:rgba(255,255,255,.06); color:#9ff4ff; border:1px solid rgba(255,255,255,.12); }
+.jr-mic.on{ background:#ff5c77; color:#fff; box-shadow:0 0 18px rgba(255,92,119,.5); animation:pulso 1s ease-in-out infinite; }
+.jr-send{ background:linear-gradient(180deg,#35e0ff,#17b9df); color:#04141b; box-shadow:0 0 18px rgba(53,224,255,.35); }
+.jr-mic svg,.jr-send svg{ width:20px; height:20px; }
 </style>
 </head>
 <body>
@@ -450,6 +485,21 @@ dialog.perfil,.porta .cartao{
 <div class="prog"><div class="bar" id="pBarWrap" role="progressbar" aria-label="Contas pagas no mês" aria-valuemin="0" aria-valuemax="0" aria-valuenow="0"><i id="pBar" style="width:0%"></i></div><small class="num" id="pTxt"></small></div>
 <div class="prox" id="proxMeses"></div>
 <button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Calendário do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+</section>
+<section class="cartao jarvis" id="jarvis" aria-label="Assistente JARVIS">
+<div class="jr-head">
+<span class="jr-orb" aria-hidden="true"></span>
+<div class="jr-id"><b>JARVIS</b><small>Pergunte sobre suas contas — por voz ou escrevendo</small></div>
+<button type="button" class="jr-voz" id="jrFala" aria-pressed="true" title="Ativar/desativar resposta falada" aria-label="Resposta falada">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg></button>
+</div>
+<div class="jr-chat" id="jrChat" aria-live="polite"></div>
+<div class="jr-sug" id="jrSug"></div>
+<form class="jr-bar" id="jrForm" autocomplete="off">
+<input id="jrInput" placeholder="Ex.: quem eu recebo na sexta?" aria-label="Sua pergunta">
+<button type="button" class="jr-mic" id="jrMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+<button type="submit" class="jr-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+</form>
 </section>
 <section class="cartao graf" aria-labelledby="grafTit">
 <h2 id="grafTit">Gráficos do mês</h2>
@@ -1577,6 +1627,67 @@ catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
 document.querySelector("label[for=bkArquivo]").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("bkArquivo").click()}});
 $("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
 $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};jurema=bkDados.jurema||[];lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+/* ===== JARVIS: perguntas e respostas sobre as contas (voz + chat) ===== */
+(function(){
+  var chat=$("jrChat"),input=$("jrInput"),form=$("jrForm"),mic=$("jrMic"),botFala=$("jrFala"),sug=$("jrSug");
+  if(!chat)return;
+  var falar=true;
+  function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+  function addMsg(role,texto){var div=document.createElement("div");div.className="jr-msg "+(role==="eu"?"eu":"jv");div.textContent=texto;chat.appendChild(div);chat.scrollTop=chat.scrollHeight}
+  function pensando(on){var ex=$("jrPensa");if(on){if(ex)return;var d=document.createElement("div");d.className="jr-pensa";d.id="jrPensa";d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);chat.scrollTop=chat.scrollHeight}else if(ex)ex.remove()}
+  function dizer(texto){if(!falar||!("speechSynthesis"in window))return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(texto);u.lang="pt-BR";u.rate=1;var vs=speechSynthesis.getVoices().filter(function(v){return /pt[-_]?BR/i.test(v.lang)});if(vs[0])u.voice=vs[0];speechSynthesis.speak(u)}catch(e){}}
+  function fimSemana(d){var x=new Date(d);x.setDate(x.getDate()+((7-x.getDay())%7));return x}
+  function interpretarData(t){var h=hoje();
+    if(/\bhoje\b/.test(t))return{ini:h,fim:h,rot:"hoje"};
+    if(/\bamanha\b/.test(t)){var a=new Date(h);a.setDate(a.getDate()+1);return{ini:a,fim:a,rot:"amanhã ("+dm(a)+")"}}
+    if(/depois de amanha/.test(t)){var a2=new Date(h);a2.setDate(a2.getDate()+2);return{ini:a2,fim:a2,rot:dm(a2)}}
+    if(/semana que vem|proxima semana|semana seguinte/.test(t)){var ini=new Date(h);var k=(8-ini.getDay())%7;k=k===0?7:k;ini.setDate(ini.getDate()+k);var fim=new Date(ini);fim.setDate(ini.getDate()+6);return{ini:ini,fim:fim,rot:"na semana que vem"}}
+    if(/essa semana|esta semana|nesta semana|dessa semana|desta semana/.test(t))return{ini:h,fim:fimSemana(h),rot:"nesta semana"};
+    if(/mes que vem|proximo mes/.test(t)){var y=h.getFullYear(),m=h.getMonth()+1;if(m>11){m=0;y++}return{ini:new Date(y,m,1),fim:new Date(y,m+1,0),rot:"no mês que vem ("+MESES[m]+")",mes:[y,m]}}
+    for(var nome in SEMANA){if(new RegExp("\\b"+nome+"\\b").test(t)){var dow=SEMANA[nome],d=new Date(h),kk=(dow-d.getDay()+7)%7;d.setDate(d.getDate()+kk);return{ini:d,fim:d,rot:"na "+DIAS[dow]+" ("+dm(d)+")"}}}
+    var mn=t.match(/\bdia (\d{1,2})\b/);if(mn){var dd=+mn[1];if(dd>=1&&dd<=31){var dt=new Date(h.getFullYear(),h.getMonth(),dd);if(dt<h)dt=new Date(h.getFullYear(),h.getMonth()+1,dd);return{ini:dt,fim:dt,rot:"no dia "+dm(dt)}}}
+    return null}
+  function occIntervalo(ini,fim){var res=[],cur=new Date(ini.getFullYear(),ini.getMonth(),1),last=new Date(fim.getFullYear(),fim.getMonth(),1);
+    while(cur<=last){var c=calcMes(cur.getFullYear(),cur.getMonth());for(var i=0;i<c.ag.length;i++){var a=c.ag[i];if(a.d>=ini&&a.d<=fim)res.push(a)}cur.setMonth(cur.getMonth()+1)}
+    res.sort(function(p,q){return p.d-q.d});return res}
+  function responder(textoOrig){var t=norm(textoOrig);
+    if(!itens.length)return{txt:"Você ainda não cadastrou nenhuma conta. Toque no botão + para adicionar a primeira — depois é só me perguntar.",fala:"Você ainda não cadastrou nenhuma conta. Adicione a primeira no botão de mais."};
+    var sentido=/receb|a receber|\bentra\b|entrada|vou receber|caem|entram/.test(t)?"entrada":/\bpag|a pagar|vence|venc|devo|dever|gasto|despesa|\bsaida|saem/.test(t)?"saida":null;
+    if(/saldo|sobra|sobrando|vou ficar/.test(t)){var dd=interpretarData(t),y,m,h=hoje();if(dd&&dd.mes){y=dd.mes[0];m=dd.mes[1]}else if(dd&&dd.ini){y=dd.ini.getFullYear();m=dd.ini.getMonth()}else{y=h.getFullYear();m=h.getMonth()}
+      var c=calcMes(y,m),txt=(c.saldo>=0?"Em "+MESES[m]+" você deve fechar com "+brl(c.saldo)+" positivo.":"Atenção: em "+MESES[m]+" você fecha no vermelho, faltando "+brl(-c.saldo)+".")+" Entram "+brl(c.entPrev)+" e saem "+brl(c.saiPrev)+".";return{txt:txt,fala:txt}}
+    if(/maior (gasto|despesa|conta|saida)|gasto mais|onde.*gasto/.test(t)){var h2=hoje(),cc=calcMes(h2.getFullYear(),h2.getMonth()),soma={};cc.ag.forEach(function(a){if(!isEntrada(a.it))soma[a.it.nome]=(soma[a.it.nome]||0)+a.valor});
+      var arr=Object.keys(soma).map(function(k){return{n:k,v:soma[k]}}).sort(function(a,b){return b.v-a.v});if(!arr.length)return{txt:"Não achei saídas neste mês.",fala:"Não achei saídas neste mês."};
+      var txt2="Seu maior gasto em "+MESES[h2.getMonth()]+" é "+arr[0].n+", com "+brl(arr[0].v)+"."+(arr[1]?" Depois vem "+arr[1].n+" ("+brl(arr[1].v)+").":"");return{txt:txt2,fala:txt2}}
+    var d=interpretarData(t),ini,fim,rot;if(d){ini=d.ini;fim=d.fim;rot=d.rot}else{var hh=hoje();ini=hh;fim=new Date(hh.getFullYear(),hh.getMonth()+1,0);rot="de hoje até o fim do mês"}
+    var occ=occIntervalo(ini,fim);if(sentido)occ=occ.filter(function(a){return(isEntrada(a.it)?"entrada":"saida")===sentido});
+    var pend=occ.filter(function(a){return !a.pago}),usar=(sentido&&pend.length)?pend:occ,rotC=cap(rot);
+    if(!usar.length){var nada=sentido==="entrada"?"nada a receber":sentido==="saida"?"nada a pagar":"nenhuma conta";return{txt:rotC+" você não tem "+nada+".",fala:rotC+" você não tem "+nada+"."}}
+    var total=usar.reduce(function(s,a){return s+a.valor},0),verbo=sentido==="entrada"?"a receber":sentido==="saida"?"a pagar":"em contas",
+      soLista=/quem|quais|o que|lista/.test(t),soTotal=/quanto|total|soma/.test(t)&&!soLista;
+    if(soTotal){var txt3=rotC+" você tem "+brl(total)+" "+verbo+", em "+usar.length+(usar.length===1?" conta.":" contas.");return{txt:txt3,fala:txt3}}
+    var linhas=usar.map(function(a){var ent=isEntrada(a.it);return "• "+a.it.nome+" — "+brl(a.valor)+(a.pago?(" (já "+(ent?"recebido":"pago")+")"):"")+"  ·  "+DIAS_CURTO[a.d.getDay()]+" "+dm(a.d)});
+    var cab=rotC+" você tem "+usar.length+(usar.length===1?" valor ":" valores ")+verbo+" ("+brl(total)+"):",
+      nomes=usar.map(function(a){return a.it.nome+", "+brl(a.valor).replace("R$","").trim()+" reais"}).join("; "),
+      fala4=rotC+" você tem "+usar.length+(usar.length===1?" valor ":" valores ")+verbo+", somando "+brl(total).replace("R$","").trim()+" reais: "+nomes+".";
+    return{txt:cab+"\n"+linhas.join("\n"),fala:fala4}}
+  function perguntar(texto){texto=(texto||"").trim();if(!texto)return;addMsg("eu",texto);input.value="";pensando(true);
+    setTimeout(function(){pensando(false);var r;try{r=responder(texto)}catch(e){r={txt:'Não consegui entender essa. Tente, por exemplo: "quem eu recebo na sexta?"',fala:"Não consegui entender. Tente perguntar quem você recebe na sexta."}}addMsg("jv",r.txt);dizer(r.fala||r.txt)},350)}
+  var RecCls=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,ouvindo=false;
+  function toggleMic(){if(!RecCls){addMsg("jv","Seu aparelho não deixa eu ouvir a voz por aqui. Pode escrever a pergunta que eu respondo igual.");return}
+    if(ouvindo){try{rec.stop()}catch(e){}return}
+    rec=new RecCls();rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
+    rec.onstart=function(){ouvindo=true;mic.classList.add("on");input.placeholder="Ouvindo…"};
+    rec.onresult=function(e){perguntar(e.results[0][0].transcript)};
+    rec.onend=function(){ouvindo=false;mic.classList.remove("on");input.placeholder="Ex.: quem eu recebo na sexta?"};
+    try{rec.start()}catch(e){}}
+  ["Quem eu recebo na sexta?","Quanto tenho a pagar essa semana?","Qual meu saldo esse mês?","Qual meu maior gasto?"].forEach(function(s){var b=document.createElement("button");b.type="button";b.textContent=s;b.addEventListener("click",function(){perguntar(s)});sug.appendChild(b)});
+  form.addEventListener("submit",function(e){e.preventDefault();perguntar(input.value)});
+  mic.addEventListener("click",toggleMic);
+  botFala.addEventListener("click",function(){falar=!falar;botFala.setAttribute("aria-pressed",String(falar));if(!falar&&"speechSynthesis"in window)speechSynthesis.cancel()});
+  if("speechSynthesis"in window){try{speechSynthesis.getVoices()}catch(e){}}
+  var quem=(typeof perfil!=="undefined"&&perfil&&perfil.nome)?(", "+String(perfil.nome).split(" ")[0]):"";
+  addMsg("jv","Às suas ordens"+quem+'. Pergunte o que quiser sobre suas contas — por voz ou escrevendo. Ex.: "quem eu recebo na sexta?"');
+})();
 iniciar();
 setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
 </script>
