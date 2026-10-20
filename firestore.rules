@@ -8,11 +8,11 @@ service cloud.firestore {
     function admin() { return logado() && meuEmail() == "SEU_EMAIL@exemplo.com"; }
     function docUid() { return /databases/$(database)/documents/acesso/$(request.auth.uid); }
     function docEmail() { return /databases/$(database)/documents/acesso/$(meuEmail()); }
-    // Liberado pela conta (o dono tocou em Liberar no pedido) ou pelo e-mail confirmado (liberado direto pelo e-mail).
+    // Liberado pela conta (o dono tocou em Liberar no pedido) ou pelo e-mail (o dono usou "Liberar um e-mail direto").
     function liberado() {
       return request.auth != null && (
         (exists(docUid()) && get(docUid()).data.status == "liberado")
-        || (!exists(docUid()) && logado() && exists(docEmail()) && get(docEmail()).data.status == "liberado")
+        || (!exists(docUid()) && exists(docEmail()) && get(docEmail()).data.status == "liberado")
       );
     }
 
@@ -23,7 +23,7 @@ service cloud.firestore {
 
     // Lista de quem pode entrar: só o dono do app altera.
     match /acesso/{doc} {
-      allow read: if admin() || (request.auth != null && (request.auth.uid == doc || (logado() && meuEmail() == doc)));
+      allow read: if admin() || (request.auth != null && (request.auth.uid == doc || meuEmail() == doc));
       allow write: if admin();
     }
 
