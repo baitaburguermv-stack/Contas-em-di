@@ -12,11 +12,12 @@
   figure { display:flex; flex-direction:column; align-items:center; gap:14px; }
   figcaption { font-size:15px; font-weight:600; color:#444; letter-spacing:1px; }
   .card { width:100%; aspect-ratio:54/85.6; border-radius:24px; box-shadow:0 24px 48px rgba(0,0,0,.22);
-          display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:18px; padding:28px 20px; }
+          display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; padding:24px 20px; }
   .card h2 { font-weight:400; font-size:28px; line-height:1.15; }
   .card h2 b { font-weight:700; }
-  .ring { width:190px; height:190px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; }
-  .phone { font-size:24px; font-weight:600; letter-spacing:.5px; }
+  .ring { width:170px; height:170px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; }
+  .phone { font-size:16px; font-weight:500; letter-spacing:.5px; opacity:.85; }
+  .nfc { width:96px; height:auto; margin-bottom:-8px; }
   .cta { font-size:14px; font-weight:500; letter-spacing:2.5px; }
   .small { font-size:13px; letter-spacing:1.5px; }
   .tags { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
@@ -25,14 +26,14 @@
 
   /* 1 – Preto clássico */
   .m1 { background:#0d0d0d; color:#fff; }
-  .m1 .ring { border:7px solid #fff; width:200px; height:200px; }
+  .m1 .ring { border:7px solid #fff; width:180px; height:180px; }
   .m1 .ring strong { font-size:17px; font-weight:700; letter-spacing:1px; }
 
   /* 2 – WhatsApp verde */
   .m2 { background:#0b1f17; color:#fff; }
   .m2 .ring { border:7px solid #25d366; }
   .m2 h2 b { color:#25d366; }
-  .m2 .phone { color:#25d366; }
+  .m2 .phone, .m2 .nfc { color:#25d366; }
 
   /* 3 – Branco minimalista */
   .m3 { background:#fafafa; color:#111; border:1px solid #ddd; }
@@ -45,7 +46,8 @@
   /* 4 – Executivo dourado */
   .m4 { background:linear-gradient(160deg,#1a1a1a,#000); color:#f1f1f1; }
   .m4 .gold { color:#d4af37; }
-  .m4 .ring { border:3px solid #d4af37; width:150px; height:150px; }
+  .m4 .ring { border:3px solid #d4af37; width:120px; height:120px; }
+  .m4 .nfc { color:#d4af37; }
   .m4 .tags span { border:1px solid #d4af37; color:#d4af37; }
   .m4 h2 { font-size:15px; letter-spacing:5px; font-weight:500; }
   .m4 .name { font-size:30px; font-weight:300; letter-spacing:1px; }
@@ -66,6 +68,16 @@
         <strong>MOTORISTA<br>PARTICULAR</strong>
       </div>
       <div class="phone">(00) 00000-0000</div>
+      <svg class="nfc" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+        <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+        <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+        <path d="M103 14 l12 -3"/>
+        <path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+        <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+        <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+        <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+      </svg>
       <p class="cta">APROXIME SEU CELULAR</p>
     </div>
     <figcaption>1 · PRETO CLÁSSICO</figcaption>
@@ -76,13 +88,23 @@
     <div class="card m2">
       <h2>Chame no<br><b>WhatsApp</b></h2>
       <div class="ring">
-        <svg width="92" height="92" viewBox="0 0 92 92" fill="none" stroke="#25d366" stroke-width="5" stroke-linejoin="round">
+        <svg width="80" height="80" viewBox="0 0 92 92" fill="none" stroke="#25d366" stroke-width="5" stroke-linejoin="round">
           <path d="M46 8 a38 38 0 1 1 -21 69.6 L8 84 l6.4 -16.6 A38 38 0 0 1 46 8z"/>
           <path d="M33 27 c-5 3 -5 10 0 17 c6 9 13 15 22 18 c6 2 11 0 13 -5 l-9 -6 l-5 4 c-6 -3 -10 -7 -13 -13 l4 -5 z" fill="#25d366" stroke-width="2"/>
         </svg>
       </div>
       <p class="small">VIAGENS PARTICULARES</p>
       <div class="phone">(00) 00000-0000</div>
+      <svg class="nfc" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+        <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+        <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+        <path d="M103 14 l12 -3"/>
+        <path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+        <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+        <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+        <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+      </svg>
       <p class="cta">APROXIME SEU CELULAR</p>
     </div>
     <figcaption>2 · WHATSAPP</figcaption>
@@ -97,8 +119,15 @@
       <div class="stars">★★★★★</div>
       <div class="tags"><span>Aeroporto</span><span>Rodoviária</span><span>Viagens longas</span><span>Eventos</span></div>
       <div class="phone">(00) 00000-0000</div>
-      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round">
-        <path d="M14 12 q8 8 0 16"/><path d="M24 6 q14 14 0 28"/><path d="M34 0 q20 20 0 40"/>
+      <svg class="nfc" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+        <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+        <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+        <path d="M103 14 l12 -3"/>
+        <path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+        <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+        <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+        <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
       </svg>
       <p class="cta">APROXIME SEU CELULAR</p>
     </div>
@@ -110,7 +139,7 @@
     <div class="card m4">
       <h2 class="gold">EXECUTIVO</h2>
       <div class="ring">
-        <svg width="70" height="70" viewBox="0 0 70 70" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round">
+        <svg width="56" height="56" viewBox="0 0 70 70" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round">
           <circle cx="35" cy="35" r="28"/><circle cx="35" cy="35" r="7"/>
           <path d="M8 31 q27-10 54 0"/><path d="M31 42 l-6 20"/><path d="M39 42 l6 20"/>
         </svg>
@@ -118,6 +147,16 @@
       <div class="name">Seu Nome</div>
       <div class="tags"><span>Ar-condicionado</span><span>Água</span><span>Wi-Fi</span><span>Pix/Cartão</span></div>
       <div class="phone gold">(00) 00000-0000</div>
+      <svg class="nfc" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+        <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+        <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+        <path d="M103 14 l12 -3"/>
+        <path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+        <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+        <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+        <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+      </svg>
       <p class="cta">APROXIME SEU CELULAR</p>
     </div>
     <figcaption>4 · EXECUTIVO DOURADO</figcaption>
