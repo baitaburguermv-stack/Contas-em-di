@@ -387,8 +387,8 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
   --in:#39f0a0 !important; --in-soft:rgba(57,240,160,.12) !important; --out:#ff5c77 !important; --out-soft:rgba(255,92,119,.12) !important;
   --warn:#ffc061 !important; --warn-soft:rgba(255,192,97,.12) !important;
   --hero-a:#0d1b34 !important; --hero-b:#13294d !important; --hero-in:#39f0a0 !important; --hero-out:#ff8a9c !important;
-  --bar-in:#35e0ff !important; --bar-out:#4d7cff !important;
-  --c1:#35e0ff !important; --c2:#4d7cff !important; --c3:#9b7bff !important; --c4:#39f0a0 !important; --c5:#ffc061 !important; --c6:#5b6b9a !important;
+  --bar-in:#35e0ff !important; --bar-out:#ff6fae !important;
+  --c1:#8b7bff !important; --c2:#ff6fae !important; --c3:#4d9fff !important; --c4:#ff9f45 !important; --c5:#35e0ff !important; --c6:#6b6b9a !important;
   --tab-sel:rgba(53,224,255,.16) !important;
   --shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 16px 40px rgba(0,0,0,.5) !important;
   color-scheme:dark !important;
@@ -420,10 +420,16 @@ dialog.perfil,.porta .cartao{
 .fab,.btn.primary,.mic{ box-shadow:0 0 24px rgba(53,224,255,.30) !important; }
 .tabs button[aria-selected="true"]{ box-shadow:0 0 16px rgba(53,224,255,.22) !important; }
 /* barras dos gráficos com um leve brilho */
-.gtrack i.in, .cal .dots i.in, .cal-leg i.in{ box-shadow:0 0 8px rgba(53,224,255,.6); }
-/* linhas e áreas dos gráficos SVG brilham em ciano */
+.cal .dots i.in, .cal-leg i.in{ box-shadow:0 0 8px rgba(53,224,255,.6); }
+/* barras horizontais (Entradas × Saídas e Por conta) com degradê e brilho, estilo infográfico */
+.gtrack i.in{ background:linear-gradient(90deg,#4d9fff,#35e0ff) !important; box-shadow:0 0 10px rgba(53,224,255,.45); }
+.gtrack i.out{ background:linear-gradient(90deg,#8b7bff,#ff6fae) !important; box-shadow:0 0 10px rgba(255,111,174,.45); }
+.gtrack{ background:rgba(255,255,255,.06) !important; }
+/* linhas e áreas dos gráficos SVG brilham */
 .gwrap svg path[stroke]{ filter:drop-shadow(0 0 4px rgba(53,224,255,.55)); }
-.pizza path{ filter:drop-shadow(0 0 3px rgba(53,224,255,.25)); }
+/* rosca (pizza) com profundidade suave */
+.pizza path{ filter:drop-shadow(0 2px 6px rgba(0,0,0,.45)); }
+.pizza .centro-v{ text-shadow:0 0 16px rgba(139,123,255,.4); }
 /* o "avatar" de cada linha vira um chip de vidro */
 .avatar.in{ box-shadow:0 0 12px rgba(57,240,160,.25); }
 .avatar.out{ box-shadow:0 0 12px rgba(255,92,119,.22); }
