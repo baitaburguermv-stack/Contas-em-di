@@ -1,0 +1,37 @@
+rules_version = '2';
+// Regras de segurança do Contas em Dia.
+// Troque SEU_EMAIL@exemplo.com pelo e-mail com que você entra no app (o mesmo de ADMIN_EMAIL no index.html).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function logado() { return request.auth != null && request.auth.token.email_verified == true; }
+    function meuEmail() { return request.auth.token.email.lower(); }
+    function admin() { return logado() && meuEmail() == "SEU_EMAIL@exemplo.com"; }
+    function docUid() { return /databases/$(database)/documents/acesso/$(request.auth.uid); }
+    function docEmail() { return /databases/$(database)/documents/acesso/$(meuEmail()); }
+    // Liberado pela conta (o dono tocou em Liberar no pedido) ou pelo e-mail confirmado (liberado direto pelo e-mail).
+    function liberado() {
+      return request.auth != null && (
+        (exists(docUid()) && get(docUid()).data.status == "liberado")
+        || (!exists(docUid()) && logado() && exists(docEmail()) && get(docEmail()).data.status == "liberado")
+      );
+    }
+
+    // Contas de cada pessoa: só ela mesma lê e grava, e só se estiver liberada.
+    match /usuarios/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid && (liberado() || admin());
+    }
+
+    // Lista de quem pode entrar: só o dono do app altera.
+    match /acesso/{doc} {
+      allow read: if admin() || (request.auth != null && (request.auth.uid == doc || (logado() && meuEmail() == doc)));
+      allow write: if admin();
+    }
+
+    // Pedidos de acesso: a pessoa cria o próprio pedido (mesmo sem confirmar o e-mail), o dono vê e apaga.
+    match /pedidos/{uid} {
+      allow create, update: if request.auth != null && request.auth.uid == uid && request.resource.data.email == meuEmail();
+      allow read: if admin() || (request.auth != null && request.auth.uid == uid);
+      allow delete: if admin();
+    }
+  }
+}
