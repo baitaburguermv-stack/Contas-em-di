@@ -555,7 +555,7 @@ dialog.perfil,.porta .cartao{
 </div>
 <div class="cartao" id="pfAdmin" hidden>
 <h2>Controle de acesso</h2>
-<p class="note">Quem criar conta aparece aqui. Só entra no app quem você liberar.</p>
+<p class="note">Quem criar conta aparece aqui. Só entra no app quem você liberar. Se alguém diz que está aguardando e não aparece aqui, digite o e-mail da pessoa em "Liberar um e-mail direto".</p>
 <div id="admLista"></div>
 <div class="field"><label for="admEmail">Liberar um e-mail direto</label><div class="resp"><input id="admEmail" type="email" inputmode="email" placeholder="pessoa@email.com"><button class="btn primary" type="button" id="admAdd">Liberar</button></div></div>
 </div>
@@ -1372,7 +1372,7 @@ else if(modo==="aguardando")h=`${marca}<div class="cartao"><span class="porta-ic
 <button class="btn primary" type="button" data-p="checar">Verificar de novo</button><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
 else if(modo==="bloqueado")h=`${marca}<div class="cartao"><span class="porta-ico">${ICO_TRAVA}</span><h2 style="text-align:center">Acesso bloqueado</h2>
 <p class="porta-msg">O acesso de <b>${esc(usuario&&usuario.email)}</b> foi bloqueado. Fale com o responsável pelo app.</p><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
-$("portaIn").innerHTML=h;const f=$("portaIn").querySelector("input");if(f&&modo!=="carregando")setTimeout(()=>f.focus(),50)}
+$("portaIn").innerHTML=h;const f=$("portaIn").querySelector("input");if(f&&modo!=="carregando")setTimeout(()=>{if(!$("portaIn").contains(document.activeElement))f.focus()},50)}
 function esconderPorta(){$("porta").hidden=true;document.body.style.overflow=""}
 $("porta").addEventListener("submit",async e=>{e.preventDefault();const em=$("lgEmail").value.trim(),se=$("lgSenha").value,b=e.target.querySelector("[type=submit]");b.disabled=true;
 try{if(portaModo==="criar"){const c=await fauth.createUserWithEmailAndPassword(em,se);const nm=($("lgNome")||{}).value;if(nm){await c.user.updateProfile({displayName:nm.trim()});perfil.nome=nm.trim();perfilSave()}await c.user.sendEmailVerification()}
@@ -1388,7 +1388,7 @@ else if(a==="sair")fauth.signOut()}catch(x){mostrarPorta(portaModo==="carregando
 async function iniciarNuvem(){mostrarPorta("carregando");
 try{const u=`https://www.gstatic.com/firebasejs/${FB_VER}/`;await carregarScript(u+"firebase-app-compat.js");await Promise.all([carregarScript(u+"firebase-auth-compat.js"),carregarScript(u+"firebase-firestore-compat.js")])}
 catch(e){mostrarPorta("entrar","Sem internet para abrir o login. Verifique a conexão e abra o app de novo.");return}
-firebase.initializeApp(FIREBASE_CONFIG);fauth=firebase.auth();fdb=firebase.firestore();
+firebase.initializeApp(FIREBASE_CONFIG);fauth=firebase.auth();fauth.languageCode="pt-BR";fdb=firebase.firestore();
 try{fdb.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
 fauth.getRedirectResult().catch(x=>mostrarPorta("entrar",erroLogin(x)));
 fauth.onAuthStateChanged(u=>{usuario=u;if(!u){pararNuvem();mostrarPorta("entrar");return}checarAcesso(u)});
@@ -1398,10 +1398,11 @@ const em=(u.email||"").toLowerCase();ehAdmin=!!ADMIN_EMAIL&&em===ADMIN_EMAIL.tri
 if(ehAdmin&&!u.emailVerified){mostrarPorta("verificar");return}
 if(!ehAdmin){mostrarPorta("carregando");let st=null;
 try{const a=await fdb.collection("acesso").doc(u.uid).get();if(a.exists)st=a.data().status;
-if(st!=="bloqueado"&&st!=="liberado"&&u.emailVerified){const b=await fdb.collection("acesso").doc(em).get();if(b.exists)st=b.data().status}}
+if(st!=="bloqueado"&&st!=="liberado"){const b=await fdb.collection("acesso").doc(em).get();if(b.exists)st=b.data().status}}
 catch(e){if(e.code==="unavailable"){mostrarPorta("aguardando","Sem internet para conferir o acesso.");return}}
 if(st==="bloqueado"){mostrarPorta("bloqueado");return}
-if(st!=="liberado"){try{await fdb.collection("pedidos").doc(u.uid).set({email:em,nome:u.displayName||perfil.nome||"",verificado:!!u.emailVerified,em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){}mostrarPorta("aguardando");return}}
+if(st!=="liberado"){let falhou=false;try{await fdb.collection("pedidos").doc(u.uid).set({email:em,nome:u.displayName||perfil.nome||"",verificado:!!u.emailVerified,em:firebase.firestore.FieldValue.serverTimestamp()})}catch(e){falhou=true}
+mostrarPorta("aguardando",falhou?`Não consegui enviar seu pedido para o responsável. Mande para ele o seu e-mail (${em}) para ele liberar direto.`:"");return}}
 entrarNoApp(u)}
 function entrarNoApp(u){
 let dono=null;try{dono=localStorage.getItem(LS_DONO)}catch(e){}
