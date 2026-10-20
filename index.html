@@ -462,6 +462,14 @@ dialog.perfil,.porta .cartao{
 .jr-mic.on{ background:#ff5c77; color:#fff; box-shadow:0 0 18px rgba(255,92,119,.5); animation:pulso 1s ease-in-out infinite; }
 .jr-send{ background:linear-gradient(180deg,#35e0ff,#17b9df); color:#04141b; box-shadow:0 0 18px rgba(53,224,255,.35); }
 .jr-mic svg,.jr-send svg{ width:20px; height:20px; }
+
+/* ===== Categorias dos gastos ===== */
+.cat-tag{ display:inline-flex; align-items:center; gap:4px; margin-top:3px; font-size:.72rem; font-weight:600; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:2px 8px; width:fit-content; }
+.cat-lista{ display:flex; flex-direction:column; gap:8px; }
+.cat-edit{ display:flex; align-items:center; gap:8px; }
+.cat-emoji{ flex:none; width:42px; height:42px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:1.15rem; cursor:pointer; }
+.cat-nome{ flex:1; min-width:0; }
+.cat-del{ flex:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--out); font-size:1rem; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -568,6 +576,12 @@ dialog.perfil,.porta .cartao{
 <h2>Seus dados</h2>
 <div class="field"><label for="pfNome">Como quer ser chamado?</label><input id="pfNome" autocomplete="given-name" placeholder="Seu nome"></div>
 <div class="field"><label for="pfEmail">E-mail (opcional)</label><input id="pfEmail" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com"></div>
+</div>
+<div class="cartao">
+<h2>Categorias dos gastos</h2>
+<p class="note">Marque cada gasto como gasolina, comida, roupa… Toque no ícone para trocá-lo, no nome para editar, ou no ✕ para remover.</p>
+<div id="pfCats" class="cat-lista"></div>
+<div class="inline"><input id="catNovo" placeholder="Nova categoria (ex.: Pets)" maxlength="24"><button class="btn" type="button" id="catAdd">Adicionar</button></div>
 </div>
 <div class="cartao">
 <h2>Aparência</h2>
@@ -892,7 +906,7 @@ panel=`<div class="field"><label for="v-${it.id}">${verbo} quanto? (${dm(s.data)
 }
 }
 return `<div class="row"><button class="row-main" data-act="abrir" data-id="${it.id}" aria-expanded="${open}"><span class="avatar ${s.kind==="done"&&!s.avulso?"done":ent?"in":"out"}" aria-hidden="true">${s.kind==="done"&&!s.avulso?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
-<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span></div>
+<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span>${(!ent&&it.cat&&catById(it.cat))?`<span class="cat-tag">${catById(it.cat).emoji} ${esc(catById(it.cat).nome)}</span>`:""}</div>
 <div class="row-right"><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">, ${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(valorMostrado)}</strong>${s.avulso?"":`<span class="pill ${s.kind}"><span class="sr">, </span>${s.label}</span>`}</div>
 </button>${open?`<div class="row-panel">${panel}</div>`:""}</div>`;
 }
@@ -937,6 +951,11 @@ setTimeout(()=>$("f-nome")?.focus(),30);
 window.scrollTo({top:0,behavior:"smooth"});
 }
 function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
+const CATS_PADRAO=[{id:"alim",nome:"Alimentação",emoji:"🍽️"},{id:"merc",nome:"Mercado",emoji:"🛒"},{id:"transp",nome:"Transporte",emoji:"⛽"},{id:"moradia",nome:"Moradia",emoji:"🏠"},{id:"roupa",nome:"Roupas",emoji:"👕"},{id:"saude",nome:"Saúde",emoji:"🏥"},{id:"lazer",nome:"Lazer",emoji:"🎉"},{id:"contas",nome:"Contas",emoji:"🧾"},{id:"outros",nome:"Outros",emoji:"📦"}];
+const EMOJIS=["🍽️","🛒","⛽","🏠","👕","🏥","🎉","🧾","📦","🐾","✈️","💊","📚","🎮","💡","📱","🎁","☕","💅","🔧"];
+const getCats=()=>(typeof perfil!=="undefined"&&perfil&&Array.isArray(perfil.cats)&&perfil.cats.length)?perfil.cats:CATS_PADRAO;
+const catById=id=>getCats().find(c=>c.id===id)||null;
+function ensureCats(){if(!Array.isArray(perfil.cats)||!perfil.cats.length)perfil.cats=CATS_PADRAO.map(c=>({...c}));return perfil.cats}
 const FORM_TIPOS=[["fixo","saida","Gasto mensal"],["fixo","entrada","Entrada mensal"],["variavel","saida","Gasto variável"],["semanal","entrada","Entrada semanal"],["semanal","saida","Saída semanal"],["quinzenal","entrada","Entrada quinzenal"],["quinzenal","saida","Saída quinzenal"],["avulso","saida","Gasto diário"],["avulso","entrada","Entrada diária"]];
 function renderForm(){
 if(!form)return;
@@ -950,6 +969,7 @@ $("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
 ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-pressed="${form.tipo===t&&(form.sentido||"saida")===se}">${l}</button>`).join("")}
 </div></div>
 <div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: almoço, uber, mercado":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
+${form.sentido!=="entrada"?`<div class="field"><label>Categoria</label><div class="chips cats-pick">${getCats().map(c=>`<button type="button" class="chip${form.cat===c.id?" sel":""}" data-cat="${c.id}" aria-pressed="${form.cat===c.id}">${c.emoji} ${esc(c.nome)}</button>`).join("")}</div></div>`:""}
 <div class="two">
 <div class="field"><label for="f-valor">${form.tipo==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="f-valor" inputmode="decimal" value="${form.valor===""?"":fmtInput(form.valor)}" placeholder="0,00"></div>
 <div class="field"><label for="f-dia">${avulso?"Data":quinz?"Próxima vez":semanal?"Dia da semana":ent?"Dia que entra":"Dia do vencimento"}</label>${diaCampo}</div>
@@ -971,6 +991,7 @@ if($("f-juros")){const j=parseValor($("f-juros").value);form.jurosPct=isNaN(j)?n
 $("sheetHost").addEventListener("click",e=>{
 const b=e.target.closest("button");if(!b)return;
 if(b.dataset.act==="cancelar"){fecharForm();return}
+if(b.dataset.cat){lerForm();form.cat=form.cat===b.dataset.cat?"":b.dataset.cat;renderForm();return}
 if(b.dataset.tipo){lerForm();const t=b.dataset.tipo;
 const eraSemanal=form.tipo==="semanal",[nt,ns]=t.split("-");
 form.tipo=nt;form.sentido=ns||"saida";
@@ -990,6 +1011,7 @@ const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).s
 if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
 it.sentido=form.sentido==="entrada"?"entrada":"saida";
+if(it.sentido==="saida"&&form.cat)it.cat=form.cat;else delete it.cat;
 if(aceitaParcelas(form.tipo)&&form.parcelas>0)it.parcelas=form.parcelas;
 if(it.sentido==="entrada"&&it.tipo!=="avulso"&&form.jurosPct>0){it.jurosPct=form.jurosPct;it.jurosPor=["dia","semana"].includes(form.jurosPor)?form.jurosPor:"mes"}
 try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
@@ -1321,7 +1343,14 @@ for(const it of itens){const s=status(it);if(s.kind==="late")atraso++}
 for(const k of Object.keys(pagos)){const d=fromYmd(pagos[k].data);if(d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear())pagas++}
 $("pnContas").textContent=itens.length;$("pnPagas").textContent=pagas;$("pnAtraso").textContent=atraso;
 }
-$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();
+function renderCats(){const host=$("pfCats");if(!host)return;host.innerHTML=getCats().map(c=>`<div class="cat-edit" data-id="${c.id}"><button type="button" class="cat-emoji" data-act="cat-emoji" aria-label="Trocar ícone">${c.emoji}</button><input class="cat-nome" data-act="cat-nome" value="${esc(c.nome)}" maxlength="24" aria-label="Nome da categoria"><button type="button" class="cat-del" data-act="cat-del" aria-label="Remover ${esc(c.nome)}">✕</button></div>`).join("")}
+$("pfCats").addEventListener("click",e=>{const row=e.target.closest(".cat-edit");if(!row)return;const alvo=e.target.closest("[data-act]"),act=alvo&&alvo.dataset.act,cats=ensureCats(),c=cats.find(x=>x.id===row.dataset.id);if(!c)return;
+if(act==="cat-del"){if(cats.length<=1){toast("Deixe pelo menos uma categoria");return}perfil.cats=cats.filter(x=>x.id!==c.id);perfilSave();renderCats();if(form)renderForm();render()}
+else if(act==="cat-emoji"){const i=EMOJIS.indexOf(c.emoji);c.emoji=EMOJIS[(i+1)%EMOJIS.length];perfilSave();renderCats();if(form)renderForm()}});
+$("pfCats").addEventListener("input",e=>{const inp=e.target.closest(".cat-nome");if(!inp)return;const row=e.target.closest(".cat-edit"),c=ensureCats().find(x=>x.id===row.dataset.id);if(c){c.nome=inp.value.slice(0,24);perfilSave()}});
+$("pfCats").addEventListener("change",()=>{if(form)renderForm();render()});
+$("catAdd").addEventListener("click",()=>{const inp=$("catNovo"),v=inp.value.trim();if(!v)return;ensureCats().push({id:"c"+Date.now().toString(36),nome:v.slice(0,24),emoji:"📦"});inp.value="";perfilSave();renderCats();if(form)renderForm()});
+$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();renderCats();
 const logado=!!(fauth&&usuario);$("pfEmail").readOnly=logado;$("pfConta").hidden=!logado;$("pfAdmin").hidden=!(logado&&ehAdmin);
 $("pfContaTxt").textContent=logado?`Conectado como ${usuario.email}. Suas contas ficam salvas na nuvem e aparecem em qualquer celular em que você entrar.`:"";
 $("pfNota").textContent=logado?"Seus dados ficam na sua conta, protegidos pelo login.":"Seu perfil e suas contas ficam guardados só neste celular.";
