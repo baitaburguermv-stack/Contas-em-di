@@ -525,8 +525,8 @@ dialog.perfil,.porta .cartao{
 <button role="tab" id="tab-semanal" aria-controls="list" aria-selected="false" tabindex="-1">Semanais</button>
 <button role="tab" id="tab-quinzenal" aria-controls="list" aria-selected="false" tabindex="-1">Quinzenais</button>
 <button role="tab" id="tab-fixo" aria-controls="list" aria-selected="true" tabindex="0">Mensais</button>
-<button role="tab" id="tab-variavel" aria-controls="list" aria-selected="false" tabindex="-1">Variáveis</button>
 <button role="tab" id="tab-avulso" aria-controls="list" aria-selected="false" tabindex="-1">Diários</button>
+<button role="tab" id="tab-variavel" aria-controls="list" aria-selected="false" tabindex="-1">Variáveis</button>
 </div>
 <section class="list" id="list" role="tabpanel" aria-labelledby="tab-fixo"></section>
 <p class="note" id="tabNote"></p>
@@ -1032,7 +1032,7 @@ else if(act==="excluir-nao"){confirmarExcluir=null;render()}
 else if(act==="excluir-sim"){await excluirItem(id);confirmarExcluir=null;aberto=null;toast("Conta excluída");render()}
 }catch(x){toast("Não consegui salvar. Tente de novo.")}
 });
-const ABAS=["semanal","quinzenal","fixo","variavel","avulso"];
+const ABAS=["semanal","quinzenal","fixo","avulso","variavel"];
 function setAba(t){aba=t;for(const k of ABAS){const b=$("tab-"+k);b.setAttribute("aria-selected",k===t);b.tabIndex=k===t?0:-1}
 $("list").setAttribute("aria-labelledby","tab-"+t);$("tab-"+t).scrollIntoView({block:"nearest",inline:"nearest"});aberto=null;renderLista()}
 for(const k of ABAS)$("tab-"+k).addEventListener("click",()=>setAba(k));
