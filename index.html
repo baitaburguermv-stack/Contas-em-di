@@ -387,8 +387,8 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
   --in:#39f0a0 !important; --in-soft:rgba(57,240,160,.12) !important; --out:#ff5c77 !important; --out-soft:rgba(255,92,119,.12) !important;
   --warn:#ffc061 !important; --warn-soft:rgba(255,192,97,.12) !important;
   --hero-a:#0d1b34 !important; --hero-b:#13294d !important; --hero-in:#39f0a0 !important; --hero-out:#ff8a9c !important;
-  --bar-in:#35e0ff !important; --bar-out:#4d7cff !important;
-  --c1:#35e0ff !important; --c2:#4d7cff !important; --c3:#9b7bff !important; --c4:#39f0a0 !important; --c5:#ffc061 !important; --c6:#5b6b9a !important;
+  --bar-in:#35e0ff !important; --bar-out:#ff6fae !important;
+  --c1:#8b7bff !important; --c2:#ff6fae !important; --c3:#4d9fff !important; --c4:#ff9f45 !important; --c5:#35e0ff !important; --c6:#6b6b9a !important;
   --tab-sel:rgba(53,224,255,.16) !important;
   --shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 16px 40px rgba(0,0,0,.5) !important;
   color-scheme:dark !important;
@@ -420,10 +420,16 @@ dialog.perfil,.porta .cartao{
 .fab,.btn.primary,.mic{ box-shadow:0 0 24px rgba(53,224,255,.30) !important; }
 .tabs button[aria-selected="true"]{ box-shadow:0 0 16px rgba(53,224,255,.22) !important; }
 /* barras dos gráficos com um leve brilho */
-.gtrack i.in, .cal .dots i.in, .cal-leg i.in{ box-shadow:0 0 8px rgba(53,224,255,.6); }
-/* linhas e áreas dos gráficos SVG brilham em ciano */
+.cal .dots i.in, .cal-leg i.in{ box-shadow:0 0 8px rgba(53,224,255,.6); }
+/* barras horizontais (Entradas × Saídas e Por conta) com degradê e brilho, estilo infográfico */
+.gtrack i.in{ background:linear-gradient(90deg,#4d9fff,#35e0ff) !important; box-shadow:0 0 10px rgba(53,224,255,.45); }
+.gtrack i.out{ background:linear-gradient(90deg,#8b7bff,#ff6fae) !important; box-shadow:0 0 10px rgba(255,111,174,.45); }
+.gtrack{ background:rgba(255,255,255,.06) !important; }
+/* linhas e áreas dos gráficos SVG brilham */
 .gwrap svg path[stroke]{ filter:drop-shadow(0 0 4px rgba(53,224,255,.55)); }
-.pizza path{ filter:drop-shadow(0 0 3px rgba(53,224,255,.25)); }
+/* rosca (pizza) com profundidade suave */
+.pizza path{ filter:drop-shadow(0 2px 6px rgba(0,0,0,.45)); }
+.pizza .centro-v{ text-shadow:0 0 16px rgba(139,123,255,.4); }
 /* o "avatar" de cada linha vira um chip de vidro */
 .avatar.in{ box-shadow:0 0 12px rgba(57,240,160,.25); }
 .avatar.out{ box-shadow:0 0 12px rgba(255,92,119,.22); }
@@ -462,6 +468,26 @@ dialog.perfil,.porta .cartao{
 .jr-mic.on{ background:#ff5c77; color:#fff; box-shadow:0 0 18px rgba(255,92,119,.5); animation:pulso 1s ease-in-out infinite; }
 .jr-send{ background:linear-gradient(180deg,#35e0ff,#17b9df); color:#04141b; box-shadow:0 0 18px rgba(53,224,255,.35); }
 .jr-mic svg,.jr-send svg{ width:20px; height:20px; }
+
+/* ===== Categorias dos gastos ===== */
+.cat-tag{ display:inline-flex; align-items:center; gap:4px; margin-top:3px; font-size:.72rem; font-weight:600; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); border-radius:999px; padding:2px 8px; width:fit-content; }
+.cat-lista{ display:flex; flex-direction:column; gap:8px; }
+.cat-edit{ display:flex; align-items:center; gap:8px; }
+.cat-emoji{ flex:none; width:42px; height:42px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); font-size:1.15rem; cursor:pointer; }
+.cat-nome{ flex:1; min-width:0; }
+.cat-del{ flex:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:transparent; color:var(--out); font-size:1rem; cursor:pointer; }
+
+/* ===== Botão flutuante do JARVIS (ao lado do +) ===== */
+.fab-jr{ right:calc(max(18px,env(safe-area-inset-right,0px)) + 72px) !important;
+  background:radial-gradient(circle at 35% 30%, #9ff4ff, #35e0ff 50%, #1b78c9 88%) !important; color:#04141b !important;
+  box-shadow:0 0 22px rgba(53,224,255,.55), 0 8px 24px rgba(0,0,0,.4) !important; }
+.fab-jr svg{ width:26px; height:26px; }
+@media (prefers-reduced-motion:no-preference){ .fab-jr{ animation:jrpulse 3.4s ease-in-out infinite } }
+/* JARVIS como janela (aba) */
+#jarvisDlg .perfil-in{ gap:12px; }
+#jarvisDlg .jr-chat{ max-height:46vh; }
+#jarvisDlg .jr-head{ flex-wrap:wrap; }
+#jrFechar{ margin-left:auto; }
 </style>
 </head>
 <body>
@@ -486,12 +512,15 @@ dialog.perfil,.porta .cartao{
 <div class="prox" id="proxMeses"></div>
 <button class="hero-link" type="button" id="verAgenda" aria-haspopup="dialog">Calendário do mês<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </section>
-<section class="cartao jarvis" id="jarvis" aria-label="Assistente JARVIS">
+<dialog class="perfil jarvis-dlg" id="jarvisDlg" aria-label="Assistente JARVIS">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
 <div class="jr-head">
 <span class="jr-orb" aria-hidden="true"></span>
-<div class="jr-id"><b>JARVIS</b><small>Pergunte sobre suas contas — por voz ou escrevendo</small></div>
+<div class="jr-id"><b>JARVIS</b><small>Pergunte sobre suas contas</small></div>
 <button type="button" class="jr-voz" id="jrFala" aria-pressed="true" title="Ativar/desativar resposta falada" aria-label="Resposta falada">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg></button>
+<button class="btn ghost" type="button" id="jrFechar">Fechar</button>
 </div>
 <div class="jr-chat" id="jrChat" aria-live="polite"></div>
 <div class="jr-sug" id="jrSug"></div>
@@ -500,7 +529,8 @@ dialog.perfil,.porta .cartao{
 <button type="button" class="jr-mic" id="jrMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
 <button type="submit" class="jr-send" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
 </form>
-</section>
+</div>
+</dialog>
 <section class="cartao graf" aria-labelledby="grafTit">
 <h2 id="grafTit">Gráficos do mês</h2>
 <div class="tabs mini" role="tablist" aria-label="Tipo de gráfico">
@@ -514,11 +544,11 @@ dialog.perfil,.porta .cartao{
 <div id="sheetHost"></div>
 <h2 class="sec-title">Suas contas</h2>
 <div class="tabs" role="tablist" aria-label="Tipos de conta">
-<button role="tab" id="tab-fixo" aria-controls="list" aria-selected="true" tabindex="0">Fixos</button>
-<button role="tab" id="tab-variavel" aria-controls="list" aria-selected="false" tabindex="-1">Variáveis</button>
 <button role="tab" id="tab-semanal" aria-controls="list" aria-selected="false" tabindex="-1">Semanais</button>
 <button role="tab" id="tab-quinzenal" aria-controls="list" aria-selected="false" tabindex="-1">Quinzenais</button>
-<button role="tab" id="tab-avulso" aria-controls="list" aria-selected="false" tabindex="-1">Avulsos</button>
+<button role="tab" id="tab-fixo" aria-controls="list" aria-selected="true" tabindex="0">Mensais</button>
+<button role="tab" id="tab-avulso" aria-controls="list" aria-selected="false" tabindex="-1">Diários</button>
+<button role="tab" id="tab-variavel" aria-controls="list" aria-selected="false" tabindex="-1">Variáveis</button>
 </div>
 <section class="list" id="list" role="tabpanel" aria-labelledby="tab-fixo"></section>
 <p class="note" id="tabNote"></p>
@@ -570,6 +600,12 @@ dialog.perfil,.porta .cartao{
 <div class="field"><label for="pfEmail">E-mail (opcional)</label><input id="pfEmail" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com"></div>
 </div>
 <div class="cartao">
+<h2>Categorias dos gastos</h2>
+<p class="note">Marque cada gasto como gasolina, comida, roupa… Toque no ícone para trocá-lo, no nome para editar, ou no ✕ para remover.</p>
+<div id="pfCats" class="cat-lista"></div>
+<div class="inline"><input id="catNovo" placeholder="Nova categoria (ex.: Pets)" maxlength="24"><button class="btn" type="button" id="catAdd">Adicionar</button></div>
+</div>
+<div class="cartao">
 <h2>Aparência</h2>
 <div class="field"><span class="eyebrow" id="lbCor">Cor do app</span><div class="cores" role="radiogroup" aria-labelledby="lbCor"><button type="button" class="cor" role="radio" data-cor="azul" aria-label="Azul" style="background:#3446C9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="roxo" aria-label="Roxo" style="background:#6B3FD0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="verde" aria-label="Verde" style="background:#0E7A55"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="rosa" aria-label="Rosa" style="background:#B4235A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="laranja" aria-label="Laranja" style="background:#B04A00"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button><button type="button" class="cor" role="radio" data-cor="grafite" aria-label="Grafite" style="background:#2F3A4A"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg></button></div></div>
 <div class="field"><span class="eyebrow" id="lbTema">Tema</span><div class="seg tres" role="group" aria-labelledby="lbTema">
@@ -594,6 +630,7 @@ dialog.perfil,.porta .cartao{
 <p class="note" id="pfNota">Seu perfil e suas contas ficam guardados só neste celular.</p>
 </div>
 </dialog>
+<button class="fab fab-jr" id="fabJarvis" type="button" aria-label="Falar com o JARVIS" title="Falar com o JARVIS"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 20l1.4-4.2A8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg></button>
 <button class="fab" id="fab" type="button" aria-label="Adicionar conta" title="Adicionar conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -679,7 +716,7 @@ if(d<=lim && !pagos[pagoKey(it.id,ymd(next))]) return {kind:"warn",data:next,dia
 return {kind:"done",data:cur,label:isEntrada(it)?"Recebido":"Pago",pago:pc,proxima:next};
 }
 function quando(it){
-if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada avulsa":"Gasto avulso"} · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
+if(it.tipo==="avulso") return `${isEntrada(it)?"Entrada diária":"Gasto diário"} · ${DIAS_CURTO[fromYmd(it.data).getDay()]} ${dm(fromYmd(it.data))}`;
 if(isMensal(it)) return (isEntrada(it)?`Entra todo dia ${it.dia}`:`Vence todo dia ${it.dia}`)+(temParcelas(it)?` · ${it.parcelas}x`:"");
 const px=temParcelas(it)?` · ${it.parcelas}x`:"";
 if(isQuinz(it)) return `${isEntrada(it)?"Entra":"Sai"} a cada 15 dias`+px;
@@ -817,7 +854,7 @@ const b=e.target.closest("[data-g],[data-gs]");if(!b)return;
 if(b.dataset.g)gAba=b.dataset.g;else{gSentido=b.dataset.gs;gFatia=null}renderGraficos()});
 document.querySelector(".tabs.mini").addEventListener("keydown",e=>{const i=GABAS.indexOf(gAba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:null;if(n==null)return;e.preventDefault();gAba=GABAS[(n+3)%3];renderGraficos();$("gt-"+gAba).focus()});
 function itemAgenda(a,df){const ent=isEntrada(a.it);
-const st=a.it.tipo==="avulso"?(ent?"Entrada avulsa":"Gasto avulso"):a.pago?(ent?"Recebido":"Pago"):df<0?(ent?"Não recebido":"Atrasado"):df===0?(ent?"Entra hoje":"Vence hoje"):(ent?"A receber":"A pagar");
+const st=a.it.tipo==="avulso"?(ent?"Entrada diária":"Gasto diário"):a.pago?(ent?"Recebido":"Pago"):df<0?(ent?"Não recebido":"Atrasado"):df===0?(ent?"Entra hoje":"Vence hoje"):(ent?"A receber":"A pagar");
 return `<div class="ag-it"><div><b>${esc(a.it.nome)}</b><small class="${!a.pago&&df<0?"c-out":""}">${st}</small></div><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(a.valor)}</strong></div>`}
 function renderAgenda(rolar){
 const t=hoje(),y=gAno,m=gMes,n=diasNoMes(y,m),dias={},atual=t.getFullYear()===y&&t.getMonth()===m,dfd=d=>diffDias(new Date(y,m,d),t);
@@ -892,7 +929,7 @@ panel=`<div class="field"><label for="v-${it.id}">${verbo} quanto? (${dm(s.data)
 }
 }
 return `<div class="row"><button class="row-main" data-act="abrir" data-id="${it.id}" aria-expanded="${open}"><span class="avatar ${s.kind==="done"&&!s.avulso?"done":ent?"in":"out"}" aria-hidden="true">${s.kind==="done"&&!s.avulso?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
-<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span></div>
+<div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span>${(!ent&&it.cat&&catById(it.cat))?`<span class="cat-tag">${catById(it.cat).emoji} ${esc(catById(it.cat).nome)}</span>`:""}</div>
 <div class="row-right"><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">, ${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(valorMostrado)}</strong>${s.avulso?"":`<span class="pill ${s.kind}"><span class="sr">, </span>${s.label}</span>`}</div>
 </button>${open?`<div class="row-panel">${panel}</div>`:""}</div>`;
 }
@@ -908,9 +945,9 @@ const T=hoje();
 const doTipo=itens.filter(it=>it.tipo===aba&&(aba!=="avulso"||noMes(it,T.getFullYear(),T.getMonth())));
 const ordenar=a=>a.map(it=>({it,s:status(it)})).sort((x,y)=>((x.s.kind==="done")-(y.s.kind==="done"))||((x.s.data||0)-(y.s.data||0))).map(x=>x.it);
 const vazio={
-fixo:["Nada fixo ainda","Aluguel, internet, prestações ou uma entrada que cai todo mês com o mesmo valor. Toque no botão +."],
+fixo:["Nada mensal ainda","Aluguel, internet, prestações ou uma entrada que cai todo mês com o mesmo valor. Toque no botão +."],
 variavel:["Nenhum gasto variável ainda","Luz, água, cartão de crédito: contas que vencem todo mês mas mudam de valor. Toque no botão +."],
-avulso:["Nenhum avulso neste mês","Gastos ou entradas que não se repetem: um conserto, uma venda extra, um presente. Toque no botão +."],
+avulso:["Nenhum gasto diário neste mês","Gastos do dia a dia e entradas que não se repetem: um almoço, um uber, uma venda extra. Toque no botão +."],
 quinzenal:["Nada quinzenal ainda","Entradas e saídas que se repetem a cada 15 dias, como um brique de quinzena. Toque no botão +."],
 semanal:["Nada semanal ainda","Entradas e saídas que se repetem toda semana, como pagamento recebido na sexta ou compra de mercadoria. Toque no botão +."]
 }[aba];
@@ -923,7 +960,7 @@ L.innerHTML=(sai.length?`<h3 class="group-label">Saídas</h3>`+sai.map(rowHtml).
 else L.innerHTML=ordenar(doTipo).map(rowHtml).join("");
 const tot=doTipo.reduce((a,b)=>a+(isEntrada(b)?0:b.valor),0);
 if(aba==="avulso"){const e=doTipo.filter(isEntrada).reduce((a,b)=>a+b.valor,0),g=doTipo.filter(x=>!isEntrada(x)).reduce((a,b)=>a+b.valor,0);
-$("tabNote").textContent=`Neste mês: ${brl(e)} de entradas e ${brl(g)} de gastos avulsos.`;return}
+$("tabNote").textContent=`Neste mês: ${brl(e)} de entradas e ${brl(g)} de gastos diários.`;return}
 $("tabNote").textContent= (aba==="semanal"||aba==="quinzenal") ? `Aviso 1 dia antes. Toque numa linha para marcar como pago ou recebido.`
 : (doTipo.some(isEntrada)?`Por mês: entra ${brl(doTipo.filter(isEntrada).reduce((a,b)=>a+b.valor,0))} e sai ${brl(tot)}. Aviso 5 dias antes.`:`Total ${brl(tot)} por mês. Aviso 5 dias antes do vencimento.`);
 }
@@ -932,12 +969,17 @@ function abrirForm(it){
 editando=it?it.id:null;
 form=it?{...it,sentido:it.sentido||"saida"}:{nome:"",valor:"",tipo:aba,sentido:"saida",dia:aba==="semanal"?5:10,data:ymd(hoje())};
 if(!form.data)form.data=ymd(hoje());
-renderForm();$("fab").hidden=true;
-setTimeout(()=>$("f-nome")?.focus(),30);
-window.scrollTo({top:0,behavior:"smooth"});
+renderForm();$("fab").hidden=true;$("fabJarvis").hidden=true;
+$("sheetHost").scrollIntoView({behavior:"smooth",block:"start"});
+setTimeout(()=>$("f-nome")?.focus({preventScroll:true}),30);
 }
-function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false}
-const FORM_TIPOS=[["fixo","saida","Gasto fixo mensal"],["fixo","entrada","Entrada mensal"],["variavel","saida","Gasto variável"],["semanal","entrada","Entrada semanal"],["semanal","saida","Saída semanal"],["quinzenal","entrada","Entrada quinzenal"],["quinzenal","saida","Saída quinzenal"],["avulso","saida","Gasto avulso"],["avulso","entrada","Entrada avulsa"]];
+function fecharForm(){form=null;editando=null;$("sheetHost").innerHTML="";$("fab").hidden=false;$("fabJarvis").hidden=false}
+const CATS_PADRAO=[{id:"alim",nome:"Alimentação",emoji:"🍽️"},{id:"merc",nome:"Mercado",emoji:"🛒"},{id:"transp",nome:"Transporte",emoji:"⛽"},{id:"moradia",nome:"Moradia",emoji:"🏠"},{id:"roupa",nome:"Roupas",emoji:"👕"},{id:"saude",nome:"Saúde",emoji:"🏥"},{id:"lazer",nome:"Lazer",emoji:"🎉"},{id:"contas",nome:"Contas",emoji:"🧾"},{id:"outros",nome:"Outros",emoji:"📦"}];
+const EMOJIS=["🍽️","🛒","⛽","🏠","👕","🏥","🎉","🧾","📦","🐾","✈️","💊","📚","🎮","💡","📱","🎁","☕","💅","🔧"];
+const getCats=()=>(typeof perfil!=="undefined"&&perfil&&Array.isArray(perfil.cats)&&perfil.cats.length)?perfil.cats:CATS_PADRAO;
+const catById=id=>getCats().find(c=>c.id===id)||null;
+function ensureCats(){if(!Array.isArray(perfil.cats)||!perfil.cats.length)perfil.cats=CATS_PADRAO.map(c=>({...c}));return perfil.cats}
+const FORM_TIPOS=[["fixo","saida","Gasto mensal"],["fixo","entrada","Entrada mensal"],["variavel","saida","Gasto variável"],["semanal","entrada","Entrada semanal"],["semanal","saida","Saída semanal"],["quinzenal","entrada","Entrada quinzenal"],["quinzenal","saida","Saída quinzenal"],["avulso","saida","Gasto diário"],["avulso","entrada","Entrada diária"]];
 function renderForm(){
 if(!form)return;
 const semanal=form.tipo==="semanal",avulso=form.tipo==="avulso",quinz=form.tipo==="quinzenal",ent=form.sentido==="entrada";
@@ -949,7 +991,8 @@ $("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
 <div class="field"><label>Tipo</label><div class="seg">
 ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-pressed="${form.tipo===t&&(form.sentido||"saida")===se}">${l}</button>`).join("")}
 </div></div>
-<div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: conserto do carro":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
+<div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: almoço, uber, mercado":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
+${form.sentido!=="entrada"?`<div class="field"><label>Categoria</label><div class="chips cats-pick">${getCats().map(c=>`<button type="button" class="chip${form.cat===c.id?" sel":""}" data-cat="${c.id}" aria-pressed="${form.cat===c.id}">${c.emoji} ${esc(c.nome)}</button>`).join("")}</div></div>`:""}
 <div class="two">
 <div class="field"><label for="f-valor">${form.tipo==="variavel"?"Valor médio (R$)":"Valor (R$)"}</label><input id="f-valor" inputmode="decimal" value="${form.valor===""?"":fmtInput(form.valor)}" placeholder="0,00"></div>
 <div class="field"><label for="f-dia">${avulso?"Data":quinz?"Próxima vez":semanal?"Dia da semana":ent?"Dia que entra":"Dia do vencimento"}</label>${diaCampo}</div>
@@ -971,6 +1014,7 @@ if($("f-juros")){const j=parseValor($("f-juros").value);form.jurosPct=isNaN(j)?n
 $("sheetHost").addEventListener("click",e=>{
 const b=e.target.closest("button");if(!b)return;
 if(b.dataset.act==="cancelar"){fecharForm();return}
+if(b.dataset.cat){lerForm();form.cat=form.cat===b.dataset.cat?"":b.dataset.cat;renderForm();return}
 if(b.dataset.tipo){lerForm();const t=b.dataset.tipo;
 const eraSemanal=form.tipo==="semanal",[nt,ns]=t.split("-");
 form.tipo=nt;form.sentido=ns||"saida";
@@ -990,6 +1034,7 @@ const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).s
 if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
 it.sentido=form.sentido==="entrada"?"entrada":"saida";
+if(it.sentido==="saida"&&form.cat)it.cat=form.cat;else delete it.cat;
 if(aceitaParcelas(form.tipo)&&form.parcelas>0)it.parcelas=form.parcelas;
 if(it.sentido==="entrada"&&it.tipo!=="avulso"&&form.jurosPct>0){it.jurosPct=form.jurosPct;it.jurosPor=["dia","semana"].includes(form.jurosPor)?form.jurosPor:"mes"}
 try{await salvarItem(it);aba=it.tipo;setAba(aba);fecharForm();toast(editando?"Conta atualizada":"Conta adicionada")}
@@ -1010,7 +1055,7 @@ else if(act==="excluir-nao"){confirmarExcluir=null;render()}
 else if(act==="excluir-sim"){await excluirItem(id);confirmarExcluir=null;aberto=null;toast("Conta excluída");render()}
 }catch(x){toast("Não consegui salvar. Tente de novo.")}
 });
-const ABAS=["fixo","variavel","semanal","quinzenal","avulso"];
+const ABAS=["semanal","quinzenal","fixo","avulso","variavel"];
 function setAba(t){aba=t;for(const k of ABAS){const b=$("tab-"+k);b.setAttribute("aria-selected",k===t);b.tabIndex=k===t?0:-1}
 $("list").setAttribute("aria-labelledby","tab-"+t);$("tab-"+t).scrollIntoView({block:"nearest",inline:"nearest"});aberto=null;renderLista()}
 for(const k of ABAS)$("tab-"+k).addEventListener("click",()=>setAba(k));
@@ -1018,6 +1063,9 @@ document.querySelector(".tabs").addEventListener("keydown",e=>{
 const i=ABAS.indexOf(aba),n=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ABAS.length-1:null;
 if(n==null)return;e.preventDefault();const k=ABAS[(n+ABAS.length)%ABAS.length];setAba(k);$("tab-"+k).focus()});
 $("fab").addEventListener("click",()=>abrirForm(null));
+$("fabJarvis").addEventListener("click",()=>{const d=$("jarvisDlg");if(!d)return;if(!d.open)d.showModal();setTimeout(()=>$("jrInput")?.focus({preventScroll:true}),120)});
+$("jrFechar").addEventListener("click",()=>$("jarvisDlg").close());
+$("jarvisDlg").addEventListener("click",e=>{if(e.target===$("jarvisDlg"))$("jarvisDlg").close()});
 let tt;function toast(m){const t=$("toast");t.textContent=m;clearTimeout(tt);tt=setTimeout(()=>t.textContent="",2600)}
 function render(){resumo();renderAvisos();renderLista()}
 const norm=s=>String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
@@ -1321,7 +1369,14 @@ for(const it of itens){const s=status(it);if(s.kind==="late")atraso++}
 for(const k of Object.keys(pagos)){const d=fromYmd(pagos[k].data);if(d.getMonth()===t.getMonth()&&d.getFullYear()===t.getFullYear())pagas++}
 $("pnContas").textContent=itens.length;$("pnPagas").textContent=pagas;$("pnAtraso").textContent=atraso;
 }
-$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();
+function renderCats(){const host=$("pfCats");if(!host)return;host.innerHTML=getCats().map(c=>`<div class="cat-edit" data-id="${c.id}"><button type="button" class="cat-emoji" data-act="cat-emoji" aria-label="Trocar ícone">${c.emoji}</button><input class="cat-nome" data-act="cat-nome" value="${esc(c.nome)}" maxlength="24" aria-label="Nome da categoria"><button type="button" class="cat-del" data-act="cat-del" aria-label="Remover ${esc(c.nome)}">✕</button></div>`).join("")}
+$("pfCats").addEventListener("click",e=>{const row=e.target.closest(".cat-edit");if(!row)return;const alvo=e.target.closest("[data-act]"),act=alvo&&alvo.dataset.act,cats=ensureCats(),c=cats.find(x=>x.id===row.dataset.id);if(!c)return;
+if(act==="cat-del"){if(cats.length<=1){toast("Deixe pelo menos uma categoria");return}perfil.cats=cats.filter(x=>x.id!==c.id);perfilSave();renderCats();if(form)renderForm();render()}
+else if(act==="cat-emoji"){const i=EMOJIS.indexOf(c.emoji);c.emoji=EMOJIS[(i+1)%EMOJIS.length];perfilSave();renderCats();if(form)renderForm()}});
+$("pfCats").addEventListener("input",e=>{const inp=e.target.closest(".cat-nome");if(!inp)return;const row=e.target.closest(".cat-edit"),c=ensureCats().find(x=>x.id===row.dataset.id);if(c){c.nome=inp.value.slice(0,24);perfilSave()}});
+$("pfCats").addEventListener("change",()=>{if(form)renderForm();render()});
+$("catAdd").addEventListener("click",()=>{const inp=$("catNovo"),v=inp.value.trim();if(!v)return;ensureCats().push({id:"c"+Date.now().toString(36),nome:v.slice(0,24),emoji:"📦"});inp.value="";perfilSave();renderCats();if(form)renderForm()});
+$("abrirPerfil").addEventListener("click",()=>{$("pfNome").value=perfil.nome||"";$("pfEmail").value=perfil.email||"";numerosPerfil();renderCats();
 const logado=!!(fauth&&usuario);$("pfEmail").readOnly=logado;$("pfConta").hidden=!logado;$("pfAdmin").hidden=!(logado&&ehAdmin);
 $("pfContaTxt").textContent=logado?`Conectado como ${usuario.email}. Suas contas ficam salvas na nuvem e aparecem em qualquer celular em que você entrar.`:"";
 $("pfNota").textContent=logado?"Seus dados ficam na sua conta, protegidos pelo login.":"Seu perfil e suas contas ficam guardados só neste celular.";
@@ -1635,7 +1690,10 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
   function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
   function addMsg(role,texto){var div=document.createElement("div");div.className="jr-msg "+(role==="eu"?"eu":"jv");div.textContent=texto;chat.appendChild(div);chat.scrollTop=chat.scrollHeight}
   function pensando(on){var ex=$("jrPensa");if(on){if(ex)return;var d=document.createElement("div");d.className="jr-pensa";d.id="jrPensa";d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);chat.scrollTop=chat.scrollHeight}else if(ex)ex.remove()}
-  function dizer(texto){if(!falar||!("speechSynthesis"in window))return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(texto);u.lang="pt-BR";u.rate=1;var vs=speechSynthesis.getVoices().filter(function(v){return /pt[-_]?BR/i.test(v.lang)});if(vs[0])u.voice=vs[0];speechSynthesis.speak(u)}catch(e){}}
+  var vozPronta=false;
+  function desbloquearVoz(){if(vozPronta||!("speechSynthesis"in window))return;try{var u=new SpeechSynthesisUtterance(" ");u.volume=0;u.lang="pt-BR";speechSynthesis.speak(u);vozPronta=true}catch(e){}}
+  function vozBR(){var vs=speechSynthesis.getVoices()||[];return vs.filter(function(v){return /pt[-_]?BR/i.test(v.lang)})[0]||vs.filter(function(v){return /^pt/i.test(v.lang)})[0]||null}
+  function dizer(texto){if(!falar||!("speechSynthesis"in window)||!texto)return;try{speechSynthesis.cancel();speechSynthesis.resume();var u=new SpeechSynthesisUtterance(texto);u.lang="pt-BR";u.rate=1;u.pitch=1;var v=vozBR();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
   function fimSemana(d){var x=new Date(d);x.setDate(x.getDate()+((7-x.getDay())%7));return x}
   function interpretarData(t){var h=hoje();
     if(/\bhoje\b/.test(t))return{ini:h,fim:h,rot:"hoje"};
@@ -1670,10 +1728,10 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
       nomes=usar.map(function(a){return a.it.nome+", "+brl(a.valor).replace("R$","").trim()+" reais"}).join("; "),
       fala4=rotC+" você tem "+usar.length+(usar.length===1?" valor ":" valores ")+verbo+", somando "+brl(total).replace("R$","").trim()+" reais: "+nomes+".";
     return{txt:cab+"\n"+linhas.join("\n"),fala:fala4}}
-  function perguntar(texto){texto=(texto||"").trim();if(!texto)return;addMsg("eu",texto);input.value="";pensando(true);
+  function perguntar(texto){texto=(texto||"").trim();if(!texto)return;desbloquearVoz();addMsg("eu",texto);input.value="";pensando(true);
     setTimeout(function(){pensando(false);var r;try{r=responder(texto)}catch(e){r={txt:'Não consegui entender essa. Tente, por exemplo: "quem eu recebo na sexta?"',fala:"Não consegui entender. Tente perguntar quem você recebe na sexta."}}addMsg("jv",r.txt);dizer(r.fala||r.txt)},350)}
   var RecCls=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,ouvindo=false;
-  function toggleMic(){if(!RecCls){addMsg("jv","Seu aparelho não deixa eu ouvir a voz por aqui. Pode escrever a pergunta que eu respondo igual.");return}
+  function toggleMic(){desbloquearVoz();if(!RecCls){input.focus();addMsg("jv","No iPhone eu escuto pelo microfone do teclado: toque no campo de escrever e depois no 🎤 do teclado para ditar sua pergunta. Eu respondo em voz.");return}
     if(ouvindo){try{rec.stop()}catch(e){}return}
     rec=new RecCls();rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
     rec.onstart=function(){ouvindo=true;mic.classList.add("on");input.placeholder="Ouvindo…"};
@@ -1683,8 +1741,8 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
   ["Quem eu recebo na sexta?","Quanto tenho a pagar essa semana?","Qual meu saldo esse mês?","Qual meu maior gasto?"].forEach(function(s){var b=document.createElement("button");b.type="button";b.textContent=s;b.addEventListener("click",function(){perguntar(s)});sug.appendChild(b)});
   form.addEventListener("submit",function(e){e.preventDefault();perguntar(input.value)});
   mic.addEventListener("click",toggleMic);
-  botFala.addEventListener("click",function(){falar=!falar;botFala.setAttribute("aria-pressed",String(falar));if(!falar&&"speechSynthesis"in window)speechSynthesis.cancel()});
-  if("speechSynthesis"in window){try{speechSynthesis.getVoices()}catch(e){}}
+  botFala.addEventListener("click",function(){falar=!falar;botFala.setAttribute("aria-pressed",String(falar));if(falar){desbloquearVoz();dizer("Pronto, vou responder em voz.")}else if("speechSynthesis"in window)speechSynthesis.cancel()});
+  if("speechSynthesis"in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices()}}catch(e){}}
   var quem=(typeof perfil!=="undefined"&&perfil&&perfil.nome)?(", "+String(perfil.nome).split(" ")[0]):"";
   addMsg("jv","Às suas ordens"+quem+'. Pergunte o que quiser sobre suas contas — por voz ou escrevendo. Ex.: "quem eu recebo na sexta?"');
 })();
