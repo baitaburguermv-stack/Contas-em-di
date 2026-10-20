@@ -1372,7 +1372,7 @@ else if(modo==="aguardando")h=`${marca}<div class="cartao"><span class="porta-ic
 <button class="btn primary" type="button" data-p="checar">Verificar de novo</button><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
 else if(modo==="bloqueado")h=`${marca}<div class="cartao"><span class="porta-ico">${ICO_TRAVA}</span><h2 style="text-align:center">Acesso bloqueado</h2>
 <p class="porta-msg">O acesso de <b>${esc(usuario&&usuario.email)}</b> foi bloqueado. Fale com o responsável pelo app.</p><button class="porta-link" type="button" data-p="sair">Sair</button></div>`;
-$("portaIn").innerHTML=h;const f=$("portaIn").querySelector("input");if(f&&modo!=="carregando")setTimeout(()=>f.focus(),50)}
+$("portaIn").innerHTML=h;const f=$("portaIn").querySelector("input");if(f&&modo!=="carregando")setTimeout(()=>{if(!$("portaIn").contains(document.activeElement))f.focus()},50)}
 function esconderPorta(){$("porta").hidden=true;document.body.style.overflow=""}
 $("porta").addEventListener("submit",async e=>{e.preventDefault();const em=$("lgEmail").value.trim(),se=$("lgSenha").value,b=e.target.querySelector("[type=submit]");b.disabled=true;
 try{if(portaModo==="criar"){const c=await fauth.createUserWithEmailAndPassword(em,se);const nm=($("lgNome")||{}).value;if(nm){await c.user.updateProfile({displayName:nm.trim()});perfil.nome=nm.trim();perfilSave()}await c.user.sendEmailVerification()}
