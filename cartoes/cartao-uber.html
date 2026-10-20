@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartão Uber NFC</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#e8e8ea; --card:#0d0d0d; --fg:#ffffff; --muted:#9a9a9a; --star:#ffc107; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:"Outfit",system-ui,sans-serif; padding:40px 16px; }
+  .card { width:540px; max-width:100%; aspect-ratio:540/856; background:var(--card); border-radius:36px; color:var(--fg);
+          box-shadow:0 30px 60px rgba(0,0,0,.25); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; padding:40px 24px; }
+  h1 { font-weight:400; font-size:44px; letter-spacing:-.5px; }
+  h1 b { font-weight:700; }
+  .ring { position:relative; width:330px; height:330px; max-width:70vw; max-height:70vw; }
+  .ring svg { position:absolute; inset:0; width:100%; height:100%; }
+  .logo { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; }
+  .logo span { font-weight:500; font-size:78px; letter-spacing:-2px; line-height:1; }
+  .stars { color:var(--star); font-size:30px; letter-spacing:4px; }
+  .cta { font-size:23px; font-weight:500; letter-spacing:3px; }
+  .icon { width:170px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Gostou da <b>viagem</b>?</h1>
+
+    <div class="ring">
+      <svg viewBox="0 0 330 330" aria-hidden="true">
+        <circle cx="165" cy="165" r="158" fill="none" stroke="#ffffff" stroke-width="10"/>
+      </svg>
+      <div class="logo">
+        <span>Uber</span>
+        <div class="stars">★★★★★</div>
+      </div>
+    </div>
+
+    <svg class="icon" viewBox="0 0 170 130" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+      <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+      <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+      <path d="M103 14 l12 -3"/>
+      <path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+      <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+      <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+      <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+    </svg>
+
+    <p class="cta">APROXIME SEU CELULAR</p>
+  </div>
+</body>
+</html>
