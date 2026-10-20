@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartões Motorista Particular</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:48px 16px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,340px)); gap:40px; justify-content:center; }
+  figure { display:flex; flex-direction:column; align-items:center; gap:14px; }
+  figcaption { font-size:15px; font-weight:600; color:#444; letter-spacing:1px; }
+  .card { width:100%; aspect-ratio:54/85.6; border-radius:24px; box-shadow:0 24px 48px rgba(0,0,0,.22);
+          display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:18px; padding:28px 20px; }
+  .card h2 { font-weight:400; font-size:28px; line-height:1.15; }
+  .card h2 b { font-weight:700; }
+  .ring { width:190px; height:190px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:6px; }
+  .phone { font-size:24px; font-weight:600; letter-spacing:.5px; }
+  .cta { font-size:14px; font-weight:500; letter-spacing:2.5px; }
+  .small { font-size:13px; letter-spacing:1.5px; }
+  .tags { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; }
+  .tags span { font-size:12px; padding:5px 10px; border-radius:999px; }
+  svg { display:block; }
+
+  /* 1 – Preto clássico */
+  .m1 { background:#0d0d0d; color:#fff; }
+  .m1 .ring { border:7px solid #fff; width:200px; height:200px; }
+  .m1 .ring strong { font-size:17px; font-weight:700; letter-spacing:1px; }
+
+  /* 2 – WhatsApp verde */
+  .m2 { background:#0b1f17; color:#fff; }
+  .m2 .ring { border:7px solid #25d366; }
+  .m2 h2 b { color:#25d366; }
+  .m2 .phone { color:#25d366; }
+
+  /* 3 – Branco minimalista */
+  .m3 { background:#fafafa; color:#111; border:1px solid #ddd; }
+  .m3 .name { font-size:38px; font-weight:800; letter-spacing:-1px; line-height:1; }
+  .m3 .role { font-size:14px; letter-spacing:3px; color:#666; }
+  .m3 .line { width:48px; height:4px; background:#111; border-radius:2px; }
+  .m3 .tags span { background:#111; color:#fff; }
+  .m3 .stars { color:#f5b301; font-size:22px; letter-spacing:3px; }
+
+  /* 4 – Executivo dourado */
+  .m4 { background:linear-gradient(160deg,#1a1a1a,#000); color:#f1f1f1; }
+  .m4 .gold { color:#d4af37; }
+  .m4 .ring { border:3px solid #d4af37; width:150px; height:150px; }
+  .m4 .tags span { border:1px solid #d4af37; color:#d4af37; }
+  .m4 h2 { font-size:15px; letter-spacing:5px; font-weight:500; }
+  .m4 .name { font-size:30px; font-weight:300; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="grid">
+
+  <!-- MODELO 1 -->
+  <figure>
+    <div class="card m1">
+      <h2>Precisa de uma<br><b>corrida</b>?</h2>
+      <div class="ring">
+        <svg width="84" height="50" viewBox="0 0 84 50" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 34 V26 l8-4 10-12 h30 l12 12 h8 a4 4 0 0 1 4 4 v8 h-6"/><path d="M28 34 h26"/><path d="M6 34 h6"/>
+          <circle cx="20" cy="36" r="7"/><circle cx="62" cy="36" r="7"/><path d="M26 22 h40"/>
+        </svg>
+        <strong>MOTORISTA<br>PARTICULAR</strong>
+      </div>
+      <div class="phone">(00) 00000-0000</div>
+      <p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+    <figcaption>1 · PRETO CLÁSSICO</figcaption>
+  </figure>
+
+  <!-- MODELO 2 -->
+  <figure>
+    <div class="card m2">
+      <h2>Chame no<br><b>WhatsApp</b></h2>
+      <div class="ring">
+        <svg width="92" height="92" viewBox="0 0 92 92" fill="none" stroke="#25d366" stroke-width="5" stroke-linejoin="round">
+          <path d="M46 8 a38 38 0 1 1 -21 69.6 L8 84 l6.4 -16.6 A38 38 0 0 1 46 8z"/>
+          <path d="M33 27 c-5 3 -5 10 0 17 c6 9 13 15 22 18 c6 2 11 0 13 -5 l-9 -6 l-5 4 c-6 -3 -10 -7 -13 -13 l4 -5 z" fill="#25d366" stroke-width="2"/>
+        </svg>
+      </div>
+      <p class="small">VIAGENS PARTICULARES</p>
+      <div class="phone">(00) 00000-0000</div>
+      <p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+    <figcaption>2 · WHATSAPP</figcaption>
+  </figure>
+
+  <!-- MODELO 3 -->
+  <figure>
+    <div class="card m3">
+      <p class="role">MOTORISTA</p>
+      <div class="name">Seu Nome</div>
+      <div class="line"></div>
+      <div class="stars">★★★★★</div>
+      <div class="tags"><span>Aeroporto</span><span>Rodoviária</span><span>Viagens longas</span><span>Eventos</span></div>
+      <div class="phone">(00) 00000-0000</div>
+      <svg width="64" height="40" viewBox="0 0 64 40" fill="none" stroke="#111" stroke-width="3.5" stroke-linecap="round">
+        <path d="M14 12 q8 8 0 16"/><path d="M24 6 q14 14 0 28"/><path d="M34 0 q20 20 0 40"/>
+      </svg>
+      <p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+    <figcaption>3 · BRANCO MINIMALISTA</figcaption>
+  </figure>
+
+  <!-- MODELO 4 -->
+  <figure>
+    <div class="card m4">
+      <h2 class="gold">EXECUTIVO</h2>
+      <div class="ring">
+        <svg width="70" height="70" viewBox="0 0 70 70" fill="none" stroke="#d4af37" stroke-width="4" stroke-linecap="round">
+          <circle cx="35" cy="35" r="28"/><circle cx="35" cy="35" r="7"/>
+          <path d="M8 31 q27-10 54 0"/><path d="M31 42 l-6 20"/><path d="M39 42 l6 20"/>
+        </svg>
+      </div>
+      <div class="name">Seu Nome</div>
+      <div class="tags"><span>Ar-condicionado</span><span>Água</span><span>Wi-Fi</span><span>Pix/Cartão</span></div>
+      <div class="phone gold">(00) 00000-0000</div>
+      <p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+    <figcaption>4 · EXECUTIVO DOURADO</figcaption>
+  </figure>
+
+</div>
+</body>
+</html>
