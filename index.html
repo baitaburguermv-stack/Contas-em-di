@@ -1673,7 +1673,10 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
   function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
   function addMsg(role,texto){var div=document.createElement("div");div.className="jr-msg "+(role==="eu"?"eu":"jv");div.textContent=texto;chat.appendChild(div);chat.scrollTop=chat.scrollHeight}
   function pensando(on){var ex=$("jrPensa");if(on){if(ex)return;var d=document.createElement("div");d.className="jr-pensa";d.id="jrPensa";d.innerHTML='<i></i><i></i><i></i>';chat.appendChild(d);chat.scrollTop=chat.scrollHeight}else if(ex)ex.remove()}
-  function dizer(texto){if(!falar||!("speechSynthesis"in window))return;try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(texto);u.lang="pt-BR";u.rate=1;var vs=speechSynthesis.getVoices().filter(function(v){return /pt[-_]?BR/i.test(v.lang)});if(vs[0])u.voice=vs[0];speechSynthesis.speak(u)}catch(e){}}
+  var vozPronta=false;
+  function desbloquearVoz(){if(vozPronta||!("speechSynthesis"in window))return;try{var u=new SpeechSynthesisUtterance(" ");u.volume=0;u.lang="pt-BR";speechSynthesis.speak(u);vozPronta=true}catch(e){}}
+  function vozBR(){var vs=speechSynthesis.getVoices()||[];return vs.filter(function(v){return /pt[-_]?BR/i.test(v.lang)})[0]||vs.filter(function(v){return /^pt/i.test(v.lang)})[0]||null}
+  function dizer(texto){if(!falar||!("speechSynthesis"in window)||!texto)return;try{speechSynthesis.cancel();speechSynthesis.resume();var u=new SpeechSynthesisUtterance(texto);u.lang="pt-BR";u.rate=1;u.pitch=1;var v=vozBR();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
   function fimSemana(d){var x=new Date(d);x.setDate(x.getDate()+((7-x.getDay())%7));return x}
   function interpretarData(t){var h=hoje();
     if(/\bhoje\b/.test(t))return{ini:h,fim:h,rot:"hoje"};
@@ -1708,10 +1711,10 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
       nomes=usar.map(function(a){return a.it.nome+", "+brl(a.valor).replace("R$","").trim()+" reais"}).join("; "),
       fala4=rotC+" você tem "+usar.length+(usar.length===1?" valor ":" valores ")+verbo+", somando "+brl(total).replace("R$","").trim()+" reais: "+nomes+".";
     return{txt:cab+"\n"+linhas.join("\n"),fala:fala4}}
-  function perguntar(texto){texto=(texto||"").trim();if(!texto)return;addMsg("eu",texto);input.value="";pensando(true);
+  function perguntar(texto){texto=(texto||"").trim();if(!texto)return;desbloquearVoz();addMsg("eu",texto);input.value="";pensando(true);
     setTimeout(function(){pensando(false);var r;try{r=responder(texto)}catch(e){r={txt:'Não consegui entender essa. Tente, por exemplo: "quem eu recebo na sexta?"',fala:"Não consegui entender. Tente perguntar quem você recebe na sexta."}}addMsg("jv",r.txt);dizer(r.fala||r.txt)},350)}
   var RecCls=window.SpeechRecognition||window.webkitSpeechRecognition,rec=null,ouvindo=false;
-  function toggleMic(){if(!RecCls){addMsg("jv","Seu aparelho não deixa eu ouvir a voz por aqui. Pode escrever a pergunta que eu respondo igual.");return}
+  function toggleMic(){desbloquearVoz();if(!RecCls){input.focus();addMsg("jv","No iPhone eu escuto pelo microfone do teclado: toque no campo de escrever e depois no 🎤 do teclado para ditar sua pergunta. Eu respondo em voz.");return}
     if(ouvindo){try{rec.stop()}catch(e){}return}
     rec=new RecCls();rec.lang="pt-BR";rec.interimResults=false;rec.maxAlternatives=1;
     rec.onstart=function(){ouvindo=true;mic.classList.add("on");input.placeholder="Ouvindo…"};
@@ -1721,8 +1724,8 @@ $("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos
   ["Quem eu recebo na sexta?","Quanto tenho a pagar essa semana?","Qual meu saldo esse mês?","Qual meu maior gasto?"].forEach(function(s){var b=document.createElement("button");b.type="button";b.textContent=s;b.addEventListener("click",function(){perguntar(s)});sug.appendChild(b)});
   form.addEventListener("submit",function(e){e.preventDefault();perguntar(input.value)});
   mic.addEventListener("click",toggleMic);
-  botFala.addEventListener("click",function(){falar=!falar;botFala.setAttribute("aria-pressed",String(falar));if(!falar&&"speechSynthesis"in window)speechSynthesis.cancel()});
-  if("speechSynthesis"in window){try{speechSynthesis.getVoices()}catch(e){}}
+  botFala.addEventListener("click",function(){falar=!falar;botFala.setAttribute("aria-pressed",String(falar));if(falar){desbloquearVoz();dizer("Pronto, vou responder em voz.")}else if("speechSynthesis"in window)speechSynthesis.cancel()});
+  if("speechSynthesis"in window){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices()}}catch(e){}}
   var quem=(typeof perfil!=="undefined"&&perfil&&perfil.nome)?(", "+String(perfil.nome).split(" ")[0]):"";
   addMsg("jv","Às suas ordens"+quem+'. Pergunte o que quiser sobre suas contas — por voz ou escrevendo. Ex.: "quem eu recebo na sexta?"');
 })();
