@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Contas em Dia</title>
-<meta name="theme-color" content="#2E43B8">
+<meta name="theme-color" content="#070b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Contas em Dia">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icone.png">
 <link rel="icon" type="image/png" href="icone.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -373,6 +373,60 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .toast:empty{display:none}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;font-size:.9rem;z-index:6;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:no-preference){.row-panel,.sheet{animation:in .18s ease-out}@keyframes in{from{opacity:.4;transform:translateY(-4px)}to{opacity:1;transform:none}}}
+
+/* ============================================================
+   Pele "JARVIS / HUD": escuro espacial, vidro e dados que brilham.
+   Bloco aditivo — sobrepõe os tokens e componentes sem tocar na
+   lógica nem no HTML. Para voltar ao visual antigo, basta remover
+   deste comentário até o fim do arquivo de estilo.
+   ============================================================ */
+:root{
+  --bg:#070b14 !important; --surface:rgba(255,255,255,.045) !important; --surface-2:rgba(255,255,255,.08) !important;
+  --ink:#eaf2ff !important; --muted:#8a97b2 !important; --line:rgba(255,255,255,.10) !important;
+  --accent:#35e0ff !important; --accent-ink:#04141b !important; --accent-soft:rgba(53,224,255,.14) !important;
+  --in:#39f0a0 !important; --in-soft:rgba(57,240,160,.12) !important; --out:#ff5c77 !important; --out-soft:rgba(255,92,119,.12) !important;
+  --warn:#ffc061 !important; --warn-soft:rgba(255,192,97,.12) !important;
+  --hero-a:#0d1b34 !important; --hero-b:#13294d !important; --hero-in:#39f0a0 !important; --hero-out:#ff8a9c !important;
+  --bar-in:#35e0ff !important; --bar-out:#4d7cff !important;
+  --c1:#35e0ff !important; --c2:#4d7cff !important; --c3:#9b7bff !important; --c4:#39f0a0 !important; --c5:#ffc061 !important; --c6:#5b6b9a !important;
+  --tab-sel:rgba(53,224,255,.16) !important;
+  --shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 16px 40px rgba(0,0,0,.5) !important;
+  color-scheme:dark !important;
+}
+html{background:#070b14}
+body{
+  background:
+    radial-gradient(900px 480px at 85% -6%, rgba(255,170,110,.08), transparent 55%),
+    radial-gradient(1000px 560px at 10% -6%, rgba(53,122,255,.14), transparent 55%),
+    linear-gradient(180deg,#0b1020,#070b14) !important;
+  background-attachment:fixed;
+}
+/* painéis viram vidro iluminado */
+.list,.sheet,.assist,.assist-start,.cartao,.ag-dia,.cal,.ju-card,.menu,.alert,.graf,
+dialog.perfil,.porta .cartao{
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02)) !important;
+  border:1px solid rgba(255,255,255,.09);
+  backdrop-filter:blur(16px) saturate(140%); -webkit-backdrop-filter:blur(16px) saturate(140%);
+}
+/* hero e cabeçalhos gradientes: fundo espacial + leve brilho ciano na borda */
+.hero,.ju-hero{
+  background:linear-gradient(145deg,#0d1b34,#13294d) !important;
+  border:1px solid rgba(53,224,255,.18);
+  box-shadow:0 0 0 1px rgba(53,224,255,.08), 0 20px 50px rgba(0,0,0,.55), 0 0 40px rgba(53,224,255,.08) !important;
+}
+/* só os números/dados brilham */
+.hero-saldo,.ju-hero .big,.numeros b{ text-shadow:0 0 22px rgba(53,224,255,.35); }
+/* acentos e ações ganham glow */
+.fab,.btn.primary,.mic{ box-shadow:0 0 24px rgba(53,224,255,.30) !important; }
+.tabs button[aria-selected="true"]{ box-shadow:0 0 16px rgba(53,224,255,.22) !important; }
+/* barras dos gráficos com um leve brilho */
+.gtrack i.in, .cal .dots i.in, .cal-leg i.in{ box-shadow:0 0 8px rgba(53,224,255,.6); }
+/* linhas e áreas dos gráficos SVG brilham em ciano */
+.gwrap svg path[stroke]{ filter:drop-shadow(0 0 4px rgba(53,224,255,.55)); }
+.pizza path{ filter:drop-shadow(0 0 3px rgba(53,224,255,.25)); }
+/* o "avatar" de cada linha vira um chip de vidro */
+.avatar.in{ box-shadow:0 0 12px rgba(57,240,160,.25); }
+.avatar.out{ box-shadow:0 0 12px rgba(255,92,119,.22); }
 </style>
 </head>
 <body>
