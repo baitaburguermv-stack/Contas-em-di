@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartões Uber com Foto</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:40px 16px; color:#333; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,300px)); gap:32px; justify-content:center; }
+  figure { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  figcaption { font-size:14px; font-weight:600; color:#444; letter-spacing:1px; }
+  .card { position:relative; width:100%; aspect-ratio:54/85.6; border-radius:22px; overflow:hidden; color:#fff; background:#000;
+          box-shadow:0 22px 44px rgba(0,0,0,.25); display:flex; flex-direction:column; align-items:center; text-align:center; }
+  .photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 60%; }
+  .shade { position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,0) 28%,rgba(0,0,0,0) 55%,rgba(0,0,0,.92) 80%,#000 100%); }
+  .top, .bottom { position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; }
+  .top { padding-top:26px; }
+  .bottom { margin-top:auto; padding-bottom:24px; gap:6px; }
+  h2 { font-weight:400; font-size:23px; line-height:1.15; text-shadow:0 2px 10px rgba(0,0,0,.6); }
+  h2 b { font-weight:700; }
+  .uber { font-weight:500; letter-spacing:-1.5px; line-height:1; }
+  .ring { border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .cta { font-size:12px; font-weight:500; letter-spacing:2.5px; }
+  .nfc { width:76px; height:60px; margin-bottom:-6px; }
+  .label { font-size:12px; letter-spacing:5px; font-weight:500; }
+  .gold { color:#d4af37; }
+
+  .f1 .photo, .f2 .photo { height:80%; object-position:50% 40%; }
+  .f1 .shade, .f2 .shade { background:linear-gradient(180deg,rgba(0,0,0,.7) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 62%,#000 80%); }
+
+  /* F1 – Uber no topo */
+  .f1 .uber { font-size:44px; text-shadow:0 2px 12px rgba(0,0,0,.6); }
+
+  /* F2 – Dourado */
+  .f2 .ring { width:92px; height:92px; border:2px solid #d4af37; background:rgba(0,0,0,.45); }
+  .f2 .uber { font-size:28px; color:#d4af37; }
+  .f2 .nfc { color:#d4af37; }
+
+  /* F3 – Foto em cima, preto embaixo */
+  .f3 .photo { height:66%; object-position:50% 60%; }
+  .f3 .shade { background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 48%,#000 66%); }
+  .f3 .ring { width:118px; height:118px; border:5px solid #fff; background:#000; margin-top:-10px; }
+  .f3 .uber { font-size:36px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="nfc" viewBox="0 0 170 130">
+    <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+      <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+      <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+      <path d="M103 14 l12 -3"/><path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+      <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/><path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+      <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+    </g>
+  </symbol>
+  <symbol id="car" viewBox="0 0 84 50">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 34 V26 l8-4 10-12 h30 l12 12 h8 a4 4 0 0 1 4 4 v8 h-6"/><path d="M28 34 h26"/><path d="M6 34 h6"/>
+      <circle cx="20" cy="36" r="7"/><circle cx="62" cy="36" r="7"/><path d="M26 22 h40"/>
+    </g>
+  </symbol>
+  <symbol id="wheel" viewBox="0 0 70 70">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <circle cx="35" cy="35" r="28"/><circle cx="35" cy="35" r="7"/>
+      <path d="M8 31 q27-10 54 0"/><path d="M31 42 l-6 20"/><path d="M39 42 l6 20"/>
+    </g>
+  </symbol>
+  <symbol id="pin" viewBox="0 0 50 64">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+      <path d="M25 60 C10 42 4 32 4 23 a21 21 0 0 1 42 0 c0 9-6 19-21 37z"/><circle cx="25" cy="23" r="8"/>
+    </g>
+  </symbol>
+</svg>
+<div class="grid">
+  <figure><div class="card f1">
+    <img class="photo" src="fotos/carro.jpg" alt="">
+    <div class="shade"></div>
+    <div class="top"><span class="uber">Uber</span></div>
+    <div class="bottom">
+      <h2>Precisa de uma <b>corrida</b>?</h2>
+      <svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+  </div><figcaption>F1 · FOTO INTEIRA</figcaption></figure>
+
+  <figure><div class="card f2">
+    <img class="photo" src="fotos/carro.jpg" alt="">
+    <div class="shade"></div>
+    <div class="top"><p class="label gold">EXECUTIVO</p><div class="ring"><span class="uber">Uber</span></div></div>
+    <div class="bottom">
+      <svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+  </div><figcaption>F2 · FOTO DOURADO</figcaption></figure>
+
+  <figure><div class="card f3">
+    <img class="photo" src="fotos/carro.jpg" alt="">
+    <div class="shade"></div>
+    <div class="top"><h2>Sua corrida a<br>um <b>toque</b></h2></div>
+    <div class="bottom">
+      <div class="ring"><span class="uber">Uber</span></div>
+      <svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p>
+    </div>
+  </div><figcaption>F3 · FOTO + ANEL</figcaption></figure>
+</div>
+</body>
+</html>
