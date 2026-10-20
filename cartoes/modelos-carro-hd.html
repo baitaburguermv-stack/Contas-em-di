@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartões Uber Carro HD</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:40px 16px; color:#333; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,300px)); gap:32px; justify-content:center; }
+  figure { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  figcaption { font-size:14px; font-weight:600; color:#444; letter-spacing:1px; }
+  .card { position:relative; width:100%; aspect-ratio:54/85.6; border-radius:22px; overflow:hidden; color:#fff; background:#0b0b0b;
+          box-shadow:0 22px 44px rgba(0,0,0,.25); display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; padding:28px 18px 24px; }
+  .car-wrap { position:relative; width:100%; }
+  .car-wrap img { position:relative; width:100%; display:block; }
+  .car-wrap::after { content:""; position:absolute; left:8%; right:8%; bottom:-6px; height:22px; border-radius:50%;
+                     background:radial-gradient(ellipse at center,rgba(90,170,255,.45),rgba(0,0,0,0) 70%); filter:blur(6px); }
+  .group { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  h2 { font-weight:400; font-size:23px; line-height:1.15; }
+  h2 b { font-weight:700; }
+  .uber { font-weight:500; letter-spacing:-1.5px; line-height:1; }
+  .ring { border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .cta { font-size:12px; font-weight:500; letter-spacing:2.5px; }
+  .nfc { width:76px; height:60px; margin-bottom:-6px; }
+  .label { font-size:12px; letter-spacing:5px; font-weight:500; }
+  .gold { color:#d4af37; }
+
+  .p1 .uber { font-size:40px; }
+  .p2 { background:linear-gradient(160deg,#1c1c1c,#000); }
+  .p2 .ring { width:88px; height:88px; border:2px solid #d4af37; }
+  .p2 .uber { font-size:27px; color:#d4af37; }
+  .p2 .nfc { color:#d4af37; }
+  .p2 .car-wrap::after { background:radial-gradient(ellipse at center,rgba(212,175,55,.35),rgba(0,0,0,0) 70%); }
+  .p3 .uber { font-size:52px; }
+  .p3 .line { width:44px; height:3px; background:#fff; border-radius:2px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="nfc" viewBox="0 0 170 130">
+    <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+      <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+      <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+      <path d="M103 14 l12 -3"/><path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+      <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/><path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+      <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+    </g>
+  </symbol>
+  <symbol id="car" viewBox="0 0 84 50">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 34 V26 l8-4 10-12 h30 l12 12 h8 a4 4 0 0 1 4 4 v8 h-6"/><path d="M28 34 h26"/><path d="M6 34 h6"/>
+      <circle cx="20" cy="36" r="7"/><circle cx="62" cy="36" r="7"/><path d="M26 22 h40"/>
+    </g>
+  </symbol>
+  <symbol id="wheel" viewBox="0 0 70 70">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <circle cx="35" cy="35" r="28"/><circle cx="35" cy="35" r="7"/>
+      <path d="M8 31 q27-10 54 0"/><path d="M31 42 l-6 20"/><path d="M39 42 l6 20"/>
+    </g>
+  </symbol>
+  <symbol id="pin" viewBox="0 0 50 64">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+      <path d="M25 60 C10 42 4 32 4 23 a21 21 0 0 1 42 0 c0 9-6 19-21 37z"/><circle cx="25" cy="23" r="8"/>
+    </g>
+  </symbol>
+</svg>
+<div class="grid">
+  <figure><div class="card p1">
+    <h2>Precisa de uma<br><b>corrida</b>?</h2>
+    <div class="car-wrap"><img src="fotos/carro-recortado-hd.png" alt=""></div>
+    <div class="group"><span class="uber">Uber</span><svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p></div>
+  </div><figcaption>H1 · CLÁSSICO</figcaption></figure>
+
+  <figure><div class="card p2">
+    <div class="group"><p class="label gold">EXECUTIVO</p><div class="ring"><span class="uber">Uber</span></div></div>
+    <div class="car-wrap"><img src="fotos/carro-recortado-hd.png" alt=""></div>
+    <div class="group"><svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p></div>
+  </div><figcaption>H2 · DOURADO</figcaption></figure>
+
+  <figure><div class="card p3">
+    <div class="group"><span class="uber">Uber</span><div class="line"></div></div>
+    <div class="car-wrap"><img src="fotos/carro-recortado-hd.png" alt=""></div>
+    <div class="group"><h2>Sua corrida a<br>um <b>toque</b></h2><svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p></div>
+  </div><figcaption>H3 · DESTAQUE</figcaption></figure>
+</div>
+</body>
+</html>
