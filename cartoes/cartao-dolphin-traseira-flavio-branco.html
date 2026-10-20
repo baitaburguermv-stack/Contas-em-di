@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartão Dolphin Traseira</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:40px 16px; color:#333; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,333.33px); gap:32px; justify-content:center; }
+  figure { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  figcaption { font-size:14px; font-weight:600; color:#444; letter-spacing:1px; }
+  /* cartão já com 3 mm de sangria (16.67px); a área final é o retângulo tracejado */
+  .card { position:relative; width:333.33px; height:508.89px; overflow:hidden; color:#fff; background:linear-gradient(160deg,#1c1c1c,#000);
+          display:flex; flex-direction:column; align-items:center; text-align:center; padding:42.67px 18px 40.67px; }
+  .guide .card::after { content:""; position:absolute; inset:16.67px; border:1px dashed rgba(255,255,255,.35); border-radius:22px; pointer-events:none; }
+  .top, .bottom { position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .bottom { margin-top:auto; gap:6px; }
+  .label { font-size:12px; letter-spacing:5px; font-weight:500; color:#ffffff; }
+  .ring { width:92px; height:92px; border-radius:50%; border:2px solid #ffffff; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; }
+  .uber { font-size:28px; font-weight:500; letter-spacing:-1.5px; line-height:1; color:#ffffff; }
+  .name { margin-top:2px; padding:3px 18px 4px; font-size:19px; font-weight:400; letter-spacing:2px; color:#ffffff;
+          background:rgba(0,0,0,.6); border:1px solid #ffffff; border-radius:999px;
+          box-shadow:0 0 14px rgba(255,255,255,.35); text-shadow:0 0 8px rgba(255,255,255,.45); }
+  .nfc { width:76px; height:60px; margin-bottom:-6px; color:#ffffff; }
+  .cta { font-size:12px; font-weight:500; letter-spacing:2.5px; }
+
+  /* C1 – carro recortado em fundo preto, encostado na borda esquerda */
+  .c1 .car { position:absolute; left:0; top:184.67px; width:294px; z-index:1; }
+  .c1 .glow { position:absolute; left:10%; right:12%; top:374.98px; height:30px; border-radius:50%;
+              background:radial-gradient(ellipse at center,rgba(255,255,255,.35),rgba(0,0,0,0) 70%); filter:blur(8px); }
+
+  /* C2 – foto inteira numa faixa, escurecendo em cima e embaixo */
+  .c2 .photo { position:absolute; left:0; top:174.67px; width:100%; height:220px; object-fit:cover; object-position:50% 75%; }
+  .c2 .shade { position:absolute; left:0; right:0; top:173.67px; height:222px;
+               background:linear-gradient(180deg,#0d0d0d 0%,rgba(0,0,0,.35) 30%,rgba(0,0,0,0) 45%,rgba(0,0,0,0) 80%,#000 100%); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="nfc" viewBox="0 0 170 130">
+    <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/>
+      <path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+      <rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/>
+      <path d="M103 14 l12 -3"/><path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/>
+      <path d="M100 82 q4 20 24 18 q14 -2 14 -18"/><path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/>
+      <path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/>
+    </g>
+  </symbol>
+  <symbol id="car" viewBox="0 0 84 50">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 34 V26 l8-4 10-12 h30 l12 12 h8 a4 4 0 0 1 4 4 v8 h-6"/><path d="M28 34 h26"/><path d="M6 34 h6"/>
+      <circle cx="20" cy="36" r="7"/><circle cx="62" cy="36" r="7"/><path d="M26 22 h40"/>
+    </g>
+  </symbol>
+  <symbol id="wheel" viewBox="0 0 70 70">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+      <circle cx="35" cy="35" r="28"/><circle cx="35" cy="35" r="7"/>
+      <path d="M8 31 q27-10 54 0"/><path d="M31 42 l-6 20"/><path d="M39 42 l6 20"/>
+    </g>
+  </symbol>
+  <symbol id="pin" viewBox="0 0 50 64">
+    <g fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round">
+      <path d="M25 60 C10 42 4 32 4 23 a21 21 0 0 1 42 0 c0 9-6 19-21 37z"/><circle cx="25" cy="23" r="8"/>
+    </g>
+  </symbol>
+</svg>
+<div class="grid guide">
+  <figure><div class="card c1">
+    <div class="glow"></div><img class="car" src="fotos/carro2-recortado-hd.png" alt="">
+    <div class="top"><p class="label">EXECUTIVO</p><div class="ring"><span class="uber">Uber</span></div><div class="name">Flávio De Bem</div></div>
+    <div class="bottom"><svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p></div>
+  </div><figcaption>C1 · CARRO EM FUNDO PRETO</figcaption></figure>
+
+  <figure><div class="card c2">
+    <img class="photo" src="fotos/carro2-alta-qualidade.jpg" alt=""><div class="shade"></div>
+    <div class="top"><p class="label">EXECUTIVO</p><div class="ring"><span class="uber">Uber</span></div><div class="name">Flávio De Bem</div></div>
+    <div class="bottom"><svg class="nfc"><use href="#nfc"/></svg><p class="cta">APROXIME SEU CELULAR</p></div>
+  </div><figcaption>C2 · FOTO INTEIRA</figcaption></figure>
+</div>
+</body>
+</html>
