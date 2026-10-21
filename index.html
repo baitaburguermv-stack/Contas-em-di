@@ -334,6 +334,25 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .acesso-it b{display:block;font-weight:600;overflow-wrap:anywhere}
 .acesso-it small{color:var(--muted);font-size:.8rem}
 .acesso-it .btn{padding:6px 12px;min-height:38px;font-size:.85rem}
+/* clientes */
+.cl-foto{flex:none;width:44px;height:44px;border-radius:50%;object-fit:cover;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.05rem;overflow:hidden}
+.cl-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.cl-foto.g{width:96px;height:96px;font-size:2.2rem}
+.cl-foto.p{width:36px;height:36px;font-size:.9rem}
+.cl-busca{position:relative}
+.cl-acoes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cl-acoes a{display:flex;flex-direction:column;align-items:center;gap:4px;min-height:60px;justify-content:center;border-radius:14px;background:var(--surface-2);color:var(--ink);text-decoration:none;font-weight:600;font-size:.82rem}
+.cl-acoes a svg{width:20px;height:20px;color:var(--accent)}
+.cl-cab{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.cl-cab b{font-family:var(--display);font-size:1.3rem;font-weight:600}
+.cl-mini{display:flex;gap:10px;align-items:center;background:var(--bg);border-radius:14px;padding:10px 12px}
+.cl-mini div{flex:1;min-width:0;display:flex;flex-direction:column}
+.cl-mini b{font-weight:600}
+.cl-mini small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
+.cl-foto-edit{display:flex;align-items:center;gap:14px}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg);cursor:pointer;font-weight:600}
+.chk input{width:22px;height:22px;flex:none;accent-color:var(--accent);margin:0}
+.cli-bloco{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px dashed var(--line);border-radius:16px}
 /* jurema */
 .ju{display:flex;flex-direction:column;gap:14px}
 .ju-hero{background:linear-gradient(140deg,var(--hero-a),var(--hero-b));color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
@@ -505,6 +524,14 @@ dialog.perfil,.porta .cartao{
 <div class="porta" id="porta" hidden>
 <div class="porta-in" id="portaIn" aria-live="polite"></div>
 </div>
+<dialog class="perfil" id="clientes" aria-labelledby="clTit">
+<div class="perfil-in">
+<div class="perfil-alca" aria-hidden="true"></div>
+<div class="perfil-topo"><h2 id="clTit">Clientes</h2><button class="btn ghost" type="button" id="fecharClientes">Fechar</button></div>
+<div id="clCorpo" class="ju"></div>
+<input type="file" id="clFotoArq" accept="image/*" hidden>
+</div>
+</dialog>
 <dialog class="perfil" id="jurema" aria-labelledby="juTit">
 <div class="perfil-in">
 <div class="perfil-alca" aria-hidden="true"></div>
@@ -560,6 +587,7 @@ dialog.perfil,.porta .cartao{
 <div class="field"><label for="admEmail">Liberar um e-mail direto</label><div class="resp"><input id="admEmail" type="email" inputmode="email" placeholder="pessoa@email.com"><button class="btn primary" type="button" id="admAdd">Liberar</button></div></div>
 </div>
 <div class="menu">
+<button class="menu-item" type="button" id="abrirClientes"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 11h6M20 8v6"/></svg></span><span><b>Clientes</b><small>Cadastro com foto, CPF e endereço</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 <button class="menu-item" type="button" id="abrirJurema"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></span><span><b>Jurema</b><small>Empréstimos com juros ao mês</small></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
 </div>
 <p class="note" id="pfNota">Seu perfil e suas contas ficam guardados só neste celular.</p>
@@ -595,11 +623,12 @@ const isQuinz=it=>it.tipo==="quinzenal";
 function occQuinz(anc,ref){const a=fromYmd(anc);const k=Math.floor(diffDias(ref,a)/14);const d=new Date(a);if(k>0)d.setDate(a.getDate()+14*k);return d}
 const noMes=(it,y,m)=>{const d=fromYmd(it.data);return d.getFullYear()===y&&d.getMonth()===m};
 let fauth=null,fdb=null,usuario=null,nuvemDoc=null,nuvemStop=null,nvT=null,ehAdmin=false,portaModo="entrar",jaLogou=false;
-let jurema=[];
+let jurema=[],clientes=[];
+const LS_CLI="contas-em-dia-clientes";
 let itens=[], pagos={}, db=null, pronto=false, aba="fixo", aberto=null, editando=null, confirmarExcluir=null;
 const pagoKey=(id,data)=>`${id}__${data}`;
 const LS="contas-em-dia-v1";
-function lsLoad(){try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{};jurema=s.jurema||[]}catch(e){}}
+function lsLoad(){try{clientes=JSON.parse(localStorage.getItem(LS_CLI)||"[]")}catch(e){clientes=[]}try{const s=JSON.parse(localStorage.getItem(LS)||"{}");itens=s.itens||[];pagos=s.pagos||{};jurema=s.jurema||[]}catch(e){}}
 function lsSave(){try{localStorage.setItem(LS,JSON.stringify({itens,pagos,jurema}))}catch(e){}nuvemSalvar()}
 async function salvarItem(it){
 const i=itens.findIndex(x=>x.id===it.id);i>=0?itens[i]=it:itens.push(it);lsSave();render()
@@ -865,7 +894,7 @@ panel=`<div class="field"><label for="v-${it.id}">${verbo} quanto? (${dm(s.data)
 return `<div class="row"><button class="row-main" data-act="abrir" data-id="${it.id}" aria-expanded="${open}"><span class="avatar ${s.kind==="done"&&!s.avulso?"done":ent?"in":"out"}" aria-hidden="true">${s.kind==="done"&&!s.avulso?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
 <div class="row-info"><b>${esc(it.nome)}</b><span>${sub}</span>${(!ent&&it.cat&&catById(it.cat))?`<span class="cat-tag">${catById(it.cat).emoji} ${esc(catById(it.cat).nome)}</span>`:""}</div>
 <div class="row-right"><strong class="num ${ent?"c-in":"c-out"}"><span class="sr">, ${ent?"entrada de":"saída de"} </span><span aria-hidden="true">${ent?"+ ":"− "}</span>${brl(valorMostrado)}</strong>${s.avulso?"":`<span class="pill ${s.kind}"><span class="sr">, </span>${s.label}</span>`}</div>
-</button>${open?`<div class="row-panel">${panel}</div>`:""}</div>`;
+</button>${open?`<div class="row-panel">${it.clienteId?miniCliente(it.clienteId):""}${panel}</div>`:""}</div>`;
 }
 function delBtn(it){
 return confirmarExcluir===it.id
@@ -925,6 +954,7 @@ $("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
 <div class="field"><label>Tipo</label><div class="seg">
 ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-pressed="${form.tipo===t&&(form.sentido||"saida")===se}">${l}</button>`).join("")}
 </div></div>
+${blocoCliente("f",form)}
 <div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: almoço, uber, mercado":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
 ${form.sentido!=="entrada"?`<div class="field"><label>Categoria</label><div class="chips cats-pick">${getCats().map(c=>`<button type="button" class="chip${form.cat===c.id?" sel":""}" data-cat="${c.id}" aria-pressed="${form.cat===c.id}">${c.emoji} ${esc(c.nome)}</button>`).join("")}</div></div>`:""}
 <div class="two">
@@ -940,7 +970,7 @@ ${aceitaParcelas(form.tipo)?`<div class="field"><label for="f-parc">${ent?"Se fo
 </form>`;
 }
 function lerForm(){
-form.nome=$("f-nome").value;form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
+form.nome=$("f-nome").value;lerBloco("f",form);form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
 if(form.tipo==="avulso"||form.tipo==="quinzenal")form.data=$("f-dia").value;else form.dia=$("f-dia").value;
 if($("f-parc"))form.parcelas=parseInt($("f-parc").value,10)||null;
 if($("f-juros")){const j=parseValor($("f-juros").value);form.jurosPct=isNaN(j)?null:j;form.jurosPor=$("f-jpor").value}else{form.jurosPct=null}
@@ -959,12 +989,14 @@ renderForm()}
 });
 $("sheetHost").addEventListener("submit",async e=>{
 e.preventDefault();lerForm();
+if(!form.nome.trim()&&form.cliOn){const f=form;const nn=f.cliSel&&f.cliSel!=="__novo"?(cliPor(f.cliSel)||{}).nome:(f.novoCli||{}).nome;if(nn)form.nome=nn}
 const err=$("f-err"),nome=form.nome.trim(),valor=typeof form.valor==="number"?form.valor:NaN,dia=parseInt(form.dia,10);
 const msg=!nome?"Dê um nome para a conta.":isNaN(valor)?"Informe o valor, por exemplo 150,00.":
 (form.tipo==="avulso"||form.tipo==="quinzenal")?(/^\d{4}-\d{2}-\d{2}$/.test(form.data||"")?"":"Escolha a data."):form.tipo==="semanal"?(dia>=0&&dia<=6?"":"Escolha o dia da semana."):(dia>=1&&dia<=31?"":"O dia do vencimento vai de 1 a 31.");
 const msgJ=form.jurosPct>100?"Os juros vão de 0 a 100%.":"";
 if(msg||msgJ){err.textContent=msg||msgJ;err.hidden=false;return}
-const it={id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome,valor,tipo:form.tipo};
+const rc=resolverCliente(form);if(rc.msg){err.textContent=rc.msg;err.hidden=false;return}form.clienteId=rc.id;
+const it={...(form.clienteId?{clienteId:form.clienteId}:{}),id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome,valor,tipo:form.tipo};
 if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
 it.sentido=form.sentido==="entrada"?"entrada":"saida";
@@ -1406,11 +1438,11 @@ mostrarPorta("aguardando",falhou?`Não consegui enviar seu pedido para o respons
 entrarNoApp(u)}
 function entrarNoApp(u){
 let dono=null;try{dono=localStorage.getItem(LS_DONO)}catch(e){}
-if(dono&&dono!==u.uid){itens=[];pagos={};jurema=[];perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_BK);localStorage.removeItem(LS_PERFIL)}catch(e){}}
+if(dono&&dono!==u.uid){itens=[];pagos={};jurema=[];clientes=[];try{localStorage.removeItem(LS_CLI)}catch(e){}perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_BK);localStorage.removeItem(LS_PERFIL)}catch(e){}}
 jaLogou=true;
 try{localStorage.setItem(LS_DONO,u.uid)}catch(e){}
 if(!perfil.nome&&u.displayName)perfil.nome=u.displayName;perfil.email=u.email;
-const ref=fdb.collection("usuarios").doc(u.uid);let primeira=true;
+const ref=fdb.collection("usuarios").doc(u.uid);let primeira=true;try{cliOuvir(ref)}catch(e){}
 nuvemStop=ref.onSnapshot(doc=>{
 if(doc.metadata.hasPendingWrites)return;
 const d=doc.data();
@@ -1422,9 +1454,9 @@ aplicarPerfil();pronto=true;render();esconderPorta();
 },e=>{if(e.code==="permission-denied")sairPorBloqueio();else toast("Sem conexão com a nuvem. Usando o que está no celular.")});
 pronto=true;aplicarPerfil();render();esconderPorta();
 }
-function pararNuvem(){if(nuvemStop)nuvemStop();nuvemStop=null;nuvemDoc=null;clearTimeout(nvT);ehAdmin=false;
+function pararNuvem(){if(nuvemStop)nuvemStop();nuvemStop=null;if(cliStop)cliStop();cliStop=null;cliRef=null;nuvemDoc=null;clearTimeout(nvT);ehAdmin=false;
 if(!jaLogou)return;jaLogou=false;
-itens=[];pagos={};jurema=[];pronto=false;perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS);localStorage.removeItem(LS_PERFIL);localStorage.removeItem(LS_BK)}catch(e){}aplicarPerfil();if($("perfil").open)$("perfil").close()}
+itens=[];pagos={};jurema=[];clientes=[];pronto=false;perfil={desde:ymd(hoje())};try{localStorage.removeItem(LS_CLI);localStorage.removeItem(LS);localStorage.removeItem(LS_PERFIL);localStorage.removeItem(LS_BK)}catch(e){}aplicarPerfil();if($("perfil").open)$("perfil").close()}
 function sairPorBloqueio(){pararNuvem();mostrarPorta("bloqueado")}
 // --- painel do dono do app
 async function renderAdmin(){const L=$("admLista");L.innerHTML='<p class="pensando"><i></i>Carregando…</p>';
@@ -1441,6 +1473,138 @@ toast(act==="liberar"?"Acesso liberado":act==="bloquear"?"Acesso bloqueado":"Ped
 $("admAdd").addEventListener("click",async()=>{const em=$("admEmail").value.trim().toLowerCase();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){toast("Digite um e-mail válido");return}
 try{await fdb.collection("acesso").doc(em).set({status:"liberado",em:firebase.firestore.FieldValue.serverTimestamp()});$("admEmail").value="";toast("Acesso liberado");renderAdmin()}catch(x){toast("Não consegui salvar. Tente de novo.")}});
 $("pfSair").addEventListener("click",()=>{if(fauth)fauth.signOut()});
+// ===================== CLIENTES =====================
+let cliRef=null,cliStop=null,clVista=null,clForm=null,clBusca="",clConf=null;
+function cliLocal(){try{localStorage.setItem(LS_CLI,JSON.stringify(clientes))}catch(e){toast("Memória do celular cheia. Use fotos menores ou ative o login.")}}
+function cliOuvir(ref){cliRef=ref.collection("clientes");let primeira=true;
+cliStop=cliRef.onSnapshot(q=>{if(q.metadata.hasPendingWrites)return;
+if(primeira){primeira=false;if(q.empty&&!q.metadata.fromCache&&clientes.length){clientes.forEach(c=>cliRef.doc(c.id).set(c).catch(()=>{}));return}}
+clientes=q.docs.map(d=>d.data());cliLocal();if($("clientes").open)renderClientes();render()},()=>{})}
+function cliSalvar(c){const i=clientes.findIndex(x=>x.id===c.id);i>=0?clientes[i]=c:clientes.push(c);cliLocal();if(cliRef)cliRef.doc(c.id).set(c).catch(()=>toast("Sem internet. O cliente fica salvo no celular e vai para a nuvem quando voltar."))}
+function cliExcluir(id){clientes=clientes.filter(x=>x.id!==id);cliLocal();if(cliRef)cliRef.doc(id).delete().catch(()=>{})}
+function cliSalvarTodos(){cliLocal();if(cliRef)clientes.forEach(c=>cliRef.doc(c.id).set(c).catch(()=>{}))}
+const cliPor=id=>clientes.find(c=>c.id===id);
+const soDig=v=>String(v||"").replace(/\D/g,"");
+function cpfFmt(v){const d=soDig(v).slice(0,11);return d.replace(/^(\d{3})(\d)/,"$1.$2").replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3").replace(/\.(\d{3})(\d{1,2})$/,".$1-$2")}
+function cpfOk(v){const d=soDig(v);if(d.length!==11||/^(\d)\1+$/.test(d))return false;
+for(const n of [9,10]){let s=0;for(let i=0;i<n;i++)s+=+d[i]*(n+1-i);const r=(s*10)%11%10;if(r!==+d[n])return false}return true}
+function telFmt(v){const d=soDig(v).slice(0,11);if(d.length<=2)return d;if(d.length<=6)return `(${d.slice(0,2)}) ${d.slice(2)}`;if(d.length<=10)return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`}
+function fotoCli(c,cls=""){const n=(c&&c.nome||"?").trim();return `<span class="cl-foto ${cls}" aria-hidden="true">${c&&c.foto?`<img src="${c.foto}" alt="">`:esc(n[0]?n[0].toUpperCase():"?")}</span>`}
+const endTxt=c=>[c.endereco,c.bairro,c.cidade].filter(Boolean).join(", ");
+function miniCliente(id){const c=cliPor(id);if(!c)return "";
+return `<button type="button" class="cl-mini" data-vercli="${c.id}" style="border:0;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${fotoCli(c,"p")}<div><b>${esc(c.nome)}</b><small>${[c.cpf?"CPF "+esc(c.cpf):"",c.tel?esc(c.tel):""].filter(Boolean).join(" · ")}</small>${endTxt(c)?`<small>${esc(endTxt(c))}</small>`:""}</div></button>`}
+function opcoesCliente(sel){return `<option value="">— sem cliente —</option>`+clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.nome)}${c.cpf?" · "+esc(c.cpf):""}</option>`).join("")}
+const ICO_TEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>';
+const ICO_ZAP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>';
+const ICO_MAPA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+function renderClientes(){const C=$("clCorpo");
+if(clForm){C.innerHTML=formCliente();return}
+if(clVista){const c=cliPor(clVista);if(!c){clVista=null;return renderClientes()}
+const tel=soDig(c.tel),emp=jurema.filter(e=>e.clienteId===c.id),cts=itens.filter(it=>it.clienteId===c.id);
+C.innerHTML=`<button class="btn ghost" type="button" data-cl="voltar" style="align-self:flex-start">‹ Todos os clientes</button>
+<div class="cl-cab">${fotoCli(c,"g")}<b>${esc(c.nome)}</b>${c.cpf?`<small class="note">CPF ${esc(c.cpf)}</small>`:""}</div>
+${tel||endTxt(c)?`<div class="cl-acoes">${tel?`<a href="tel:${tel}">${ICO_TEL}Ligar</a><a href="https://wa.me/55${tel}" target="_blank" rel="noopener">${ICO_ZAP}WhatsApp</a>`:""}${endTxt(c)?`<a href="https://maps.google.com/?q=${encodeURIComponent(endTxt(c))}" target="_blank" rel="noopener">${ICO_MAPA}Mapa</a>`:""}</div>`:""}
+<div class="ju-linhas">${[["Telefone",c.tel],["Endereço",c.endereco],["Bairro",c.bairro],["Cidade",c.cidade],["Observações",c.obs]].filter(x=>x[1]).map(([k,v])=>`<span>${k}</span><b style="white-space:normal">${esc(v)}</b>`).join("")||`<span>Sem outros dados</span><b></b>`}</div>
+<h3 class="ju-h">Empréstimos (${emp.length})</h3>${emp.length?emp.map(e=>{const k=juCalc(e);return `<div class="cl-mini"><div><b>${brl(e.valor)} a ${pctBR(e.taxa)} ao mês</b><small>${e.quitado?"Quitado":`Total hoje ${brl(k.total)}${k.abertos.length&&k.atraso>0?` · atrasado ${k.atraso} dias`:""}`}</small></div></div>`}).join(""):`<p class="note">Nenhum empréstimo ligado a este cliente.</p>`}
+<h3 class="ju-h">Contas (${cts.length})</h3>${cts.length?cts.map(it=>`<div class="cl-mini"><div><b>${esc(it.nome)}</b><small>${isEntrada(it)?"Entrada":"Saída"} de ${brl(it.valor)} · ${esc(quando(it))}</small></div></div>`).join(""):`<p class="note">Nenhuma conta ligada a este cliente.</p>`}
+<div class="inline"><button class="btn primary" type="button" data-cl="editar" data-id="${c.id}">Editar</button>
+${clConf===c.id?`<button class="btn danger" type="button" data-cl="excluir-sim" data-id="${c.id}">Confirmar exclusão</button>`:`<button class="btn ghost" type="button" data-cl="excluir" data-id="${c.id}">Excluir</button>`}</div>`;return}
+const q=norm(clBusca),qd=soDig(clBusca);
+const lista=clientes.filter(c=>!q||norm(c.nome).includes(q)||(qd&&(soDig(c.cpf).includes(qd)||soDig(c.tel).includes(qd)))).sort((a,b)=>a.nome.localeCompare(b.nome));
+C.innerHTML=`<button class="btn primary" type="button" data-cl="novo">+ Novo cliente</button>
+${clientes.length?`<div class="field cl-busca"><label class="sr" for="clBusca">Buscar cliente</label><input id="clBusca" type="search" placeholder="Buscar por nome, CPF ou telefone" value="${esc(clBusca)}"></div>`:""}
+<div id="clLista" class="ju">${lista.map(c=>{const nE=jurema.filter(e=>e.clienteId===c.id&&!e.quitado).length;
+return `<div class="ju-card"><button class="ju-main" type="button" data-cl="ver" data-id="${c.id}">${fotoCli(c)}<div><b class="nome">${esc(c.nome)}</b><small>${[c.cpf?"CPF "+esc(c.cpf):"",c.tel?esc(c.tel):""].filter(Boolean).join(" · ")||"Sem CPF e telefone"}</small>${nE?`<small>${nE} empréstimo${nE>1?"s":""} ativo${nE>1?"s":""}</small>`:""}</div></button></div>`}).join("")||(clientes.length?`<p class="note">Nenhum cliente encontrado.</p>`:`<div class="empty"><b>Nenhum cliente ainda</b><span>Cadastre seus clientes com foto, CPF e endereço. Depois é só escolher o cliente ao lançar um empréstimo ou uma conta.</span></div>`)}</div>`;
+}
+function formCliente(){const f=clForm,ed=!!f.id;
+return `<form class="sheet" id="clF" novalidate><h2>${ed?"Editar cliente":"Novo cliente"}</h2>
+<div class="cl-foto-edit">${fotoCli(f,"g")}<div class="inline"><button class="btn" type="button" data-cl="foto">${f.foto?"Trocar foto":"Adicionar foto"}</button>${f.foto?`<button class="btn ghost" type="button" data-cl="semfoto">Remover foto</button>`:""}</div></div>
+<div class="field"><label for="clNome">Nome completo</label><input id="clNome" autocomplete="off" value="${esc(f.nome||"")}" placeholder="Ex.: João da Silva"></div>
+<div class="two"><div class="field"><label for="clCpf">CPF</label><input id="clCpf" inputmode="numeric" value="${esc(f.cpf||"")}" placeholder="000.000.000-00"></div>
+<div class="field"><label for="clTel">Telefone / WhatsApp</label><input id="clTel" inputmode="tel" value="${esc(f.tel||"")}" placeholder="(51) 99999-9999"></div></div>
+<div class="field"><label for="clEnd">Endereço</label><input id="clEnd" autocomplete="off" value="${esc(f.endereco||"")}" placeholder="Rua e número"></div>
+<div class="two"><div class="field"><label for="clBai">Bairro</label><input id="clBai" autocomplete="off" value="${esc(f.bairro||"")}"></div>
+<div class="field"><label for="clCid">Cidade</label><input id="clCid" autocomplete="off" value="${esc(f.cidade||"")}" placeholder="Ex.: Sarandi/RS"></div></div>
+<div class="field"><label for="clObs">Observações</label><input id="clObs" autocomplete="off" value="${esc(f.obs||"")}" placeholder="Opcional"></div>
+<p class="err" id="clErr" hidden></p>
+<div class="inline"><button class="btn primary" type="submit">${ed?"Salvar":"Cadastrar"}</button><button class="btn ghost" type="button" data-cl="cancelar">Cancelar</button></div></form>`}
+function lerClForm(){const f=clForm;f.nome=$("clNome").value;f.cpf=$("clCpf").value;f.tel=$("clTel").value;f.endereco=$("clEnd").value;f.bairro=$("clBai").value;f.cidade=$("clCid").value;f.obs=$("clObs").value}
+function reduzirFoto(arq){return new Promise((ok,erro)=>{const url=URL.createObjectURL(arq),img=new Image();
+img.onload=()=>{const M=320,k=Math.min(1,M/Math.max(img.width,img.height)),cv=document.createElement("canvas");cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);ok(cv.toDataURL("image/jpeg",.72))};
+img.onerror=()=>{URL.revokeObjectURL(url);erro()};img.src=url})}
+function abrirClientes(id){clForm=null;clConf=null;clVista=id||null;renderClientes();if(!$("clientes").open)$("clientes").showModal()}
+$("abrirClientes").addEventListener("click",()=>{$("perfil").close();clBusca="";abrirClientes()});
+$("fecharClientes").addEventListener("click",()=>$("clientes").close());
+$("clientes").addEventListener("click",e=>{if(e.target===$("clientes")){$("clientes").close();return}
+const b=e.target.closest("[data-cl]");if(!b)return;const a=b.dataset.cl,id=b.dataset.id;
+if(a==="novo"){clForm={};renderClientes();setTimeout(()=>$("clNome").focus(),30)}
+else if(a==="ver"){clVista=id;clConf=null;renderClientes();$("clCorpo").scrollIntoView({block:"start"})}
+else if(a==="voltar"){clVista=null;clConf=null;renderClientes()}
+else if(a==="editar"){clForm={...cliPor(id)};renderClientes()}
+else if(a==="cancelar"){clForm=null;renderClientes()}
+else if(a==="foto"){lerClForm();$("clFotoArq").click()}
+else if(a==="semfoto"){lerClForm();delete clForm.foto;renderClientes()}
+else if(a==="excluir"){clConf=id;renderClientes()}
+else if(a==="excluir-sim"){cliExcluir(id);for(const x of jurema)if(x.clienteId===id)delete x.clienteId;for(const x of itens)if(x.clienteId===id)delete x.clienteId;lsSave();clVista=null;clConf=null;renderClientes();render();toast("Cliente excluído")}
+});
+$("clFotoArq").addEventListener("change",async e=>{const f=e.target.files[0];e.target.value="";if(!f||!clForm)return;
+try{clForm.foto=await reduzirFoto(f);renderClientes()}catch(x){toast("Não consegui abrir essa foto. Tente outra.")}});
+$("clientes").addEventListener("input",e=>{const t=e.target;
+if(t.id==="clBusca"){clBusca=t.value;const pos=t.selectionStart;renderClientes();const n=$("clBusca");n.focus();try{n.setSelectionRange(pos,pos)}catch(x){}}
+else if(t.id==="clCpf"){t.value=cpfFmt(t.value)}
+else if(t.id==="clTel"){t.value=telFmt(t.value)}});
+$("clientes").addEventListener("submit",e=>{e.preventDefault();lerClForm();const f=clForm,err=$("clErr");
+const msg=!f.nome.trim()?"Coloque o nome completo.":f.cpf&&!cpfOk(f.cpf)?"Esse CPF não é válido. Confira os números.":f.cpf&&clientes.some(c=>c.id!==f.id&&soDig(c.cpf)===soDig(f.cpf))?"Já existe um cliente com esse CPF.":"";
+if(msg){err.textContent=msg;err.hidden=false;return}
+const c={id:f.id||("k"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),cpf:f.cpf?cpfFmt(f.cpf):"",tel:f.tel.trim(),endereco:f.endereco.trim(),bairro:f.bairro.trim(),cidade:f.cidade.trim(),obs:f.obs.trim(),criado:f.criado||ymd(hoje())};
+if(f.foto)c.foto=f.foto;
+cliSalvar(c);const ed=!!f.id;clForm=null;clVista=c.id;renderClientes();render();toast(ed?"Cliente atualizado":"Cliente cadastrado")});
+// atalho: tocar no cartão do cliente dentro de uma conta ou empréstimo abre a ficha
+document.addEventListener("click",e=>{const b=e.target.closest("[data-vercli]");if(!b)return;e.preventDefault();e.stopPropagation();if($("jurema").open)$("jurema").close();abrirClientes(b.dataset.vercli)},true);
+// --- bloco "Adicionar dados do cliente" usado nos formulários de empréstimo e de conta
+function blocoCliente(px,f){
+const on=f.cliOn??!!f.clienteId;
+let h=`<label class="chk"><input type="checkbox" id="${px}CliOn" ${on?"checked":""}><span>Adicionar dados do cliente</span></label>`;
+if(!on)return h;
+const sel=f.cliSel||(f.clienteId&&cliPor(f.clienteId)?f.clienteId:"__novo"),n=f.novoCli||{};
+h+=`<div class="cli-bloco">`;
+if(clientes.length)h+=`<div class="field"><label for="${px}CliSel">Cliente</label><select id="${px}CliSel"><option value="__novo" ${sel==="__novo"?"selected":""}>+ Cadastrar novo cliente</option>${clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.nome)}${c.cpf?" · "+esc(c.cpf):""}</option>`).join("")}</select></div>`;
+if(sel!=="__novo"){h+=miniCliente(sel)+`</div>`;return h}
+h+=`<div class="cl-foto-edit">${fotoCli(n.nome?n:{nome:"+",foto:n.foto},"")}<div class="inline"><button class="btn" type="button" data-clifoto="${px}">${n.foto?"Trocar foto":"Adicionar foto"}</button>${n.foto?`<button class="btn ghost" type="button" data-clisemfoto="${px}">Remover foto</button>`:""}</div><input type="file" id="${px}CliFoto" accept="image/*" hidden></div>
+<div class="field"><label for="${px}CnNome">Nome completo do cliente</label><input id="${px}CnNome" autocomplete="off" value="${esc(n.nome||"")}" placeholder="Ex.: João da Silva"></div>
+<div class="two"><div class="field"><label for="${px}CnCpf">CPF</label><input id="${px}CnCpf" inputmode="numeric" data-mask="cpf" value="${esc(n.cpf||"")}" placeholder="000.000.000-00"></div>
+<div class="field"><label for="${px}CnTel">Telefone / WhatsApp</label><input id="${px}CnTel" inputmode="tel" data-mask="tel" value="${esc(n.tel||"")}" placeholder="(51) 99999-9999"></div></div>
+<div class="field"><label for="${px}CnEnd">Endereço</label><input id="${px}CnEnd" autocomplete="off" value="${esc(n.endereco||"")}" placeholder="Rua e número"></div>
+<div class="two"><div class="field"><label for="${px}CnBai">Bairro</label><input id="${px}CnBai" autocomplete="off" value="${esc(n.bairro||"")}"></div>
+<div class="field"><label for="${px}CnCid">Cidade</label><input id="${px}CnCid" autocomplete="off" value="${esc(n.cidade||"")}"></div></div>
+<p class="note" style="margin:0">O cliente também fica salvo em Perfil → Clientes.</p></div>`;
+return h}
+function lerBloco(px,f){const ch=$(px+"CliOn");if(!ch)return;f.cliOn=ch.checked;if(!f.cliOn)return;
+const sel=$(px+"CliSel");f.cliSel=sel?sel.value:"__novo";
+if(f.cliSel!=="__novo"){f.clienteId=f.cliSel;return}
+const v=id=>($(px+id)||{}).value||"";f.novoCli={...(f.novoCli||{}),nome:v("CnNome"),cpf:v("CnCpf"),tel:v("CnTel"),endereco:v("CnEnd"),bairro:v("CnBai"),cidade:v("CnCid")}}
+// devolve {id} do cliente escolhido/criado, {id:null} se o quadradinho estiver desmarcado, ou {msg} se faltar algo
+function resolverCliente(f){
+if(!f.cliOn&&!(f.cliOn===undefined&&f.clienteId))return {id:null};
+if(f.cliSel&&f.cliSel!=="__novo")return {id:f.cliSel};
+if(f.cliSel===undefined&&f.clienteId)return {id:f.clienteId};
+const n=f.novoCli||{},algo=[n.nome,n.cpf,n.tel,n.endereco,n.bairro,n.cidade].some(x=>String(x||"").trim())||n.foto;
+if(!algo)return {id:null};
+if(!String(n.nome||"").trim())return {msg:"Coloque o nome completo do cliente (ou desmarque \"Adicionar dados do cliente\")."};
+if(n.cpf&&!cpfOk(n.cpf))return {msg:"O CPF do cliente não é válido. Confira os números."};
+const dup=n.cpf&&clientes.find(c=>soDig(c.cpf)===soDig(n.cpf));if(dup)return {id:dup.id};
+const c={id:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:n.nome.trim(),cpf:n.cpf?cpfFmt(n.cpf):"",tel:(n.tel||"").trim(),endereco:(n.endereco||"").trim(),bairro:(n.bairro||"").trim(),cidade:(n.cidade||"").trim(),obs:"",criado:ymd(hoje())};
+if(n.foto)c.foto=n.foto;cliSalvar(c);f.novoCli=null;f.cliSel=c.id;return {id:c.id,novo:true}}
+const blocoForm=px=>px==="ju"?{f:juForm,ler:lerJuForm,render:()=>{renderJurema();juPrevia()}}:{f:form,ler:lerForm,render:renderForm};
+document.addEventListener("input",e=>{const m=e.target.dataset&&e.target.dataset.mask;if(m==="cpf")e.target.value=cpfFmt(e.target.value);else if(m==="tel")e.target.value=telFmt(e.target.value)});
+document.addEventListener("change",async e=>{const t=e.target;const mm=/^(ju|f)(CliOn|CliSel|CliFoto)$/.exec(t.id||"");if(!mm)return;const px=mm[1],B=blocoForm(px);if(!B.f)return;
+if(mm[2]==="CliFoto"){const arq=t.files[0];if(!arq)return;try{B.ler();B.f.novoCli={...(B.f.novoCli||{}),foto:await reduzirFoto(arq)};B.render()}catch(x){toast("Não consegui abrir essa foto. Tente outra.")}return}
+B.ler();if(mm[2]==="CliSel"&&t.value!=="__novo"){const c=cliPor(t.value),nm=$(px==="ju"?"juNome":"f-nome");if(c&&nm&&!nm.value.trim()){nm.value=px==="ju"?c.nome.split(/\s+/)[0]:c.nome;B.ler()}}
+B.render();if(mm[2]==="CliOn"&&t.checked){const x=$(px+"CnNome")||$(px+"CliSel");if(x)setTimeout(()=>x.focus(),30)}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-clifoto],[data-clisemfoto]");if(!b)return;const px=b.dataset.clifoto||b.dataset.clisemfoto,B=blocoForm(px);if(!B.f)return;
+if(b.dataset.clifoto){$(px+"CliFoto").click();return}
+B.ler();if(B.f.novoCli)delete B.f.novoCli.foto;B.render()});
 // ===================== JUREMA (empréstimos com juros ao mês) =====================
 let juForm=null,juAberto=null,juConf=null;
 function juVencs(e){// vencimentos do empréstimo, do primeiro até hoje (ou até a quitação)
@@ -1494,7 +1658,7 @@ const dir=e.quitado?`<strong class="num">${brl(e.valorQuitado||e.valor)}</strong
 let det="";
 if(aberto){
 const conf=juConf===e.id;
-det=`<div class="ju-det"><div class="ju-linhas">
+det=`<div class="ju-det">${e.clienteId?miniCliente(e.clienteId):""}<div class="ju-linhas">
 <span>Valor ${ent?"emprestado":"que peguei"}</span><b class="num">${brl(e.valor)}</b>
 <span>Juros</span><b class="num">${pctBR(e.taxa)} ao mês = ${brl(c.jm)}</b>
 <span>Pagamento</span><b>todo dia ${e.dia}</b>
@@ -1512,13 +1676,14 @@ ${e.quitado?`<div class="inline"><button class="btn" type="button" data-ju="reab
 <div class="inline">${(e.pagos||[]).length&&!e.quitado?`<button class="btn ghost" type="button" data-ju="desfazer" data-id="${e.id}">Desfazer último</button>`:""}
 <button class="btn ghost" type="button" data-ju="editar" data-id="${e.id}">Editar</button>
 ${conf?`<button class="btn danger" type="button" data-ju="excluir-sim" data-id="${e.id}">Confirmar exclusão</button>`:`<button class="btn ghost" type="button" data-ju="excluir" data-id="${e.id}">Excluir</button>`}</div></div>`}
-return `<div class="ju-card"><button class="ju-main" type="button" data-ju="abrir" data-id="${e.id}" aria-expanded="${aberto}"><span class="avatar ${e.quitado?"done":ent?"in":"out"}" aria-hidden="true">${e.quitado?ICO_OK:ent?ICO_IN:ICO_OUT}</span>
+return `<div class="ju-card"><button class="ju-main" type="button" data-ju="abrir" data-id="${e.id}" aria-expanded="${aberto}">${cliPor(e.clienteId)?fotoCli(cliPor(e.clienteId)):`<span class="avatar ${e.quitado?"done":ent?"in":"out"}" aria-hidden="true">${e.quitado?ICO_OK:ent?ICO_IN:ICO_OUT}</span>`}
 <div><b class="nome">${esc(e.nome)}</b><small>${brl(e.valor)} a ${pctBR(e.taxa)} ao mês · dia ${e.dia}</small>${!e.quitado&&c.jurosAberto?`<small class="c-out">+ ${brl(c.jurosAberto)} de juros em aberto</small>`:""}${!e.quitado&&c.mora?`<small class="c-out">+ ${brl(c.mora)} de juros por atraso</small>`:""}</div>
 <div class="dir">${dir}<span class="pill ${st.kind}">${st.label}</span></div></button>${det}</div>`;
 }
 function formJurema(){const f=juForm,ed=!!f.id;
 return `<form class="sheet" id="juF" novalidate><h2>${ed?"Editar empréstimo":"Novo empréstimo"}</h2>
 <div class="seg" role="group" aria-label="Tipo"><button type="button" data-jus="entrada" aria-pressed="${f.sentido!=="saida"}">Emprestei</button><button type="button" data-jus="saida" aria-pressed="${f.sentido==="saida"}">Peguei emprestado</button></div>
+${blocoCliente("ju",f)}
 <div class="field"><label for="juNome">${f.sentido==="saida"?"De quem":"Quem pegou"}</label><input id="juNome" value="${esc(f.nome||"")}" placeholder="Ex.: João"></div>
 <div class="two"><div class="field"><label for="juValor">Valor (R$)</label><input id="juValor" inputmode="decimal" value="${f.valor?fmtInput(f.valor):""}" placeholder="1.000,00"></div>
 <div class="field"><label for="juTaxa">Juros ao mês (%)</label><input id="juTaxa" inputmode="decimal" value="${f.taxa?String(f.taxa).replace(".",","):""}" placeholder="Ex.: 30"></div></div>
@@ -1534,7 +1699,7 @@ function juPrevia(){const v=parseValor(($("juValor")||{}).value),t=parseValor(($
 const a=parseValor(($("juAtr")||{}).value),por=($("juAtrPor")||{}).value,base=($("juAtrBase")||{}).value,jm=Math.round(v*t)/100;
 let x="";if(a>0&&v>0){const b=base==="juros"?jm:v,dia=Math.round(b*a/100/(por==="mes"?30:por==="semana"?7:1)*100)/100;x=` Se atrasar, soma mais ${brl(dia)} por dia de atraso${base==="juros"?" (por mês atrasado)":""}.`}
 el.textContent=v>0&&t>0?`Juros de ${brl(jm)} por mês. Se não pagar no dia, soma mais ${brl(jm)} a cada mês de atraso.${x}`:""}
-function lerJuForm(){juForm.nome=$("juNome").value;juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value;const at=parseValor($("juAtr").value);juForm.atrasoPct=isNaN(at)?null:at;juForm.atrasoPor=$("juAtrPor").value;juForm.atrasoBase=$("juAtrBase").value}
+function lerJuForm(){juForm.nome=$("juNome").value;lerBloco("ju",juForm);juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value;const at=parseValor($("juAtr").value);juForm.atrasoPct=isNaN(at)?null:at;juForm.atrasoPor=$("juAtrPor").value;juForm.atrasoBase=$("juAtrBase").value}
 function salvarJurema(){lsSave();renderJurema()}
 $("abrirJurema").addEventListener("click",()=>{$("perfil").close();juForm=null;juConf=null;renderJurema();$("jurema").showModal()});
 $("fecharJurema").addEventListener("click",()=>$("jurema").close());
@@ -1555,11 +1720,15 @@ else if(a==="excluir"){juConf=id;renderJurema()}
 else if(a==="excluir-sim"){jurema=jurema.filter(x=>x.id!==id);juConf=null;juAberto=null;salvarJurema();toast("Empréstimo excluído")}
 });
 $("jurema").addEventListener("input",e=>{if(/^ju(Valor|Taxa|Atr)/.test(e.target.id))juPrevia()});
-$("jurema").addEventListener("change",e=>{if(/^juAtr/.test(e.target.id))juPrevia()});
+$("jurema").addEventListener("change",e=>{
+if(/^juAtr/.test(e.target.id))juPrevia()});
 $("jurema").addEventListener("submit",e=>{e.preventDefault();lerJuForm();const f=juForm,dia=parseInt(f.dia,10),err=$("juErr");
+if(!f.nome.trim()&&f.cliOn){const nn=f.cliSel&&f.cliSel!=="__novo"?(cliPor(f.cliSel)||{}).nome:(f.novoCli||{}).nome;if(nn)f.nome=nn.split(/\s+/)[0]}
 const msg=!f.nome.trim()?"Coloque o nome.":!(f.valor>0)?"Coloque o valor, por exemplo 1.000,00.":!(f.taxa>=0)||isNaN(f.taxa)?"Coloque os juros ao mês, por exemplo 30.":!(dia>=1&&dia<=31)?"O dia do pagamento vai de 1 a 31.":!/^\d{4}-\d{2}-\d{2}$/.test(f.inicio||"")?"Escolha a data do empréstimo.":"";
 if(msg){err.textContent=msg;err.hidden=false;return}
-const novo={id:f.id||("j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),valor:f.valor,taxa:f.taxa,dia,inicio:f.inicio,sentido:f.sentido==="saida"?"saida":"entrada",pagos:f.pagos||[]};
+const rc=resolverCliente(f);if(rc.msg){err.textContent=rc.msg;err.hidden=false;return}f.clienteId=rc.id;
+const novo={clienteId:f.clienteId||undefined,id:f.id||("j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),valor:f.valor,taxa:f.taxa,dia,inicio:f.inicio,sentido:f.sentido==="saida"?"saida":"entrada",pagos:f.pagos||[]};
+if(!novo.clienteId)delete novo.clienteId;
 if(f.atrasoPct>0){novo.atrasoPct=f.atrasoPct;novo.atrasoPor=["mes","semana"].includes(f.atrasoPor)?f.atrasoPor:"dia";novo.atrasoBase=f.atrasoBase==="juros"?"juros":"valor"}
 if(f.quitado){novo.quitado=f.quitado;novo.valorQuitado=f.valorQuitado}
 const i=jurema.findIndex(x=>x.id===novo.id);i>=0?jurema[i]=novo:jurema.push(novo);
@@ -1567,7 +1736,7 @@ juForm=null;juAberto=novo.id;salvarJurema();toast(i>=0?"Empréstimo atualizado":
 window.addEventListener("storage",e=>{if(e.key===LS){lsLoad();render()}});
 $("alerts").addEventListener("click",e=>{if(e.target.closest("[data-act=backup]"))$("bkSalvar").click()});
 $("bkSalvar").addEventListener("click",()=>{
-const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos,perfil,jurema},null,2)],{type:"application/json"});
+const blob=new Blob([JSON.stringify({app:"contas-em-dia",versao:1,salvoEm:new Date().toISOString(),itens,pagos,perfil,jurema,clientes},null,2)],{type:"application/json"});
 const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`contas-em-dia-${ymd(hoje())}.json`;
 document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);try{localStorage.setItem(LS_BK,ymd(hoje()))}catch(e){}renderAvisos();toast("Cópia salva");
 });
@@ -1614,7 +1783,7 @@ catch(x){toast("Esse arquivo não é uma cópia do Contas em Dia")}
 });
 document.querySelector("label[for=bkArquivo]").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("bkArquivo").click()}});
 $("bkNao").addEventListener("click",()=>{bkDados=null;$("bkConfirma").hidden=true});
-$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};jurema=bkDados.jurema||[];lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
+$("bkSim").addEventListener("click",()=>{itens=bkDados.itens;pagos=bkDados.pagos||{};jurema=bkDados.jurema||[];if(Array.isArray(bkDados.clientes)){clientes=bkDados.clientes;cliSalvarTodos()}lsSave();if(bkDados.perfil){perfil={...bkDados.perfil};perfilSave();aplicarPerfil()}bkDados=null;$("bkConfirma").hidden=true;render();toast("Contas restauradas")});
 iniciar();
 setInterval(()=>{if(pronto&&document.visibilityState==="visible")render()},60*60*1000);
 </script>
