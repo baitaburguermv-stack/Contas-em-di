@@ -350,6 +350,9 @@ dialog.perfil::backdrop{background:rgba(10,14,25,.45)}
 .cl-mini b{font-weight:600}
 .cl-mini small{font-size:.8rem;color:var(--muted);overflow-wrap:anywhere}
 .cl-foto-edit{display:flex;align-items:center;gap:14px}
+.chk{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 12px;border:1px solid var(--line);border-radius:14px;background:var(--bg);cursor:pointer;font-weight:600}
+.chk input{width:22px;height:22px;flex:none;accent-color:var(--accent);margin:0}
+.cli-bloco{display:flex;flex-direction:column;gap:12px;padding:14px;border:1px dashed var(--line);border-radius:16px}
 /* jurema */
 .ju{display:flex;flex-direction:column;gap:14px}
 .ju-hero{background:linear-gradient(140deg,var(--hero-a),var(--hero-b));color:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
@@ -951,7 +954,7 @@ $("sheetHost").innerHTML=`<form class="sheet" id="f" novalidate>
 <div class="field"><label>Tipo</label><div class="seg">
 ${FORM_TIPOS.map(([t,se,l])=>`<button type="button" data-tipo="${t}-${se}" aria-pressed="${form.tipo===t&&(form.sentido||"saida")===se}">${l}</button>`).join("")}
 </div></div>
-${clientes.length?`<div class="field"><label for="f-cli">Cliente (opcional)</label><select id="f-cli">${opcoesCliente(form.clienteId)}</select></div>`:""}
+${blocoCliente("f",form)}
 <div class="field"><label for="f-nome">Nome</label><input id="f-nome" value="${esc(form.nome)}" placeholder="${ent?(avulso?"Ex.: venda extra":"Ex.: brique, salário, vendas"):avulso?"Ex.: almoço, uber, mercado":semanal||quinz?"Ex.: compra de mercadoria":form.tipo==="fixo"?"Ex.: aluguel":"Ex.: conta de luz"}"></div>
 ${form.sentido!=="entrada"?`<div class="field"><label>Categoria</label><div class="chips cats-pick">${getCats().map(c=>`<button type="button" class="chip${form.cat===c.id?" sel":""}" data-cat="${c.id}" aria-pressed="${form.cat===c.id}">${c.emoji} ${esc(c.nome)}</button>`).join("")}</div></div>`:""}
 <div class="two">
@@ -967,12 +970,11 @@ ${aceitaParcelas(form.tipo)?`<div class="field"><label for="f-parc">${ent?"Se fo
 </form>`;
 }
 function lerForm(){
-form.nome=$("f-nome").value;if($("f-cli"))form.clienteId=$("f-cli").value||null;form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
+form.nome=$("f-nome").value;lerBloco("f",form);form.valor=$("f-valor").value===""?"":parseValor($("f-valor").value);
 if(form.tipo==="avulso"||form.tipo==="quinzenal")form.data=$("f-dia").value;else form.dia=$("f-dia").value;
 if($("f-parc"))form.parcelas=parseInt($("f-parc").value,10)||null;
 if($("f-juros")){const j=parseValor($("f-juros").value);form.jurosPct=isNaN(j)?null:j;form.jurosPor=$("f-jpor").value}else{form.jurosPct=null}
 }
-$("sheetHost").addEventListener("change",e=>{if(e.target.id==="f-cli"){const c=cliPor(e.target.value),n=$("f-nome");if(c&&n&&!n.value.trim())n.value=c.nome}});
 $("sheetHost").addEventListener("click",e=>{
 const b=e.target.closest("button");if(!b)return;
 if(b.dataset.act==="cancelar"){fecharForm();return}
@@ -987,11 +989,13 @@ renderForm()}
 });
 $("sheetHost").addEventListener("submit",async e=>{
 e.preventDefault();lerForm();
+if(!form.nome.trim()&&form.cliOn){const f=form;const nn=f.cliSel&&f.cliSel!=="__novo"?(cliPor(f.cliSel)||{}).nome:(f.novoCli||{}).nome;if(nn)form.nome=nn}
 const err=$("f-err"),nome=form.nome.trim(),valor=typeof form.valor==="number"?form.valor:NaN,dia=parseInt(form.dia,10);
 const msg=!nome?"Dê um nome para a conta.":isNaN(valor)?"Informe o valor, por exemplo 150,00.":
 (form.tipo==="avulso"||form.tipo==="quinzenal")?(/^\d{4}-\d{2}-\d{2}$/.test(form.data||"")?"":"Escolha a data."):form.tipo==="semanal"?(dia>=0&&dia<=6?"":"Escolha o dia da semana."):(dia>=1&&dia<=31?"":"O dia do vencimento vai de 1 a 31.");
 const msgJ=form.jurosPct>100?"Os juros vão de 0 a 100%.":"";
 if(msg||msgJ){err.textContent=msg||msgJ;err.hidden=false;return}
+const rc=resolverCliente(form);if(rc.msg){err.textContent=rc.msg;err.hidden=false;return}form.clienteId=rc.id;
 const it={...(form.clienteId?{clienteId:form.clienteId}:{}),id:editando||("c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome,valor,tipo:form.tipo};
 if(form.tipo==="avulso"||form.tipo==="quinzenal")it.data=form.data;else it.dia=dia;
 if(form.tipo!=="avulso")it.criado=(editando&&itens.find(x=>x.id===editando)?.criado)||ymd(hoje());
@@ -1558,6 +1562,49 @@ if(f.foto)c.foto=f.foto;
 cliSalvar(c);const ed=!!f.id;clForm=null;clVista=c.id;renderClientes();render();toast(ed?"Cliente atualizado":"Cliente cadastrado")});
 // atalho: tocar no cartão do cliente dentro de uma conta ou empréstimo abre a ficha
 document.addEventListener("click",e=>{const b=e.target.closest("[data-vercli]");if(!b)return;e.preventDefault();e.stopPropagation();if($("jurema").open)$("jurema").close();abrirClientes(b.dataset.vercli)},true);
+// --- bloco "Adicionar dados do cliente" usado nos formulários de empréstimo e de conta
+function blocoCliente(px,f){
+const on=f.cliOn??!!f.clienteId;
+let h=`<label class="chk"><input type="checkbox" id="${px}CliOn" ${on?"checked":""}><span>Adicionar dados do cliente</span></label>`;
+if(!on)return h;
+const sel=f.cliSel||(f.clienteId&&cliPor(f.clienteId)?f.clienteId:"__novo"),n=f.novoCli||{};
+h+=`<div class="cli-bloco">`;
+if(clientes.length)h+=`<div class="field"><label for="${px}CliSel">Cliente</label><select id="${px}CliSel"><option value="__novo" ${sel==="__novo"?"selected":""}>+ Cadastrar novo cliente</option>${clientes.slice().sort((a,b)=>a.nome.localeCompare(b.nome)).map(c=>`<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.nome)}${c.cpf?" · "+esc(c.cpf):""}</option>`).join("")}</select></div>`;
+if(sel!=="__novo"){h+=miniCliente(sel)+`</div>`;return h}
+h+=`<div class="cl-foto-edit">${fotoCli(n.nome?n:{nome:"+",foto:n.foto},"")}<div class="inline"><button class="btn" type="button" data-clifoto="${px}">${n.foto?"Trocar foto":"Adicionar foto"}</button>${n.foto?`<button class="btn ghost" type="button" data-clisemfoto="${px}">Remover foto</button>`:""}</div><input type="file" id="${px}CliFoto" accept="image/*" hidden></div>
+<div class="field"><label for="${px}CnNome">Nome completo do cliente</label><input id="${px}CnNome" autocomplete="off" value="${esc(n.nome||"")}" placeholder="Ex.: João da Silva"></div>
+<div class="two"><div class="field"><label for="${px}CnCpf">CPF</label><input id="${px}CnCpf" inputmode="numeric" data-mask="cpf" value="${esc(n.cpf||"")}" placeholder="000.000.000-00"></div>
+<div class="field"><label for="${px}CnTel">Telefone / WhatsApp</label><input id="${px}CnTel" inputmode="tel" data-mask="tel" value="${esc(n.tel||"")}" placeholder="(51) 99999-9999"></div></div>
+<div class="field"><label for="${px}CnEnd">Endereço</label><input id="${px}CnEnd" autocomplete="off" value="${esc(n.endereco||"")}" placeholder="Rua e número"></div>
+<div class="two"><div class="field"><label for="${px}CnBai">Bairro</label><input id="${px}CnBai" autocomplete="off" value="${esc(n.bairro||"")}"></div>
+<div class="field"><label for="${px}CnCid">Cidade</label><input id="${px}CnCid" autocomplete="off" value="${esc(n.cidade||"")}"></div></div>
+<p class="note" style="margin:0">O cliente também fica salvo em Perfil → Clientes.</p></div>`;
+return h}
+function lerBloco(px,f){const ch=$(px+"CliOn");if(!ch)return;f.cliOn=ch.checked;if(!f.cliOn)return;
+const sel=$(px+"CliSel");f.cliSel=sel?sel.value:"__novo";
+if(f.cliSel!=="__novo"){f.clienteId=f.cliSel;return}
+const v=id=>($(px+id)||{}).value||"";f.novoCli={...(f.novoCli||{}),nome:v("CnNome"),cpf:v("CnCpf"),tel:v("CnTel"),endereco:v("CnEnd"),bairro:v("CnBai"),cidade:v("CnCid")}}
+// devolve {id} do cliente escolhido/criado, {id:null} se o quadradinho estiver desmarcado, ou {msg} se faltar algo
+function resolverCliente(f){
+if(!f.cliOn&&!(f.cliOn===undefined&&f.clienteId))return {id:null};
+if(f.cliSel&&f.cliSel!=="__novo")return {id:f.cliSel};
+if(f.cliSel===undefined&&f.clienteId)return {id:f.clienteId};
+const n=f.novoCli||{},algo=[n.nome,n.cpf,n.tel,n.endereco,n.bairro,n.cidade].some(x=>String(x||"").trim())||n.foto;
+if(!algo)return {id:null};
+if(!String(n.nome||"").trim())return {msg:"Coloque o nome completo do cliente (ou desmarque \"Adicionar dados do cliente\")."};
+if(n.cpf&&!cpfOk(n.cpf))return {msg:"O CPF do cliente não é válido. Confira os números."};
+const dup=n.cpf&&clientes.find(c=>soDig(c.cpf)===soDig(n.cpf));if(dup)return {id:dup.id};
+const c={id:"k"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),nome:n.nome.trim(),cpf:n.cpf?cpfFmt(n.cpf):"",tel:(n.tel||"").trim(),endereco:(n.endereco||"").trim(),bairro:(n.bairro||"").trim(),cidade:(n.cidade||"").trim(),obs:"",criado:ymd(hoje())};
+if(n.foto)c.foto=n.foto;cliSalvar(c);f.novoCli=null;f.cliSel=c.id;return {id:c.id,novo:true}}
+const blocoForm=px=>px==="ju"?{f:juForm,ler:lerJuForm,render:()=>{renderJurema();juPrevia()}}:{f:form,ler:lerForm,render:renderForm};
+document.addEventListener("input",e=>{const m=e.target.dataset&&e.target.dataset.mask;if(m==="cpf")e.target.value=cpfFmt(e.target.value);else if(m==="tel")e.target.value=telFmt(e.target.value)});
+document.addEventListener("change",async e=>{const t=e.target;const mm=/^(ju|f)(CliOn|CliSel|CliFoto)$/.exec(t.id||"");if(!mm)return;const px=mm[1],B=blocoForm(px);if(!B.f)return;
+if(mm[2]==="CliFoto"){const arq=t.files[0];if(!arq)return;try{B.ler();B.f.novoCli={...(B.f.novoCli||{}),foto:await reduzirFoto(arq)};B.render()}catch(x){toast("Não consegui abrir essa foto. Tente outra.")}return}
+B.ler();if(mm[2]==="CliSel"&&t.value!=="__novo"){const c=cliPor(t.value),nm=$(px==="ju"?"juNome":"f-nome");if(c&&nm&&!nm.value.trim()){nm.value=px==="ju"?c.nome.split(/\s+/)[0]:c.nome;B.ler()}}
+B.render();if(mm[2]==="CliOn"&&t.checked){const x=$(px+"CnNome")||$(px+"CliSel");if(x)setTimeout(()=>x.focus(),30)}});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-clifoto],[data-clisemfoto]");if(!b)return;const px=b.dataset.clifoto||b.dataset.clisemfoto,B=blocoForm(px);if(!B.f)return;
+if(b.dataset.clifoto){$(px+"CliFoto").click();return}
+B.ler();if(B.f.novoCli)delete B.f.novoCli.foto;B.render()});
 // ===================== JUREMA (empréstimos com juros ao mês) =====================
 let juForm=null,juAberto=null,juConf=null;
 function juVencs(e){// vencimentos do empréstimo, do primeiro até hoje (ou até a quitação)
@@ -1636,7 +1683,7 @@ return `<div class="ju-card"><button class="ju-main" type="button" data-ju="abri
 function formJurema(){const f=juForm,ed=!!f.id;
 return `<form class="sheet" id="juF" novalidate><h2>${ed?"Editar empréstimo":"Novo empréstimo"}</h2>
 <div class="seg" role="group" aria-label="Tipo"><button type="button" data-jus="entrada" aria-pressed="${f.sentido!=="saida"}">Emprestei</button><button type="button" data-jus="saida" aria-pressed="${f.sentido==="saida"}">Peguei emprestado</button></div>
-${clientes.length?`<div class="field"><label for="juCli">Cliente cadastrado</label><select id="juCli">${opcoesCliente(f.clienteId)}</select></div>`:`<p class="note">Dica: cadastre seus clientes em Perfil → Clientes para ligar a foto, CPF e endereço ao empréstimo.</p>`}
+${blocoCliente("ju",f)}
 <div class="field"><label for="juNome">${f.sentido==="saida"?"De quem":"Quem pegou"}</label><input id="juNome" value="${esc(f.nome||"")}" placeholder="Ex.: João"></div>
 <div class="two"><div class="field"><label for="juValor">Valor (R$)</label><input id="juValor" inputmode="decimal" value="${f.valor?fmtInput(f.valor):""}" placeholder="1.000,00"></div>
 <div class="field"><label for="juTaxa">Juros ao mês (%)</label><input id="juTaxa" inputmode="decimal" value="${f.taxa?String(f.taxa).replace(".",","):""}" placeholder="Ex.: 30"></div></div>
@@ -1652,7 +1699,7 @@ function juPrevia(){const v=parseValor(($("juValor")||{}).value),t=parseValor(($
 const a=parseValor(($("juAtr")||{}).value),por=($("juAtrPor")||{}).value,base=($("juAtrBase")||{}).value,jm=Math.round(v*t)/100;
 let x="";if(a>0&&v>0){const b=base==="juros"?jm:v,dia=Math.round(b*a/100/(por==="mes"?30:por==="semana"?7:1)*100)/100;x=` Se atrasar, soma mais ${brl(dia)} por dia de atraso${base==="juros"?" (por mês atrasado)":""}.`}
 el.textContent=v>0&&t>0?`Juros de ${brl(jm)} por mês. Se não pagar no dia, soma mais ${brl(jm)} a cada mês de atraso.${x}`:""}
-function lerJuForm(){juForm.nome=$("juNome").value;if($("juCli"))juForm.clienteId=$("juCli").value||null;juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value;const at=parseValor($("juAtr").value);juForm.atrasoPct=isNaN(at)?null:at;juForm.atrasoPor=$("juAtrPor").value;juForm.atrasoBase=$("juAtrBase").value}
+function lerJuForm(){juForm.nome=$("juNome").value;lerBloco("ju",juForm);juForm.valor=parseValor($("juValor").value);juForm.taxa=parseValor($("juTaxa").value);juForm.dia=$("juDia").value;juForm.inicio=$("juIni").value;const at=parseValor($("juAtr").value);juForm.atrasoPct=isNaN(at)?null:at;juForm.atrasoPor=$("juAtrPor").value;juForm.atrasoBase=$("juAtrBase").value}
 function salvarJurema(){lsSave();renderJurema()}
 $("abrirJurema").addEventListener("click",()=>{$("perfil").close();juForm=null;juConf=null;renderJurema();$("jurema").showModal()});
 $("fecharJurema").addEventListener("click",()=>$("jurema").close());
@@ -1673,11 +1720,13 @@ else if(a==="excluir"){juConf=id;renderJurema()}
 else if(a==="excluir-sim"){jurema=jurema.filter(x=>x.id!==id);juConf=null;juAberto=null;salvarJurema();toast("Empréstimo excluído")}
 });
 $("jurema").addEventListener("input",e=>{if(/^ju(Valor|Taxa|Atr)/.test(e.target.id))juPrevia()});
-$("jurema").addEventListener("change",e=>{if(e.target.id==="juCli"){const c=cliPor(e.target.value),n=$("juNome");if(c&&n&&!n.value.trim())n.value=c.nome.split(/\s+/)[0]}
+$("jurema").addEventListener("change",e=>{
 if(/^juAtr/.test(e.target.id))juPrevia()});
 $("jurema").addEventListener("submit",e=>{e.preventDefault();lerJuForm();const f=juForm,dia=parseInt(f.dia,10),err=$("juErr");
+if(!f.nome.trim()&&f.cliOn){const nn=f.cliSel&&f.cliSel!=="__novo"?(cliPor(f.cliSel)||{}).nome:(f.novoCli||{}).nome;if(nn)f.nome=nn.split(/\s+/)[0]}
 const msg=!f.nome.trim()?"Coloque o nome.":!(f.valor>0)?"Coloque o valor, por exemplo 1.000,00.":!(f.taxa>=0)||isNaN(f.taxa)?"Coloque os juros ao mês, por exemplo 30.":!(dia>=1&&dia<=31)?"O dia do pagamento vai de 1 a 31.":!/^\d{4}-\d{2}-\d{2}$/.test(f.inicio||"")?"Escolha a data do empréstimo.":"";
 if(msg){err.textContent=msg;err.hidden=false;return}
+const rc=resolverCliente(f);if(rc.msg){err.textContent=rc.msg;err.hidden=false;return}f.clienteId=rc.id;
 const novo={clienteId:f.clienteId||undefined,id:f.id||("j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),nome:f.nome.trim(),valor:f.valor,taxa:f.taxa,dia,inicio:f.inicio,sentido:f.sentido==="saida"?"saida":"entrada",pagos:f.pagos||[]};
 if(!novo.clienteId)delete novo.clienteId;
 if(f.atrasoPct>0){novo.atrasoPct=f.atrasoPct;novo.atrasoPor=["mes","semana"].includes(f.atrasoPor)?f.atrasoPor:"dia";novo.atrasoBase=f.atrasoBase==="juros"?"juros":"valor"}
