@@ -196,6 +196,10 @@ body.print figcaption { display:none; }
 .p1n-bottom .p1-nfclbl { font-size:11mm; }
 .p4n-circle { width:64mm; height:64mm; }
 .p4n-circle .tap { width:38mm; height:29mm; }
+
+/* versão branca */
+.sheet.light { background:#fff; color:#1a1a1a; }
+.light .p1-nfc, .light .p4-circle .tap { color:#1a1a1a; }
 '''
 
 SYMS = ""
@@ -211,6 +215,8 @@ html = f'''<!doctype html>
 {sheet("placa-quadrada", 150, 150, "p4", p4, "4 · PLACA QUADRADA")}
 {sheet("placa-mesa-nfc", 100, 150, "p1", p1n, "1B · DISPLAY DE MESA SÓ NFC")}
 {sheet("placa-quadrada-nfc", 150, 150, "p4", p4n, "4B · PLACA QUADRADA SÓ NFC")}
+{sheet("placa-mesa-nfc-branca", 100, 150, "p1 light", p1n, "1C · DISPLAY DE MESA BRANCO")}
+{sheet("placa-quadrada-nfc-branca", 150, 150, "p4 light", p4n, "4C · PLACA QUADRADA BRANCA")}
 </div></body></html>'''
 
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "placas.html"), "w").write(html)
