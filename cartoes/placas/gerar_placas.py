@@ -102,6 +102,20 @@ p4 = f'''
 </div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
 
+# ---------- variações só com NFC (sem QR code) ----------
+p1n = p1.split('<div class="p1-bottom">')[0] + f'''<div class="p1-bottom p1n-bottom">
+  <div class="p1-nfc">{WAVES}<div class="p1-nfclbl">NFC</div></div>
+</div>'''
+
+p4n = f'''
+<div class="p4-top">AVALIE NOSSA EMPRESA NO</div>
+<div class="word p4-g">{WORDMARK}</div>
+{STARS()}
+<div class="p4-row">
+  <div class="p4-circle p4n-circle">{ring4(4)}<div class="p4-in"><div class="p4-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div>{TAP}</div></div>
+</div>
+<div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
+
 CSS = '''
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -174,6 +188,14 @@ body.print figcaption { display:none; }
 .p4-qr { width:31mm; height:31mm; padding:1.6mm; border-radius:1mm; }
 .p4-bar { position:absolute; left:-3mm; right:-3mm; bottom:-3mm; height:11mm; display:flex; }
 .p4-bar span { flex:1; }
+
+/* variações só com NFC */
+.p1n-bottom { justify-content:center; margin-bottom:13mm; }
+.p1n-bottom .p1-nfc { width:auto; }
+.p1n-bottom .waves { width:26mm; height:26mm; }
+.p1n-bottom .p1-nfclbl { font-size:11mm; }
+.p4n-circle { width:64mm; height:64mm; }
+.p4n-circle .tap { width:38mm; height:29mm; }
 '''
 
 SYMS = ""
@@ -187,6 +209,8 @@ html = f'''<!doctype html>
 {sheet("placa-cartao", 54, 85.6, "p2", p2, "2 · CARTÃO G NEON")}
 {sheet("placa-opiniao", 150, 180, "p3", p3, "3 · SUA OPINIÃO É IMPORTANTE")}
 {sheet("placa-quadrada", 150, 150, "p4", p4, "4 · PLACA QUADRADA")}
+{sheet("placa-mesa-nfc", 100, 150, "p1", p1n, "1B · DISPLAY DE MESA SÓ NFC")}
+{sheet("placa-quadrada-nfc", 150, 150, "p4", p4n, "4B · PLACA QUADRADA SÓ NFC")}
 </div></body></html>'''
 
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "placas.html"), "w").write(html)
