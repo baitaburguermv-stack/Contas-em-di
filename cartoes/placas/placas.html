@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Placas Google NFC</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Grand+Hotel&display=swap" rel="stylesheet">
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -86,6 +86,17 @@ body.print figcaption { display:none; }
 /* versão branca */
 .sheet.light { background:#fff; color:#1a1a1a; }
 .light .p1-nfc, .light .p4-circle .tap { color:#1a1a1a; }
+
+/* Instagram */
+.igtxt { display:block; width:100%; height:100%; overflow:visible; }
+.p1-igw { width:54.4mm; height:21.8mm; margin-top:-1mm; }
+.ig4-head { display:flex; align-items:center; gap:4mm; margin-top:5mm; }
+.ig4-cam svg { width:20mm; height:20mm; display:block; }
+.ig4-igw { width:83.2mm; height:33.3mm; }
+.ig-bar { background:linear-gradient(45deg,#FEDA75 0%,#FA7E1E 28%,#D62976 55%,#962FBF 80%,#4F5BD5 100%); }
+.ig2-notch { color:#E1306C; }
+.ig2-cam { width:32mm; height:32mm; margin-top:17mm; }
+.ig2-txt { margin-top:auto; margin-bottom:11mm; width:30mm; height:4mm; }
 </style></head><body>
 <div class="grid">
 <figure><div class="sheet p1" id="placa-mesa" style="width:106mm;height:156mm"><div class="trim" style="left:3mm;top:3mm;width:100mm;height:150mm">
@@ -176,4 +187,45 @@ body.print figcaption { display:none; }
 <path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/><path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/></svg></div></div>
 </div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div></div><div class="guide" style="inset:3mm"></div></div><figcaption>4C · PLACA QUADRADA BRANCA · 150×150 mm</figcaption></figure>
+<figure><div class="sheet p1" id="ig-mesa-nfc" style="width:106mm;height:156mm"><div class="trim" style="left:3mm;top:3mm;width:100mm;height:150mm">
+<div class="p1-ring"><svg viewBox="0 0 100 100" class="ring4"><defs><linearGradient id="igA" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><circle cx="50" cy="50" r="48.4" fill="none" stroke="url(#igA)" stroke-width="3.2"/></svg>
+  <div class="p1-text"><div class="p1-a">Siga-nos</div><div class="p1-no">no</div><div class="p1-igw"><svg class="igtxt" viewBox="0 0 320 128"><defs><linearGradient id="igAw" gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="320" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><text x="160.0" y="88" text-anchor="middle" font-family="'Grand Hotel',cursive" font-size="100" font-weight="400" letter-spacing="0" fill="url(#igAw)">Instagram</text></svg></div></div></div>
+<div class="p1-bottom p1n-bottom">
+  <div class="p1-nfc"><svg class="waves" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-linecap="round">
+<path d="M10 22 q6 8 0 16" stroke-width="6"/><path d="M22 14 q12 16 0 32" stroke-width="6"/><path d="M34 6 q18 24 0 48" stroke-width="6"/><path d="M46 0 q22 30 0 60" stroke-width="6"/></svg><div class="p1-nfclbl">NFC</div></div>
+</div></div><div class="guide" style="inset:3mm"></div></div><figcaption>IG · DISPLAY DE MESA · 100×150 mm</figcaption></figure>
+<figure><div class="sheet p1 light" id="ig-mesa-nfc-branca" style="width:106mm;height:156mm"><div class="trim" style="left:3mm;top:3mm;width:100mm;height:150mm">
+<div class="p1-ring"><svg viewBox="0 0 100 100" class="ring4"><defs><linearGradient id="igB" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><circle cx="50" cy="50" r="48.4" fill="none" stroke="url(#igB)" stroke-width="3.2"/></svg>
+  <div class="p1-text"><div class="p1-a">Siga-nos</div><div class="p1-no">no</div><div class="p1-igw"><svg class="igtxt" viewBox="0 0 320 128"><defs><linearGradient id="igBw" gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="320" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><text x="160.0" y="88" text-anchor="middle" font-family="'Grand Hotel',cursive" font-size="100" font-weight="400" letter-spacing="0" fill="url(#igBw)">Instagram</text></svg></div></div></div>
+<div class="p1-bottom p1n-bottom">
+  <div class="p1-nfc"><svg class="waves" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-linecap="round">
+<path d="M10 22 q6 8 0 16" stroke-width="6"/><path d="M22 14 q12 16 0 32" stroke-width="6"/><path d="M34 6 q18 24 0 48" stroke-width="6"/><path d="M46 0 q22 30 0 60" stroke-width="6"/></svg><div class="p1-nfclbl">NFC</div></div>
+</div></div><div class="guide" style="inset:3mm"></div></div><figcaption>IG · DISPLAY DE MESA BRANCO · 100×150 mm</figcaption></figure>
+<figure><div class="sheet p4" id="ig-quadrada-nfc" style="width:156mm;height:156mm"><div class="trim" style="left:3mm;top:3mm;width:150mm;height:150mm">
+<div class="p4-top">SIGA NOSSA EMPRESA NO</div>
+<div class="ig4-head"><div class="ig4-cam"><svg viewBox="0 0 24 24"><defs><linearGradient id="igCc" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><g stroke="url(#igCc)"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke-width="2.2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke-width="2.2"/><circle cx="17.4" cy="6.6" r="1.35" stroke="none" fill="url(#igCc)"/></g></svg></div><div class="ig4-igw"><svg class="igtxt" viewBox="0 0 320 128"><defs><linearGradient id="igCw" gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="320" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><text x="160.0" y="88" text-anchor="middle" font-family="'Grand Hotel',cursive" font-size="100" font-weight="400" letter-spacing="0" fill="url(#igCw)">Instagram</text></svg></div></div>
+<div class="p4-row">
+  <div class="p4-circle p4n-circle"><svg viewBox="0 0 100 100" class="ring4"><defs><linearGradient id="igC" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><circle cx="50" cy="50" r="48.0" fill="none" stroke="url(#igC)" stroke-width="4"/></svg><div class="p4-in"><div class="p4-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div><svg class="tap" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/><path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+<rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/><path d="M103 14 l12 -3"/>
+<path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/><path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+<path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/><path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/></svg></div></div>
+</div>
+<div class="p4-bar ig-bar"></div></div><div class="guide" style="inset:3mm"></div></div><figcaption>IG · PLACA QUADRADA · 150×150 mm</figcaption></figure>
+<figure><div class="sheet p4 light" id="ig-quadrada-nfc-branca" style="width:156mm;height:156mm"><div class="trim" style="left:3mm;top:3mm;width:150mm;height:150mm">
+<div class="p4-top">SIGA NOSSA EMPRESA NO</div>
+<div class="ig4-head"><div class="ig4-cam"><svg viewBox="0 0 24 24"><defs><linearGradient id="igDc" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><g stroke="url(#igDc)"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke-width="2.2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke-width="2.2"/><circle cx="17.4" cy="6.6" r="1.35" stroke="none" fill="url(#igDc)"/></g></svg></div><div class="ig4-igw"><svg class="igtxt" viewBox="0 0 320 128"><defs><linearGradient id="igDw" gradientUnits="userSpaceOnUse" x1="0" y1="128" x2="320" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><text x="160.0" y="88" text-anchor="middle" font-family="'Grand Hotel',cursive" font-size="100" font-weight="400" letter-spacing="0" fill="url(#igDw)">Instagram</text></svg></div></div>
+<div class="p4-row">
+  <div class="p4-circle p4n-circle"><svg viewBox="0 0 100 100" class="ring4"><defs><linearGradient id="igD" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs><circle cx="50" cy="50" r="48.0" fill="none" stroke="url(#igD)" stroke-width="4"/></svg><div class="p4-in"><div class="p4-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div><svg class="tap" viewBox="0 0 170 130" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M90 18 H33 a28 28 0 0 0 0 56 H100"/><path d="M38 38 q6 8 0 16"/><path d="M48 32 q11 14 0 28"/><path d="M58 26 q16 20 0 40"/>
+<rect x="88" y="4" width="40" height="80" rx="6" transform="rotate(-14 108 44)"/><path d="M103 14 l12 -3"/>
+<path d="M96 62 q-8 -2 -8 6 q2 6 10 2 l14 4"/><path d="M100 82 q4 20 24 18 q14 -2 14 -18"/>
+<path d="M134 48 q8 0 6 8 q8 2 4 10 q8 4 0 12"/><path d="M112 106 l-4 20"/><path d="M134 98 l8 16"/></svg></div></div>
+</div>
+<div class="p4-bar ig-bar"></div></div><div class="guide" style="inset:3mm"></div></div><figcaption>IG · PLACA QUADRADA BRANCA · 150×150 mm</figcaption></figure>
+<figure><div class="sheet p2" id="ig-cartao" style="width:60mm;height:91.6mm"><div class="trim" style="left:3mm;top:3mm;width:54mm;height:85.6mm">
+<div class="p2-notch ig2-notch"><svg class="waves" viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-linecap="round">
+<path d="M10 22 q6 8 0 16" stroke-width="6"/><path d="M22 14 q12 16 0 32" stroke-width="6"/><path d="M34 6 q18 24 0 48" stroke-width="6"/><path d="M46 0 q22 30 0 60" stroke-width="6"/></svg></div>
+<div class="p2-g ig2-cam"><svg viewBox="0 0 24 24" style="overflow:visible"><defs><linearGradient id="igneon" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2"><stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient><filter id="igneonf" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g stroke="url(#igneon)" filter="url(#igneonf)" opacity=".9"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke-width="2.2"/><circle cx="12" cy="12" r="4.6" fill="none" stroke-width="2.2"/><circle cx="17.4" cy="6.6" r="1.35" stroke="none" fill="url(#igneon)"/></g><g stroke="url(#igneon)" style="filter:drop-shadow(0 0 .25px #fff)"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke-width=".5"/><circle cx="12" cy="12" r="4.6" fill="none" stroke-width=".5"/><circle cx="17.4" cy="6.6" r="1.35" stroke="none" fill="url(#igneon)"/></g></svg></div>
+<div class="ig2-txt"><svg class="igtxt" viewBox="0 0 300 40"><text x="150" y="30" text-anchor="middle" font-family="Outfit,sans-serif" font-size="32" font-weight="600" letter-spacing="11"><tspan fill="#FEDA75">S</tspan><tspan fill="#FCAF45">I</tspan><tspan fill="#FA7E1E">G</tspan><tspan fill="#E95950">A</tspan><tspan fill="#D62976">-</tspan><tspan fill="#B42F9E">N</tspan><tspan fill="#962FBF">O</tspan><tspan fill="#4F5BD5">S</tspan></text></svg></div></div><div class="guide" style="inset:3mm"></div></div><figcaption>IG · CARTÃO NEON · 54×85.6 mm</figcaption></figure>
 </div></body></html>

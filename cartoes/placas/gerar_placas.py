@@ -116,6 +116,63 @@ p4n = f'''
 </div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
 
+# ---------- versões Instagram ----------
+IG_STOPS = '<stop offset="0" stop-color="#FEDA75"/><stop offset=".3" stop-color="#FA7E1E"/><stop offset=".55" stop-color="#D62976"/><stop offset=".8" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/>'
+IG_CSS_GRAD = "linear-gradient(45deg,#FEDA75 0%,#FA7E1E 28%,#D62976 55%,#962FBF 80%,#4F5BD5 100%)"
+
+def ig_ring(stroke, gid):
+    return (f'<svg viewBox="0 0 100 100" class="ring4"><defs><linearGradient id="{gid}" x1="0" y1="1" x2="1" y2="0">{IG_STOPS}</linearGradient></defs>'
+            f'<circle cx="50" cy="50" r="{50-stroke/2}" fill="none" stroke="url(#{gid})" stroke-width="{stroke}"/></svg>')
+
+def ig_cam(gid, neon=False):
+    shapes = ('<rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke-width="2.2"/>'
+              '<circle cx="12" cy="12" r="4.6" fill="none" stroke-width="2.2"/><circle cx="17.4" cy="6.6" r="1.35" stroke="none" fill="url(#%s)"/>' % gid)
+    defs = f'<defs><linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2">{IG_STOPS}</linearGradient>'
+    if not neon:
+        return f'<svg viewBox="0 0 24 24">{defs}</defs><g stroke="url(#{gid})">{shapes}</g></svg>'
+    defs += f'<filter id="{gid}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter></defs>'
+    thin = shapes.replace('stroke-width="2.2"', 'stroke-width=".5"')
+    return (f'<svg viewBox="0 0 24 24" style="overflow:visible">{defs}'
+            f'<g stroke="url(#{gid})" filter="url(#{gid}f)" opacity=".9">{shapes}</g>'
+            f'<g stroke="url(#{gid})" style="filter:drop-shadow(0 0 .25px #fff)">{thin}</g></svg>')
+
+def ig_text(text, gid, w, h, size, y, font="'Grand Hotel',cursive", weight=400, spacing=0):
+    # texto com degradê feito em SVG (o background-clip:text deixa um contorno no PDF)
+    return (f'<svg class="igtxt" viewBox="0 0 {w} {h}"><defs><linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="0" y1="{h}" x2="{w}" y2="0">{IG_STOPS}</linearGradient></defs>'
+            f'<text x="{w/2}" y="{y}" text-anchor="middle" font-family="{font}" font-size="{size}" font-weight="{weight}" letter-spacing="{spacing}" fill="url(#{gid})">{text}</text></svg>')
+
+IG_WORD = lambda gid: ig_text("Instagram", gid, 320, 128, 100, 88)
+
+def ig_letters(text):
+    # cada letra com uma cor sólida do degradê (degradê em texto pequeno falha no PDF)
+    cols = ["#FEDA75", "#FCAF45", "#FA7E1E", "#E95950", "#D62976", "#B42F9E", "#962FBF", "#4F5BD5"]
+    pick = lambda i: cols[round(i * (len(cols) - 1) / max(len(text) - 1, 1))]
+    spans = "".join(f'<tspan fill="{pick(i)}">{c}</tspan>' for i, c in enumerate(text))
+    return (f'<svg class="igtxt" viewBox="0 0 300 40"><text x="150" y="30" text-anchor="middle" font-family="Outfit,sans-serif" '
+            f'font-size="32" font-weight="600" letter-spacing="11">{spans}</text></svg>')
+
+def ig_mesa(gid):
+    return f'''
+<div class="p1-ring">{ig_ring(3.2, gid)}
+  <div class="p1-text"><div class="p1-a">Siga-nos</div><div class="p1-no">no</div><div class="p1-igw">{IG_WORD(gid+"w")}</div></div></div>
+<div class="p1-bottom p1n-bottom">
+  <div class="p1-nfc">{WAVES}<div class="p1-nfclbl">NFC</div></div>
+</div>'''
+
+def ig_quadrada(gid):
+    return f'''
+<div class="p4-top">SIGA NOSSA EMPRESA NO</div>
+<div class="ig4-head"><div class="ig4-cam">{ig_cam(gid+"c")}</div><div class="ig4-igw">{IG_WORD(gid+"w")}</div></div>
+<div class="p4-row">
+  <div class="p4-circle p4n-circle">{ig_ring(4, gid)}<div class="p4-in"><div class="p4-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div>{TAP}</div></div>
+</div>
+<div class="p4-bar ig-bar"></div>'''
+
+ig_cartao = f'''
+<div class="p2-notch ig2-notch">{WAVES}</div>
+<div class="p2-g ig2-cam">{ig_cam("igneon", neon=True)}</div>
+<div class="ig2-txt">{ig_letters("SIGA-NOS")}</div>'''
+
 CSS = '''
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -200,14 +257,25 @@ body.print figcaption { display:none; }
 /* versão branca */
 .sheet.light { background:#fff; color:#1a1a1a; }
 .light .p1-nfc, .light .p4-circle .tap { color:#1a1a1a; }
+
+/* Instagram */
+.igtxt { display:block; width:100%; height:100%; overflow:visible; }
+.p1-igw { width:54.4mm; height:21.8mm; margin-top:-1mm; }
+.ig4-head { display:flex; align-items:center; gap:4mm; margin-top:5mm; }
+.ig4-cam svg { width:20mm; height:20mm; display:block; }
+.ig4-igw { width:83.2mm; height:33.3mm; }
+.ig-bar { background:IGGRAD; }
+.ig2-notch { color:#E1306C; }
+.ig2-cam { width:32mm; height:32mm; margin-top:17mm; }
+.ig2-txt { margin-top:auto; margin-bottom:11mm; width:30mm; height:4mm; }
 '''
 
 SYMS = ""
 html = f'''<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Placas Google NFC</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>{CSS}</style></head><body>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Grand+Hotel&display=swap" rel="stylesheet">
+<style>{CSS.replace('IGGRAD', IG_CSS_GRAD)}</style></head><body>
 <div class="grid">
 {sheet("placa-mesa", 100, 150, "p1", p1, "1 · DISPLAY DE MESA")}
 {sheet("placa-cartao", 54, 85.6, "p2", p2, "2 · CARTÃO G NEON")}
@@ -217,6 +285,11 @@ html = f'''<!doctype html>
 {sheet("placa-quadrada-nfc", 150, 150, "p4", p4n, "4B · PLACA QUADRADA SÓ NFC")}
 {sheet("placa-mesa-nfc-branca", 100, 150, "p1 light", p1n, "1C · DISPLAY DE MESA BRANCO")}
 {sheet("placa-quadrada-nfc-branca", 150, 150, "p4 light", p4n, "4C · PLACA QUADRADA BRANCA")}
+{sheet("ig-mesa-nfc", 100, 150, "p1", ig_mesa("igA"), "IG · DISPLAY DE MESA")}
+{sheet("ig-mesa-nfc-branca", 100, 150, "p1 light", ig_mesa("igB"), "IG · DISPLAY DE MESA BRANCO")}
+{sheet("ig-quadrada-nfc", 150, 150, "p4", ig_quadrada("igC"), "IG · PLACA QUADRADA")}
+{sheet("ig-quadrada-nfc-branca", 150, 150, "p4 light", ig_quadrada("igD"), "IG · PLACA QUADRADA BRANCA")}
+{sheet("ig-cartao", 54, 85.6, "p2", ig_cartao, "IG · CARTÃO NEON")}
 </div></body></html>'''
 
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "placas.html"), "w").write(html)
