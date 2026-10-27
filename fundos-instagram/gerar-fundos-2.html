@@ -18,6 +18,7 @@ const DEFS = `
   <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="g"/>
   <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .09 0"/>
 </filter>
+<filter id="neon" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <filter id="desfoque"><feGaussianBlur stdDeviation="70"/></filter>
 <filter id="sombra" x="-20%" y="-20%" width="140%" height="140%">
   <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".18"/>
@@ -59,6 +60,10 @@ function folha(x, y, s, rot, cor) {
   return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
     <path d="M0,0 C40,-60 120,-70 170,-40 C120,-10 50,10 0,0 Z" fill="${cor}"/>
     <path d="M0,0 C60,-25 110,-35 165,-40" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2"/></g>`;
+}
+
+function estrelas(lista, cor) {
+  return lista.map(([x, y, r]) => `<path transform="translate(${x} ${y})" fill="${cor}" d="M0,${-r * 2} C${r * .3},${-r * .3} ${r * .3},${-r * .3} ${r * 2},0 C${r * .3},${r * .3} ${r * .3},${r * .3} 0,${r * 2} C${-r * .3},${r * .3} ${-r * .3},${r * .3} ${-r * 2},0 C${-r * .3},${-r * .3} ${-r * .3},${-r * .3} 0,${-r * 2} Z"/>`).join('');
 }
 
 const MODELOS = {
@@ -148,8 +153,79 @@ const MODELOS = {
     ${secador(870, 1090, .9, -12, 'rgba(255,255,255,.9)', 3)}
     ${[[960, 150, 16], [120, 700, 10], [1000, 760, 12], [560, 1260, 10]].map(([x, y, r]) => `<path transform="translate(${x} ${y})" fill="#fff" d="M0,${-r * 2} C${r * .3},${-r * .3} ${r * .3},${-r * .3} ${r * 2},0 C${r * .3},${r * .3} ${r * .3},${r * .3} 0,${r * 2} C${-r * .3},${r * .3} ${-r * .3},${r * .3} ${-r * 2},0 C${-r * .3},${-r * .3} ${-r * .3},${-r * .3} 0,${-r * 2} Z"/>`).join('')}
     <rect width="1080" height="1350" filter="url(#grao)"/>`,
-};
 
+  // ---- Variações do 10 (vidro) ----
+  // 10a. Pastel candy (versão clara)
+  '10a': () => `
+    <rect width="1080" height="1350" fill="#f6efff"/>
+    <g filter="url(#desfoque)">
+      <circle cx="160" cy="200" r="330" fill="#ffb3d1"/><circle cx="980" cy="380" r="300" fill="#c7b5ff"/>
+      <circle cx="860" cy="1200" r="340" fill="#ffd3b0"/><circle cx="120" cy="1120" r="260" fill="#a8ecd9"/>
+    </g>
+    <rect x="110" y="170" width="860" height="1010" rx="56" fill="rgba(255,255,255,.38)" stroke="rgba(255,255,255,.9)" stroke-width="2.5"/>
+    <rect x="110" y="170" width="860" height="200" rx="56" fill="rgba(255,255,255,.25)"/>
+    ${[190, 235, 280].map((x, i) => `<circle cx="${x}" cy="250" r="14" fill="#8a6fd1" opacity="${.8 - i * .25}"/>`).join('')}
+    ${tesoura(880, 1085, .9, 30, '#7a5fc4', 3)}
+    ${estrelas([[960, 150, 16], [120, 700, 10], [1000, 760, 12], [560, 1260, 10]], '#ffffff')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+
+  // 10b. Pôr do sol com cartão em arco
+  '10b': () => `
+    <rect width="1080" height="1350" fill="#4a1030"/>
+    <g filter="url(#desfoque)">
+      <circle cx="900" cy="160" r="340" fill="#ffb341"/><circle cx="140" cy="420" r="300" fill="#ff5e62"/>
+      <circle cx="900" cy="1150" r="330" fill="#ff2e88"/><circle cx="220" cy="1250" r="260" fill="#ff9a3c"/>
+    </g>
+    <path d="M150,1190 V560 A390,390 0 0 1 930,560 V1190 Z" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+    <path d="M150,1190 V560 A390,390 0 0 1 930,560 V640 H150 Z" fill="rgba(255,255,255,.06)"/>
+    ${pente(540, 1265, .9, 0, 'rgba(255,255,255,.9)', 3)}
+    ${estrelas([[540, 120, 16], [90, 760, 10], [1000, 820, 12], [980, 1280, 9]], '#ffffff')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+
+  // 10c. Oceano com cartão redondo
+  '10c': () => `
+    <rect width="1080" height="1350" fill="#0b1a3c"/>
+    <g filter="url(#desfoque)">
+      <circle cx="160" cy="240" r="320" fill="#00c6d7"/><circle cx="980" cy="330" r="300" fill="#3a6bff"/>
+      <circle cx="880" cy="1180" r="340" fill="#8a5cff"/><circle cx="160" cy="1160" r="270" fill="#00e0a4" opacity=".85"/>
+    </g>
+    <circle cx="540" cy="640" r="420" fill="rgba(255,255,255,.13)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+    <circle cx="540" cy="640" r="445" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+    <rect x="300" y="1150" width="480" height="96" rx="48" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+    ${secador(930, 1170, .7, -12, 'rgba(255,255,255,.9)', 3)}
+    ${estrelas([[960, 140, 16], [110, 640, 10], [1000, 760, 12], [140, 120, 9]], '#ffffff')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+
+  // 10d. Neon escuro
+  '10d': () => `
+    <rect width="1080" height="1350" fill="#07060d"/>
+    <g filter="url(#desfoque)" opacity=".85">
+      <circle cx="100" cy="160" r="260" fill="#ff2fb2"/><circle cx="1000" cy="1220" r="280" fill="#00e5ff"/>
+      <circle cx="1020" cy="200" r="170" fill="#8a2cff"/>
+    </g>
+    <rect x="110" y="170" width="860" height="1010" rx="56" fill="rgba(255,255,255,.04)"/><rect x="110" y="170" width="860" height="1010" rx="56" fill="none" stroke="#ff4fd8" stroke-width="3" filter="url(#neon)"/>
+    <rect x="110" y="170" width="860" height="1010" rx="56" fill="none" stroke="#ffd1f4" stroke-width="1.5"/>
+    <path d="M110,370 H970" stroke="#ff4fd8" stroke-width="2" opacity=".6"/>
+    ${[190, 235, 280].map((x, i) => `<circle cx="${x}" cy="270" r="13" fill="${['#ff4fd8', '#00e5ff', '#b06bff'][i]}" filter="url(#neon)"/>`).join('')}
+    <g filter="url(#neon)">${tesoura(880, 1085, .9, 30, '#00e5ff', 3.5)}</g>
+    ${estrelas([[960, 140, 16], [120, 700, 10], [1000, 760, 12], [560, 1260, 10]], '#ffffff')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+
+  // 10e. Lilás e pêssego com dois cartões (antes e depois)
+  '10e': () => `
+    <rect width="1080" height="1350" fill="#3b2350"/>
+    <g filter="url(#desfoque)">
+      <circle cx="140" cy="230" r="320" fill="#d98cff"/><circle cx="970" cy="300" r="290" fill="#ffaec9"/>
+      <circle cx="860" cy="1180" r="330" fill="#ffc48a"/><circle cx="170" cy="1150" r="270" fill="#9b8cff"/>
+    </g>
+    ${[70, 556].map((x) => `
+      <rect x="${x}" y="210" width="454" height="830" rx="44" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.55)" stroke-width="2"/>
+      <rect x="${x + 117}" y="955" width="220" height="60" rx="30" fill="rgba(255,255,255,.28)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/>`).join('')}
+    <rect x="300" y="1130" width="480" height="96" rx="48" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.6)" stroke-width="2"/>
+    ${pente(540, 1290, .6, 0, 'rgba(255,255,255,.85)', 3)}
+    ${estrelas([[1010, 120, 14], [60, 110, 10], [1020, 1090, 10]], '#ffffff')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+};
 const n = new URLSearchParams(location.search).get('modelo') || '6';
 svg.innerHTML = `<defs>${DEFS}</defs>` + MODELOS[n]();
 document.title = 'Fundo ' + n;
