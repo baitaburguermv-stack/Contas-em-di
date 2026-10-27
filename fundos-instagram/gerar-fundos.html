@@ -31,6 +31,12 @@ const DEFS = `
   <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -6 0 0 0 1.05" result="veias"/>
   <feFlood flood-color="#b47e79"/>
   <feComposite in2="veias" operator="in"/>
+</filter>
+<filter id="marmoreOuro" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="turbulence" baseFrequency="0.0016 0.004" numOctaves="4" seed="41" result="n"/>
+  <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -7 0 0 0 1.05" result="veias"/>
+  <feFlood flood-color="#c39a5c"/>
+  <feComposite in2="veias" operator="in"/>
 </filter>`;
 
 // Borboleta realista: asas com degradê, nervuras, borda escura com pintas, corpo com volume.
@@ -195,8 +201,64 @@ const MODELOS = {
     <rect x="72" y="72" width="936" height="1206" rx="20" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".7"/>
     ${borboleta(900, 190, 1.3, 14, 'url(#ouro)', 'rgba(246,220,174,.18)')}${borboleta(185, 1150, 1.0, -18, 'url(#ouro)', 'rgba(246,220,174,.18)')}
     ${brilho(160, 170, 22, 'url(#ouro)')}${brilho(215, 125, 10, 'url(#ouro)', .8)}${brilho(930, 1190, 18, 'url(#ouro)')}${brilho(870, 1240, 8, 'url(#ouro)', .8)}`,
-};
+  // ---- Variações do 5 (Rosé Glamour) ----
+  // 5a. Preto com brilho rosé gold
+  '5a': () => `
+    <defs><radialGradient id="bg5a" cx=".5" cy=".45" r=".8"><stop offset="0" stop-color="#2a1c1f"/><stop offset="1" stop-color="#0d0809"/></radialGradient></defs>
+    <rect width="1080" height="1350" fill="url(#bg5a)"/>
+    ${poeira(1100, () => { const c = rnd(); const r = Math.pow(rnd(), 1.7) * 480; const a = rnd() * Math.PI * 2; return c < .5 ? [0 + Math.cos(a) * r, 0 + Math.sin(a) * r] : [1080 + Math.cos(a) * r, 1350 + Math.sin(a) * r]; }, ['#f1c6bd', '#e7a99e', '#fff1ec', '#c98a85'], 4.2)}
+    <rect x="52" y="52" width="976" height="1246" rx="4" fill="none" stroke="url(#roseGold)" stroke-width="3"/>
+    <rect x="72" y="72" width="936" height="1206" rx="2" fill="none" stroke="url(#roseGold)" stroke-width="1" opacity=".7"/>
+    ${borboleta(905, 205, 1.3, 14)}${borboleta(175, 1145, 1.0, -18)}
+    ${brilho(950, 1180, 20)}${brilho(130, 160, 14)}${brilho(175, 120, 7, 'url(#roseGold)', .8)}`,
 
+  // 5b. Vinho com arco dourado
+  '5b': () => `
+    <defs><linearGradient id="bg5b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a3a47"/><stop offset="1" stop-color="#4a1f29"/></linearGradient></defs>
+    <rect width="1080" height="1350" fill="url(#bg5b)"/>
+    ${poeira(260, () => [rnd() * 1080, 1350 - Math.pow(rnd(), 2.2) * 500], ['#f6dcae', '#e7b37a', '#fff3d6'], 2.8)}
+    <path d="M190,1190 V600 A350,350 0 0 1 890,600 V1190 Z" fill="rgba(255,240,230,.07)" stroke="url(#ouro)" stroke-width="3"/>
+    <path d="M215,1165 V600 A325,325 0 0 1 865,600 V1165 Z" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".7"/>
+    <path d="M140,1190 H940" stroke="url(#ouro)" stroke-width="3"/>
+    ${borboleta(860, 330, 1.25, 16, 'url(#ouro)')}${borboleta(210, 470, .8, -22, 'url(#ouro)')}
+    ${brilho(540, 190, 22, 'url(#ouro)')}${brilho(490, 225, 9, 'url(#ouro)', .8)}${brilho(595, 230, 7, 'url(#ouro)', .7)}`,
+
+  // 5c. Champagne claro com brilho dourado
+  '5c': () => `
+    <defs><radialGradient id="bg5c" cx=".5" cy=".4" r=".85"><stop offset="0" stop-color="#fdf6ee"/><stop offset=".65" stop-color="#f2dcc8"/><stop offset="1" stop-color="#e6c3a9"/></radialGradient></defs>
+    <rect width="1080" height="1350" fill="url(#bg5c)"/>
+    ${poeira(1000, () => { const c = rnd(); const r = Math.pow(rnd(), 1.8) * 440; const a = rnd() * Math.PI * 2; return c < .5 ? [1080 + Math.cos(a) * r, Math.sin(a) * r] : [Math.cos(a) * r, 1350 + Math.sin(a) * r]; }, ['#c99a4b', '#e0b56e', '#f3d58e', '#b8893f'], 4.2)}
+    <rect x="52" y="52" width="976" height="1246" rx="28" fill="none" stroke="url(#ouro)" stroke-width="3"/>
+    <rect x="72" y="72" width="936" height="1206" rx="20" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".7"/>
+    ${borboleta(900, 195, 1.3, 14, 'url(#ouro)')}${borboleta(185, 1150, 1.0, -18, 'url(#ouro)')}
+    ${brilho(160, 170, 22, 'url(#ouro)')}${brilho(930, 1190, 18, 'url(#ouro)')}`,
+
+  // 5d. Marsala com faixa de brilho na diagonal e moldura redonda
+  '5d': () => `
+    <defs>
+      <linearGradient id="bg5d" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e2232"/><stop offset=".5" stop-color="#8e3b4c"/><stop offset="1" stop-color="#4a1726"/></linearGradient>
+    </defs>
+    <rect width="1080" height="1350" fill="url(#bg5d)"/>
+    ${poeira(700, () => { const t = rnd(); const d = (rnd() - .5) * 260 * (1 - Math.abs(t - .5)); return [t * 1400 - 160 + d * .7, t * 1500 - 80 - d * .7]; }, ['#f6dcae', '#e7b37a', '#fff3d6', '#f1c6bd'], 2.6)}
+    <circle cx="540" cy="640" r="370" fill="rgba(255,240,230,.07)" stroke="url(#ouro)" stroke-width="3"/>
+    <circle cx="540" cy="640" r="392" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".7"/>
+    ${borboleta(860, 300, 1.2, 20, 'url(#ouro)')}${borboleta(250, 1000, .9, -20, 'url(#ouro)')}
+    <rect x="290" y="1135" width="500" height="94" rx="47" fill="none" stroke="url(#ouro)" stroke-width="2.5"/>
+    ${brilho(150, 1250, 18, 'url(#ouro)')}${brilho(950, 120, 16, 'url(#ouro)')}`,
+
+  // 5e. Mármore nude com veios dourados
+  '5e': () => `
+    <rect width="1080" height="1350" fill="#f3e3d8"/>
+    <rect width="1080" height="1350" filter="url(#marmoreOuro)" opacity=".75"/>
+    <rect width="1080" height="1350" fill="url(#luz5e)"/>
+    <defs><radialGradient id="luz5e" cx=".5" cy=".45" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+    ${poeira(160, () => { const c = rnd() < .5; return [c ? 760 + rnd() * 300 : 30 + rnd() * 300, c ? 40 + rnd() * 300 : 1020 + rnd() * 300]; }, ['#c99a4b', '#e0b56e', '#f3d58e'], 2.6)}
+    <rect x="60" y="60" width="960" height="1230" rx="36" fill="none" stroke="url(#ouro)" stroke-width="3"/>
+    <rect x="82" y="82" width="916" height="1186" rx="26" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".7"/>
+    ${borboleta(890, 205, 1.25, 14, 'url(#ouro)')}${borboleta(190, 1140, .95, -18, 'url(#ouro)')}
+    ${brilho(170, 175, 20, 'url(#ouro)')}${brilho(925, 1180, 16, 'url(#ouro)')}`,
+
+};
 const n = new URLSearchParams(location.search).get('modelo') || '1';
 svg.innerHTML = `<defs>${DEFS}</defs>` + MODELOS[n]();
 document.title = 'Fundo ' + n;
