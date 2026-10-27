@@ -66,6 +66,35 @@ function estrelas(lista, cor) {
   return lista.map(([x, y, r]) => `<path transform="translate(${x} ${y})" fill="${cor}" d="M0,${-r * 2} C${r * .3},${-r * .3} ${r * .3},${-r * .3} ${r * 2},0 C${r * .3},${r * .3} ${r * .3},${r * .3} 0,${r * 2} C${-r * .3},${r * .3} ${-r * .3},${r * .3} ${-r * 2},0 C${-r * .3},${-r * .3} ${-r * .3},${-r * .3} 0,${-r * 2} Z"/>`).join('');
 }
 
+function pastel(cores, destaque, forma, icone) {
+  const [c1, c2, c3, c4] = cores;
+  const vidro = 'fill="rgba(255,255,255,.5)" stroke="rgba(255,255,255,.95)" stroke-width="2.5"';
+  const pontos = (y) => [190, 235, 280].map((x, i) => `<circle cx="${x}" cy="${y}" r="14" fill="${destaque}" opacity="${.75 - i * .22}"/>`).join('');
+  const formas = {
+    janela: `<rect x="110" y="170" width="860" height="1010" rx="56" ${vidro}/><rect x="110" y="170" width="860" height="200" rx="56" fill="rgba(255,255,255,.35)"/>${pontos(250)}`,
+    arco: `<path d="M150,1180 V570 A390,390 0 0 1 930,570 V1180 Z" ${vidro}/>`,
+    circulo: `<circle cx="540" cy="620" r="420" ${vidro}/><circle cx="540" cy="620" r="446" fill="none" stroke="${destaque}" stroke-opacity=".35" stroke-width="1.5"/>
+      <rect x="300" y="1130" width="480" height="96" rx="48" ${vidro}/>`,
+    dois: [70, 556].map((x) => `<rect x="${x}" y="200" width="454" height="840" rx="44" ${vidro}/>
+      <rect x="${x + 117}" y="955" width="220" height="60" rx="30" fill="${destaque}" opacity=".85"/>`).join('') + `<rect x="300" y="1120" width="480" height="96" rx="48" ${vidro}/>`,
+    faixa: `<rect x="110" y="170" width="860" height="880" rx="56" ${vidro}/>${pontos(240)}
+      <rect x="230" y="1110" width="620" height="110" rx="55" fill="${destaque}" opacity=".85"/>`,
+  };
+  const posIcone = { janela: [880, 1085, 30], arco: [540, 1265, 0], circulo: [930, 1180, -12], dois: [540, 1290, 0], faixa: [880, 960, 30] }[forma];
+  const desenho = { tesoura, pente, secador }[icone];
+  const escala = icone === 'secador' ? .7 : icone === 'pente' ? (forma === 'dois' ? .6 : .9) : .9;
+  return `
+    <rect width="1080" height="1350" fill="#fefcff"/>
+    <g filter="url(#desfoque)" opacity=".62">
+      <circle cx="150" cy="190" r="320" fill="${c1}"/><circle cx="990" cy="370" r="290" fill="${c2}"/>
+      <circle cx="870" cy="1210" r="330" fill="${c3}"/><circle cx="110" cy="1130" r="250" fill="${c4}"/>
+    </g>
+    ${formas[forma]}
+    ${desenho(posIcone[0], posIcone[1], escala, posIcone[2], destaque, 3)}
+    ${estrelas([[960, 150, 16], [100, 700, 10], [1000, 790, 12], posIcone[0] === 540 ? [860, 1290, 9] : [560, 1290, 9]], destaque).replace(/<path/g, '<path opacity=".55"')}
+    <rect width="1080" height="1350" filter="url(#grao)" opacity=".6"/>`;
+}
+
 const MODELOS = {
   // 6. Luxo preto e dourado (art déco)
   6: () => {
@@ -225,6 +254,13 @@ const MODELOS = {
     ${pente(540, 1290, .6, 0, 'rgba(255,255,255,.85)', 3)}
     ${estrelas([[1010, 120, 14], [60, 110, 10], [1020, 1090, 10]], '#ffffff')}
     <rect width="1080" height="1350" filter="url(#grao)"/>`,
+
+  // ---- Variações claras do 10a (fundo quase branco) ----
+  '10a1': () => pastel(['#ffc2da', '#d9ccff', '#ffe0c7', '#c6f1e4'], '#8a6fd1', 'janela', 'tesoura'),
+  '10a2': () => pastel(['#ffd9c2', '#bff0e0', '#ffe9a8', '#ffc9dc'], '#d98a6f', 'arco', 'pente'),
+  '10a3': () => pastel(['#cfd8ff', '#e0cfff', '#c8ecff', '#ffd6ea'], '#6f86d1', 'circulo', 'secador'),
+  '10a4': () => pastel(['#ffc9de', '#ffdcc4', '#e5d4ff', '#ffe6f0'], '#c46f97', 'dois', 'pente'),
+  '10a5': () => pastel(['#c9f2df', '#e4d6ff', '#fff0b8', '#ffd4e4'], '#5fae8f', 'faixa', 'tesoura'),
 };
 const n = new URLSearchParams(location.search).get('modelo') || '6';
 svg.innerHTML = `<defs>${DEFS}</defs>` + MODELOS[n]();
