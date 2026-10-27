@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Fundos Instagram 2</title>
+<style>html,body{margin:0;background:#fff}svg{display:block}</style></head>
+<body>
+<svg id="fundo" xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350"></svg>
+<script>
+// Mais 5 fundos para salão de cabelo, em estilos diferentes. Use ?modelo=6..10
+const svg = document.getElementById('fundo');
+let semente = 3;
+const rnd = () => ((semente = (semente * 16807) % 2147483647) / 2147483647);
+
+const DEFS = `
+<linearGradient id="ouro" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#b8893f"/><stop offset=".35" stop-color="#f3d58e"/>
+  <stop offset=".65" stop-color="#c99a4b"/><stop offset="1" stop-color="#f7e1a8"/>
+</linearGradient>
+<filter id="grao" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="g"/>
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .09 0"/>
+</filter>
+<filter id="desfoque"><feGaussianBlur stdDeviation="70"/></filter>
+<filter id="sombra" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity=".18"/>
+</filter>`;
+
+function tesoura(x, y, s, rot, cor, larg = 3) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" fill="none" stroke="${cor}" stroke-width="${larg}" stroke-linecap="round">
+    <circle cx="-18" cy="40" r="13"/><circle cx="18" cy="40" r="13"/>
+    <path d="M-10,30 L22,-50 M10,30 L-22,-50"/><circle cx="0" cy="8" r="2.5" fill="${cor}"/></g>`;
+}
+function pente(x, y, s, rot, cor, larg = 3) {
+  let dentes = '';
+  for (let i = 0; i < 13; i++) dentes += `M${-60 + i * 10},6 V30 `;
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" fill="none" stroke="${cor}" stroke-width="${larg}" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="-68" y="-14" width="136" height="20" rx="8"/><path d="${dentes}"/></g>`;
+}
+function secador(x, y, s, rot, cor, larg = 3) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})" fill="none" stroke="${cor}" stroke-width="${larg}" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-50,-30 H30 A30,30 0 0 1 30,30 H-50 Z"/><path d="M-50,-22 H-72 V22 H-50"/>
+    <path d="M10,30 L0,90 H22 L30,30"/><circle cx="30" cy="0" r="10"/>
+    <path d="M-90,-14 H-100 M-92,0 H-108 M-90,14 H-100"/></g>`;
+}
+function fios(n, x0, y0, comp, amp, cores, larg = 2, inclin = 0) {
+  // mechas de cabelo: curvas em S paralelas
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    const dx = i * 9, a = amp * (0.8 + 0.4 * Math.sin(i));
+    const p = [x0 + dx, y0];
+    let d = `M${p[0]},${p[1]}`;
+    for (let k = 1; k <= 4; k++) {
+      const yk = y0 + (comp / 4) * k, xm = x0 + dx + (k % 2 ? a : -a) + inclin * k;
+      d += ` Q${xm.toFixed(1)},${(yk - comp / 8).toFixed(1)} ${(x0 + dx + inclin * k).toFixed(1)},${yk.toFixed(1)}`;
+    }
+    s += `<path d="${d}" fill="none" stroke="${cores[i % cores.length]}" stroke-width="${larg}" stroke-linecap="round" opacity="${(0.55 + 0.45 * rnd()).toFixed(2)}"/>`;
+  }
+  return s;
+}
+function folha(x, y, s, rot, cor) {
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+    <path d="M0,0 C40,-60 120,-70 170,-40 C120,-10 50,10 0,0 Z" fill="${cor}"/>
+    <path d="M0,0 C60,-25 110,-35 165,-40" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2"/></g>`;
+}
+
+const MODELOS = {
+  // 6. Luxo preto e dourado (art déco)
+  6: () => {
+    let raios = '';
+    for (let i = 0; i <= 18; i++) {
+      const a = Math.PI + (i / 18) * Math.PI;
+      raios += `<line x1="540" y1="1350" x2="${(540 + Math.cos(a) * 1400).toFixed(0)}" y2="${(1350 + Math.sin(a) * 1400).toFixed(0)}" stroke="url(#ouro)" stroke-width="1" opacity=".18"/>`;
+    }
+    const canto = (x, y, sx, sy) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})" fill="none" stroke="url(#ouro)" stroke-width="2.5">
+      <path d="M0,140 V0 H140"/><path d="M18,110 V18 H110" stroke-width="1.2"/><path d="M0,0 L60,60"/>
+      <rect x="54" y="54" width="14" height="14" transform="rotate(45 61 61)" fill="url(#ouro)" stroke="none"/></g>`;
+    return `
+      <defs><radialGradient id="bg6" cx=".5" cy=".42" r=".8"><stop offset="0" stop-color="#26221d"/><stop offset="1" stop-color="#0b0a09"/></radialGradient></defs>
+      <rect width="1080" height="1350" fill="url(#bg6)"/>
+      ${raios}
+      ${canto(50, 50, 1, 1)}${canto(1030, 50, -1, 1)}${canto(50, 1300, 1, -1)}${canto(1030, 1300, -1, -1)}
+      <rect x="150" y="190" width="780" height="970" fill="none" stroke="url(#ouro)" stroke-width="2"/>
+      <rect x="166" y="206" width="748" height="938" fill="none" stroke="url(#ouro)" stroke-width="1" opacity=".6"/>
+      <path d="M430,190 L540,130 L650,190" fill="none" stroke="url(#ouro)" stroke-width="2"/>
+      <path d="M430,1160 L540,1220 L650,1160" fill="none" stroke="url(#ouro)" stroke-width="2"/>
+      <circle cx="540" cy="130" r="7" fill="url(#ouro)"/><circle cx="540" cy="1220" r="7" fill="url(#ouro)"/>
+      ${tesoura(540, 1270, .55, 90, 'url(#ouro)', 3)}`;
+  },
+
+  // 7. Boho natural: verde sálvia, terracota e formas orgânicas
+  7: () => `
+    <rect width="1080" height="1350" fill="#f3ece1"/>
+    <path d="M-60,-40 C220,-60 420,90 360,250 C300,410 60,380 -60,520 Z" fill="#9caf88"/>
+    <path d="M1140,860 C900,820 720,980 800,1150 C860,1290 1010,1250 1140,1420 Z" fill="#c97b5a"/>
+    <path d="M1140,-40 C1010,40 960,170 1030,260 C1080,330 1140,330 1140,330 Z" fill="#e3b58f"/>
+    <path d="M-60,1150 C60,1100 170,1190 150,1290 C140,1360 -60,1400 -60,1400 Z" fill="#e3b58f"/>
+    <circle cx="540" cy="640" r="365" fill="#fbf7f1" filter="url(#sombra)"/>
+    <circle cx="540" cy="640" r="395" fill="none" stroke="#6f7f5e" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
+    ${folha(190, 1050, 1.1, -70, '#7d9168')}${folha(205, 1060, .8, -35, '#9caf88')}${folha(880, 250, .9, 115, '#7d9168')}
+    <circle cx="905" cy="1080" r="60" fill="none" stroke="#f3ece1" stroke-width="3"/>
+    <path d="M120,560 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" fill="#c97b5a"/>
+    <path d="M950,520 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0" fill="#6f7f5e"/>
+    <rect x="300" y="1140" width="480" height="96" rx="48" fill="#6f7f5e"/>
+    ${pente(540, 1188, .9, 0, '#f3ece1', 3)}`,
+
+  // 8. Editorial moderno: blocos de cor, grade e "fita adesiva"
+  8: () => {
+    let grade = '';
+    for (let x = 60; x < 1080; x += 60) grade += `<line x1="${x}" y1="0" x2="${x}" y2="1350" stroke="#1d1d1f" stroke-opacity=".05"/>`;
+    for (let y = 60; y < 1350; y += 60) grade += `<line x1="0" y1="${y}" x2="1080" y2="${y}" stroke="#1d1d1f" stroke-opacity=".05"/>`;
+    return `
+      <rect width="1080" height="1350" fill="#f4f1ec"/>
+      ${grade}
+      <rect x="0" y="0" width="1080" height="330" fill="#c9b6e4"/>
+      <circle cx="930" cy="250" r="170" fill="#ff7a59"/>
+      <rect x="110" y="200" width="620" height="820" rx="12" fill="#e6e1d8" stroke="#1d1d1f" stroke-width="3" filter="url(#sombra)"/>
+      <rect x="320" y="170" width="200" height="56" fill="#fff3a8" opacity=".85" transform="rotate(-6 420 198)"/>
+      <rect x="780" y="560" width="230" height="230" fill="none" stroke="#1d1d1f" stroke-width="3"/>
+      <rect x="800" y="580" width="230" height="230" fill="#c9b6e4"/>
+      <path d="M780,1120 H1010 M780,1150 H960 M780,1180 H990" stroke="#1d1d1f" stroke-width="3"/>
+      <circle cx="160" cy="1185" r="46" fill="none" stroke="#1d1d1f" stroke-width="3"/>
+      <path d="M140,1185 H180 M168,1173 L180,1185 L168,1197" fill="none" stroke="#1d1d1f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M60,1080 H1020" stroke="#1d1d1f" stroke-width="3"/>
+      ${tesoura(900, 960, .9, 35, '#1d1d1f', 3)}
+      <rect width="1080" height="1350" filter="url(#grao)"/>`;
+  },
+
+  // 9. Ondas de cabelo: mechas em tons de caramelo e chocolate
+  9: () => `
+    <defs><linearGradient id="bg9" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf4ec"/><stop offset="1" stop-color="#f1e1d0"/></linearGradient></defs>
+    <rect width="1080" height="1350" fill="url(#bg9)"/>
+    <g opacity=".95">${fios(26, -70, -40, 1440, 90, ['#6b4226', '#a0683d', '#c99363', '#8a5a34', '#e0b585'], 3.2, 6)}</g>
+    <g opacity=".95">${fios(24, 900, -40, 1440, 80, ['#e0b585', '#a0683d', '#6b4226', '#c99363'], 3.2, -6)}</g>
+    <rect x="270" y="170" width="560" height="1010" rx="280" fill="#fffaf5" filter="url(#sombra)"/>
+    <rect x="290" y="190" width="520" height="970" rx="260" fill="none" stroke="#c99363" stroke-width="2"/>
+    <circle cx="540" cy="1250" r="6" fill="#a0683d"/><circle cx="510" cy="1250" r="4" fill="#c99363"/><circle cx="570" cy="1250" r="4" fill="#c99363"/>`,
+
+  // 10. Vibrante com efeito de vidro (glassmorphism)
+  10: () => `
+    <rect width="1080" height="1350" fill="#2b1055"/>
+    <g filter="url(#desfoque)">
+      <circle cx="180" cy="220" r="330" fill="#ff4f9a"/>
+      <circle cx="960" cy="420" r="300" fill="#7b5cff"/>
+      <circle cx="820" cy="1180" r="360" fill="#ff9e45"/>
+      <circle cx="150" cy="1150" r="250" fill="#00c2d1" opacity=".8"/>
+    </g>
+    <rect x="110" y="170" width="860" height="1010" rx="56" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.45)" stroke-width="2"/>
+    <rect x="110" y="170" width="860" height="200" rx="56" fill="rgba(255,255,255,.06)"/>
+    <circle cx="190" cy="250" r="14" fill="#fff" opacity=".85"/><circle cx="235" cy="250" r="14" fill="#fff" opacity=".5"/><circle cx="280" cy="250" r="14" fill="#fff" opacity=".3"/>
+    ${secador(870, 1090, .9, -12, 'rgba(255,255,255,.9)', 3)}
+    ${[[960, 150, 16], [120, 700, 10], [1000, 760, 12], [560, 1260, 10]].map(([x, y, r]) => `<path transform="translate(${x} ${y})" fill="#fff" d="M0,${-r * 2} C${r * .3},${-r * .3} ${r * .3},${-r * .3} ${r * 2},0 C${r * .3},${r * .3} ${r * .3},${r * .3} 0,${r * 2} C${-r * .3},${r * .3} ${-r * .3},${r * .3} ${-r * 2},0 C${-r * .3},${-r * .3} ${-r * .3},${-r * .3} 0,${-r * 2} Z"/>`).join('')}
+    <rect width="1080" height="1350" filter="url(#grao)"/>`,
+};
+
+const n = new URLSearchParams(location.search).get('modelo') || '6';
+svg.innerHTML = `<defs>${DEFS}</defs>` + MODELOS[n]();
+document.title = 'Fundo ' + n;
+</script>
+</body></html>
