@@ -604,7 +604,220 @@ function ruaNoite(cena) {
   };
 }
 
-const CENARIOS = { sala, mansao, feira, hospital, rua_noite: ruaNoite };
+// ----------------------------------------------------------------------------
+// Laje no morro: casinhas coloridas subindo o morro, caixa d'água, varal,
+// churrasqueira, fios dos postes, pipas no céu e o Dois Irmãos no pôr do sol.
+function morro(cena) {
+  let semente = 99;
+  const aleat = () => ((semente = (semente * 16807) % 2147483647) / 2147483647);
+  cena.background = textura(16, 512, (x, w, h) => {
+    const g = x.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#3d5fa8'); g.addColorStop(0.35, '#8f8fc9'); g.addColorStop(0.62, '#f6a37a'); g.addColorStop(0.8, '#ffcf8a'); g.addColorStop(1, '#ffe3b0');
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+  });
+  cena.background.wrapS = cena.background.wrapT = THREE.ClampToEdgeWrapping;
+  cena.background.repeat.set(1, 1);
+  cena.fog = new THREE.Fog(0xf3b58c, 22, 70);
+  luzes(cena, { ceu: 0xffe1c4, chao: 0x7a5a48, intens: 1.15, sol: 0xffc58a, solPos: [-8, 7, 6], ambiente: 1.0 });
+
+  // laje (piso de concreto) e mureta de tijolo
+  const concreto = textura(256, 256, (x, w, h) => {
+    x.fillStyle = '#a9a39b'; x.fillRect(0, 0, w, h);
+    for (let i = 0; i < 2500; i++) { const v = 140 + Math.random() * 50; x.fillStyle = `rgb(${v},${v - 4},${v - 10})`; x.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+    x.strokeStyle = 'rgba(80,70,60,.35)'; x.lineWidth = 2;
+    x.beginPath(); x.moveTo(0, h * .6); x.lineTo(w * .4, h * .55); x.lineTo(w, h * .7); x.stroke();
+  }, [4, 3]);
+  const laje = caixa(18, 0.4, 16, mat(0xffffff, { map: concreto, roughness: 0.95 }), 0, -0.2, 4.0);
+  cena.add(laje);
+  const tijolo = textura(256, 128, (x, w, h) => {
+    x.fillStyle = '#7a4a32'; x.fillRect(0, 0, w, h);
+    const lin = 8, col = 6;
+    for (let j = 0; j < lin; j++) for (let i = 0; i < col + 1; i++) {
+      const off = j % 2 ? w / col / 2 : 0;
+      const v = 170 + Math.floor(Math.random() * 40);
+      x.fillStyle = `rgb(${v},${Math.floor(v * .48)},${Math.floor(v * .3)})`;
+      x.fillRect(i * w / col - off + 2, j * h / lin + 2, w / col - 4, h / lin - 4);
+    }
+  }, [6, 1]);
+  const tijoloMat = mat(0xffffff, { map: tijolo, roughness: 0.95 });
+  cena.add(caixa(18, 0.9, 0.22, tijoloMat, 0, 0.45, -3.9));
+  cena.add(caixa(0.22, 0.9, 15.8, tijoloMat, -8.9, 0.45, 4.0));
+
+  // caixa d'água azul
+  const caixaAgua = new THREE.Group();
+  const azul = mat(0x2f6fd6, { roughness: 0.5 });
+  const corpoCx = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.6, 1.1, 24), azul);
+  corpoCx.position.y = 0.55;
+  const tampa = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.1, 24), azul);
+  tampa.position.y = 1.15;
+  caixaAgua.add(corpoCx, tampa);
+  caixaAgua.position.set(-5.4, 0, -3.0);
+  caixaAgua.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+  cena.add(caixaAgua);
+
+  // varal com roupas
+  const ferro = mat(0x555555, { metalness: 0.4, roughness: 0.5 });
+  for (const x of [-3.6, 3.6]) {
+    const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.4, 8), ferro);
+    poste.position.set(x, 1.2, -3.3);
+    cena.add(poste);
+  }
+  const fio = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 7.2, 4), mat(0xeeeeee));
+  fio.rotation.z = Math.PI / 2; fio.position.set(0, 2.3, -3.3);
+  cena.add(fio);
+  const roupas = [];
+  const coresRoupa = [0xff5e8a, 0x2bb3ff, 0xffd23f, 0xffffff, 0x4cd07d, 0xff8a3d, 0x9b6bff];
+  [-3.0, -2.1, -1.2, -0.2, 0.9, 1.9, 2.9].forEach((x, i) => {
+    const g = new THREE.Group();
+    const camiseta = i % 3 !== 1;
+    const peca = new THREE.Mesh(camiseta ? new THREE.PlaneGeometry(0.75, 0.8) : new THREE.PlaneGeometry(0.55, 0.95),
+      mat(coresRoupa[i], { side: THREE.DoubleSide, roughness: 0.9 }));
+    peca.position.y = camiseta ? -0.4 : -0.48;
+    peca.castShadow = true;
+    g.add(peca);
+    if (camiseta) for (const lado of [-1, 1]) {
+      const manga = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.25), peca.material);
+      manga.position.set(lado * 0.48, -0.12, 0); manga.rotation.z = lado * 0.5;
+      g.add(manga);
+    }
+    g.position.set(x, 2.3, -3.28);
+    cena.add(g);
+    roupas.push(g);
+  });
+
+  // churrasqueira de tijolo
+  const churras = new THREE.Group();
+  churras.add(caixa(1.4, 1.0, 0.8, tijoloMat, 0, 0.5, 0));
+  churras.add(caixa(1.3, 0.05, 0.7, mat(0x222222, { metalness: 0.6 }), 0, 1.03, 0));
+  const brasa = caixa(1.1, 0.06, 0.5, new THREE.MeshStandardMaterial({ color: 0xff5a1f, emissive: 0xff3a00, emissiveIntensity: 1.4 }), 0, 0.99, 0);
+  churras.add(brasa);
+  for (let i = 0; i < 4; i++) {
+    const esp = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2, 8), mat(0x8b3a1e, { roughness: 0.6 }));
+    esp.rotation.z = Math.PI / 2; esp.position.set(0, 1.1, -0.25 + i * 0.17);
+    churras.add(esp);
+  }
+  churras.add(caixa(0.6, 1.6, 0.5, tijoloMat, 0.45, 1.8, -0.15));
+  const luzBrasa = new THREE.PointLight(0xff7a2a, 4, 4, 2);
+  luzBrasa.position.set(0, 1.4, 0.3);
+  churras.add(luzBrasa);
+  churras.position.set(5.6, 0, -2.6);
+  churras.rotation.y = -0.35;
+  cena.add(churras);
+
+  // cadeiras de plástico
+  const plastico = mat(0xf4f4f0, { roughness: 0.5 });
+  for (const [x, z, r] of [[-3.6, -1.9, 0.4], [4.3, -1.2, -0.6]]) {
+    const c = new THREE.Group();
+    c.add(caixa(0.6, 0.06, 0.6, plastico, 0, 0.5, 0), caixa(0.6, 0.6, 0.06, plastico, 0, 0.82, -0.28));
+    for (const [px, pz] of [[-0.26, -0.26], [0.26, -0.26], [-0.26, 0.26], [0.26, 0.26]]) c.add(caixa(0.05, 0.5, 0.05, plastico, px, 0.25, pz));
+    c.position.set(x, 0, z); c.rotation.y = r;
+    cena.add(c);
+  }
+
+  // casinhas do morro (fileiras subindo a encosta)
+  const parede = textura(128, 128, (x, w, h) => {
+    x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h);
+    x.fillStyle = '#2a2a33';
+    x.fillRect(18, 30, 30, 28); x.fillRect(78, 30, 30, 28); x.fillRect(48, 80, 30, 48);
+  });
+  const tijoloCasa = textura(128, 128, (x, w, h) => {
+    x.fillStyle = '#b5643c'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = 'rgba(90,40,20,.6)'; x.lineWidth = 2;
+    for (let j = 0; j < 16; j++) { x.beginPath(); x.moveTo(0, j * 8); x.lineTo(w, j * 8); x.stroke(); }
+    x.fillStyle = '#2a2a33'; x.fillRect(22, 34, 28, 26); x.fillRect(78, 34, 28, 26);
+  });
+  const cores = [0xffd66b, 0xff9fb1, 0x8fd3ff, 0x9be39b, 0xffffff, 0xffb36b, 0xc9a6ff, 0xf2efe6];
+  const mats = cores.map((c) => mat(c, { map: parede, roughness: 0.9 }));
+  const matTijolo = mat(0xffffff, { map: tijoloCasa, roughness: 0.95 });
+  const azulCx = mat(0x2f6fd6, { roughness: 0.5 });
+  const geoCasa = new THREE.BoxGeometry(1, 1, 1);
+  for (let fila = 0; fila < 18; fila++) {
+    const z = -6 - fila * 2.0;
+    const base = -7.5 + fila * 0.8; // a laje fica no alto; a encosta sobe ao fundo
+    for (let x = -26; x < 26; x += 1.6 + aleat() * 0.8) {
+      const dist = Math.abs(x + 4) / 26;
+      if (aleat() < dist * 0.5) continue; // morro mais cheio no meio
+      const w = 1.3 + aleat() * 1.0, hgt = 1.4 + aleat() * 1.8, d = 1.6;
+      const casa = new THREE.Mesh(geoCasa, aleat() < 0.35 ? matTijolo : mats[Math.floor(aleat() * mats.length)]);
+      casa.scale.set(w, hgt, d);
+      const y0 = base - dist * 4 * (1 - fila / 24);
+      casa.position.set(x, y0 + hgt / 2, z + aleat() * 0.6);
+      cena.add(casa);
+      if (aleat() < 0.18) {
+        const cx = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.35, 10), azulCx);
+        cx.position.set(x + (aleat() - 0.5) * w * 0.5, y0 + hgt + 0.17, casa.position.z);
+        cena.add(cx);
+      }
+    }
+  }
+  // morro verde por trás e o Dois Irmãos
+  const verde = mat(0x4d7a3a, { roughness: 1 });
+  const encosta = new THREE.Mesh(new THREE.SphereGeometry(30, 32, 16), verde);
+  encosta.scale.set(1.5, 0.5, 0.6); encosta.position.set(-4, -7, -52);
+  cena.add(encosta);
+  const pedra = mat(0x5c6b52, { roughness: 1 });
+  for (const [x, h, r] of [[16, 26, 7], [26, 22, 6.5]]) {
+    const pico = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), pedra);
+    pico.scale.set(1, h / r / 2, 1); pico.position.set(x, 4, -58);
+    cena.add(pico);
+  }
+  // mar
+  const mar = new THREE.Mesh(new THREE.PlaneGeometry(200, 80), mat(0x4d86c9, { roughness: 0.2, metalness: 0.3 }));
+  mar.rotation.x = -Math.PI / 2; mar.position.set(30, -6, -70);
+  cena.add(mar);
+  // sol
+  const sol = new THREE.Mesh(new THREE.SphereGeometry(3.2, 24, 16), new THREE.MeshBasicMaterial({ color: 0xffe08a, fog: false }));
+  sol.position.set(-22, 9, -80);
+  cena.add(sol);
+
+  // poste com fios até as casas
+  const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 6.5, 10), mat(0x8a8a8a));
+  poste.position.set(7.4, 3.25 - 0.2, -3.6);
+  cena.add(poste);
+  const fioMat = new THREE.MeshBasicMaterial({ color: 0x1b1b1b });
+  for (const [x2, y2, z2, curva] of [[-8, 4.2, -9, 1.2], [-2, 5.2, -12, 1.4], [3, 3.6, -8, 0.8], [-12, 3.2, -6, 1.0], [10, 5, -14, 1.1], [-6, 6.5, -15, 1.6]]) {
+    for (const dy of [0, 0.18]) {
+      const a = new THREE.Vector3(7.4, 6.0 + dy, -3.6), b = new THREE.Vector3(x2, y2 + dy, z2);
+      const meio = a.clone().lerp(b, 0.5); meio.y -= curva;
+      const curvaFio = new THREE.QuadraticBezierCurve3(a, meio, b);
+      cena.add(new THREE.Mesh(new THREE.TubeGeometry(curvaFio, 24, 0.012, 4), fioMat));
+    }
+  }
+
+  // pipas no céu
+  const pipas = [];
+  for (const [x, y, z, cor] of [[-6, 9, -14, 0xff3d6e], [5, 10.5, -18, 0x2bd4ff], [12, 8.5, -16, 0xffd23f]]) {
+    const g = new THREE.Group();
+    const forma = new THREE.Shape();
+    forma.moveTo(0, 0.7); forma.lineTo(0.5, 0); forma.lineTo(0, -0.8); forma.lineTo(-0.5, 0); forma.lineTo(0, 0.7);
+    const pipa = new THREE.Mesh(new THREE.ShapeGeometry(forma), new THREE.MeshBasicMaterial({ color: cor, side: THREE.DoubleSide }));
+    g.add(pipa);
+    for (let k = 0; k < 6; k++) {
+      const laco = new THREE.Mesh(new THREE.PlaneGeometry(0.16, 0.08), new THREE.MeshBasicMaterial({ color: k % 2 ? 0xffffff : cor, side: THREE.DoubleSide }));
+      laco.position.set(0, -0.9 - k * 0.28, 0);
+      g.add(laco);
+    }
+    g.position.set(x, y, z);
+    g.userData.base = [x, y];
+    cena.add(g);
+    pipas.push(g);
+  }
+
+  return {
+    animar(t) {
+      roupas.forEach((r, i) => { r.rotation.x = Math.sin(t * 2.2 + i) * 0.18; r.rotation.y = Math.sin(t * 1.3 + i * 2) * 0.1; });
+      pipas.forEach((p, i) => {
+        p.position.x = p.userData.base[0] + Math.sin(t * 0.6 + i * 2) * 0.8;
+        p.position.y = p.userData.base[1] + Math.sin(t * 0.9 + i) * 0.4;
+        p.rotation.z = Math.sin(t * 1.5 + i) * 0.35;
+        p.children.slice(1).forEach((l, k) => { l.position.x = Math.sin(t * 3 + k * 0.6 + i) * 0.08 * k; });
+      });
+      brasa.material.emissiveIntensity = 1.2 + Math.sin(t * 9) * 0.25 + Math.sin(t * 23) * 0.1;
+    },
+  };
+}
+
+const CENARIOS = { sala, mansao, feira, hospital, rua_noite: ruaNoite, morro };
 export const LISTA_CENARIOS = Object.keys(CENARIOS);
 
 export function montarCenario(nome, cena) {

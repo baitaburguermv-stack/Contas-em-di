@@ -405,7 +405,7 @@ export class Estudio {
       g.save();
       g.font = `800 ${22 * u}px ${FONTE}`;
       g.textBaseline = 'top';
-      const txt = 'NOVELINHA DAS FRUTAS';
+      const txt = (this.roteiro.serie || 'Novelinha das Frutas').toUpperCase();
       const w = g.measureText(txt).width;
       g.fillStyle = 'rgba(0,0,0,.35)';
       this.retangulo(24 * u - 12 * u, 24 * u, w + 24 * u, 40 * u, 20 * u); g.fill();
@@ -554,7 +554,7 @@ export class Estudio {
     const cy = H * 0.4;
     g.font = `800 ${30 * u}px ${FONTE}`;
     g.fillStyle = '#ffd54f';
-    g.fillText('✦ NOVELINHA DAS FRUTAS ✦', W / 2, cy - 110 * u);
+    g.fillText(`✦ ${(this.roteiro.serie || 'Novelinha das Frutas').toUpperCase()} ✦`, W / 2, cy - 110 * u);
     const esc = 0.85 + 0.15 * saidaCubica(clamp(lt / 0.6));
     g.translate(W / 2, cy);
     g.scale(esc, esc);

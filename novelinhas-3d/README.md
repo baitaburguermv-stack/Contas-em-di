@@ -12,6 +12,7 @@ Já vem com 5 capítulos de exemplo (pasta `videos/`):
 | 2 | A Herança do Abacaxi | mansão | Barão Abacaxi, Lara Laranja, Uvinha |
 | 3 | Amor na Feira | feira | Mel Melancia, Marcos Maçã, Valentina Uva |
 | 4 | A Amnésia do Limão | hospital | Léo Limão, Moranguinha, Dra. Uva |
+| Frutas do Morro 1 | Fofoca na Laje | morro (laje na Rocinha) | Dona Maçã, Moranguinha, Bruno Banana, Vó Valentina |
 | 5 | Cuidado com o Meio-Fio | rua_noite (começa com uma foto real) | Bruno Banana, Moranguinha e o hatch rebaixado |
 
 ## Como usar
@@ -48,7 +49,7 @@ ou adicione um item em `js/episodios.js`:
 {
   id: 'minha-novela', capitulo: 5,
   titulo: 'O Casamento do Kiwi', subtitulo: 'Vai ter bolo?',
-  cenario: 'sala',                       // sala | mansao | feira | hospital | rua_noite
+  cenario: 'sala',                       // sala | mansao | feira | hospital | rua_noite | morro
   personagens: {
     maca:   { tipo: 'maca', nome: 'Marta Maçã', pos: [-1, 0.2], cilios: true, acessorios: ['laco'] },
     banana: { tipo: 'banana', nome: 'Beto Banana', pos: [1, 0.2], acessorios: ['gravata'] },
@@ -76,6 +77,7 @@ ou adicione um item em `js/episodios.js`:
   `sair: [x, z]`, `alvo` (para o tapa), `olhar` (`id` ou `camera`), `atraso`, `tempo`.
 - `efeito`: `coracoes:id`, `confete`, `tremor`, `flash`, `vinheta`, `dun` (ou uma lista).
 - `texto`: onomatopeia grande na tela (ex.: `"SOCORRO!"`). `som`: `boing`, `susto`, `plaft`...
+- `serie`: nome da série que aparece na tela (padrão: "Novelinha das Frutas").
 - `tipo: 'foto'`: mostra a foto do roteiro (`foto: 'img/arquivo.jpg'`) com zoom de cinema (`zoom: [1, 1.4]`, `foco: [[x,y],[x,y]]` de 0 a 1).
 - `camera` também pode ser livre: `{ pos: [x,y,z], ate: [x,y,z], olhar: [x,y,z] }`.
 - `props`: anima objetos do cenário, ex.: `{ porta: 53 }` (graus da porta do carro no `rua_noite`), com `propsTempo` e `propsAtraso`.
