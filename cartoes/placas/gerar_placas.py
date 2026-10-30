@@ -198,7 +198,7 @@ def logo_quadrada(logo):
 <div class="word lg-g">{WORDMARK}</div>
 {STARS()}
 <div class="lg-ring">{ring4(3.4)}<img class="lg-img" src="logos/{logo}.png" alt=""></div>
-<div class="lg-cta">{TAP}<div class="lg-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div></div>
+<div class="lg-cta">{TAP}<div class="lg-lbl">APROXIME SEU<br>CELULAR <b>NO LOGO</b></div></div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
 
 CSS = '''
