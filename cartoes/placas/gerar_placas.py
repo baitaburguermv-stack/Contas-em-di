@@ -173,6 +173,24 @@ ig_cartao = f'''
 <div class="p2-g ig2-cam">{ig_cam("igneon", neon=True)}</div>
 <div class="ig2-txt">{ig_letters("SIGA-NOS")}</div>'''
 
+# ---------- versão WhatsApp ----------
+WA_GREEN = "#25D366"
+WA_ICON = (f'<svg viewBox="0 0 92 92" fill="none" stroke="{WA_GREEN}" stroke-width="6" stroke-linejoin="round">'
+           '<path d="M46 8 a38 38 0 1 1 -21 69.6 L8 84 l6.4 -16.6 A38 38 0 0 1 46 8z"/>'
+           f'<path d="M33 27 c-5 3 -5 10 0 17 c6 9 13 15 22 18 c6 2 11 0 13 -5 l-9 -6 l-5 4 c-6 -3 -10 -7 -13 -13 l4 -5 z" fill="{WA_GREEN}" stroke-width="2"/></svg>')
+
+def wa_ring(stroke):
+    return (f'<svg viewBox="0 0 100 100" class="ring4"><circle cx="50" cy="50" r="{50-stroke/2}" fill="none" '
+            f'stroke="{WA_GREEN}" stroke-width="{stroke}"/></svg>')
+
+wa_quadrada = f'''
+<div class="p4-top">CHAME NOSSA EMPRESA NO</div>
+<div class="wa4-head"><div class="wa4-icon">{WA_ICON}</div><div class="wa4-word">WhatsApp</div></div>
+<div class="p4-row">
+  <div class="p4-circle p4n-circle">{wa_ring(4)}<div class="p4-in"><div class="p4-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div>{TAP}</div></div>
+</div>
+<div class="p4-bar wa-bar"></div>'''
+
 CSS = '''
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -268,6 +286,12 @@ body.print figcaption { display:none; }
 .ig2-notch { color:#E1306C; }
 .ig2-cam { width:32mm; height:32mm; margin-top:17mm; }
 .ig2-txt { margin-top:auto; margin-bottom:11mm; width:30mm; height:4mm; }
+
+/* WhatsApp */
+.wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
+.wa4-icon svg { width:24mm; height:24mm; display:block; }
+.wa4-word { font-size:21mm; font-weight:700; letter-spacing:-.02em; line-height:1; }
+.wa-bar { background:#25D366; }
 '''
 
 SYMS = ""
@@ -290,6 +314,7 @@ html = f'''<!doctype html>
 {sheet("ig-quadrada-nfc", 150, 150, "p4", ig_quadrada("igC"), "IG · PLACA QUADRADA")}
 {sheet("ig-quadrada-nfc-branca", 150, 150, "p4 light", ig_quadrada("igD"), "IG · PLACA QUADRADA BRANCA")}
 {sheet("ig-cartao", 54, 85.6, "p2", ig_cartao, "IG · CARTÃO NEON")}
+{sheet("wa-quadrada-nfc", 150, 150, "p4", wa_quadrada, "WA · PLACA QUADRADA")}
 </div></body></html>'''
 
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "placas.html"), "w").write(html)
