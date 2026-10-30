@@ -355,6 +355,13 @@ body.print figcaption { display:none; }
 .wa2-txt { margin-top:auto; margin-bottom:10mm; display:flex; flex-direction:column; align-items:center; gap:.8mm; }
 .wa2-txt b { font-size:3.3mm; font-weight:700; letter-spacing:.14em; color:#25D366; }
 .wa2-txt span { font-size:2.9mm; font-weight:400; color:#ddd; letter-spacing:.03em; }
+
+/* WhatsApp com fundo branco */
+.light .p3-bg path[fill="#0d0d0d"] { fill:#fff; }
+.light .p3-title { color:#1a1a1a; }
+.light .wa3-circle { box-shadow:0 .6mm 3mm rgba(0,0,0,.18); }
+.light .p2-notch { background:#ececec; box-shadow:inset 0 2px 4px rgba(0,0,0,.18); }
+.light .wa2-txt span { color:#555; }
 .wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
 .wa4-icon svg { width:24mm; height:24mm; display:block; }
 .wa4-word { font-size:21mm; font-weight:700; letter-spacing:-.02em; line-height:1; }
@@ -385,6 +392,10 @@ html = f'''<!doctype html>
 {sheet("wa-opiniao", 150, 180, "p3", wa_opiniao, "WA · FALE COM A GENTE")}
 {sheet("wa-mesa-nfc", 100, 150, "p1", wa_mesa, "WA · DISPLAY DE MESA")}
 {sheet("wa-cartao", 54, 85.6, "p2", wa_cartao, "WA · CARTÃO NEON")}
+{sheet("wa-quadrada-nfc-branca", 150, 150, "p4 light", wa_quadrada, "WA · PLACA QUADRADA BRANCA")}
+{sheet("wa-opiniao-branca", 150, 180, "p3 light", wa_opiniao, "WA · FALE COM A GENTE BRANCA")}
+{sheet("wa-mesa-nfc-branca", 100, 150, "p1 light", wa_mesa, "WA · DISPLAY DE MESA BRANCO")}
+{sheet("wa-cartao-branco", 54, 85.6, "p2 light", wa_cartao, "WA · CARTÃO BRANCO")}
 {sheet("google-logo-companhia-das-pizzas", 150, 150, "p4", logo_quadrada("companhia-das-pizzas"), "GOOGLE · COMPANHIA DAS PIZZAS")}
 {sheet("google-logo-pampa", 150, 150, "p4", logo_quadrada("pampa"), "GOOGLE · PAMPA")}
 {sheet("google-logo-yatta", 150, 150, "p4", logo_quadrada("yatta"), "GOOGLE · YATTA")}
