@@ -359,7 +359,7 @@ body.print figcaption { display:none; }
 /* WhatsApp com fundo branco */
 .light .p3-bg path[fill="#0d0d0d"] { fill:#fff; }
 .light .p3-title { color:#1a1a1a; }
-.light .wa3-circle { box-shadow:0 .6mm 3mm rgba(0,0,0,.18); }
+.light .wa3-circle { box-shadow:none; border:1.2mm solid #25D366; }  /* sombra vira imagem cinza no PDF */
 .light .p2-notch { background:#ececec; box-shadow:inset 0 2px 4px rgba(0,0,0,.18); }
 .light .wa2-txt span { color:#555; }
 .wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
