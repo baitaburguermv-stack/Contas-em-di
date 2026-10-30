@@ -201,6 +201,43 @@ def logo_quadrada(logo):
 <div class="lg-cta">{TAP}<div class="lg-lbl">APROXIME SEU<br>CELULAR <b>NO LOGO</b></div></div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
 
+# ---------- mais modelos do WhatsApp ----------
+WA_PATHS = ('<path d="M46 8 a38 38 0 1 1 -21 69.6 L8 84 l6.4 -16.6 A38 38 0 0 1 46 8z"/>',
+            '<path d="M33 27 c-5 3 -5 10 0 17 c6 9 13 15 22 18 c6 2 11 0 13 -5 l-9 -6 l-5 4 c-6 -3 -10 -7 -13 -13 l4 -5 z"/>')
+
+def wa_neon():
+    bubble, phone = WA_PATHS
+    glow = (f'<g fill="none" stroke="{WA_GREEN}" stroke-width="7" stroke-linejoin="round" filter="url(#wablur)" opacity=".9">{bubble}{phone}</g>')
+    sharp = (f'<g fill="none" stroke="#b9f5cf" stroke-width="2" stroke-linejoin="round">{bubble}{phone}</g>')
+    return ('<svg viewBox="0 0 92 92" style="overflow:visible"><defs><filter id="wablur" x="-50%" y="-50%" width="200%" height="200%">'
+            '<feGaussianBlur stdDeviation="3.5"/></filter></defs>' + glow +
+            f'<g fill="none" stroke="{WA_GREEN}" stroke-width="5" stroke-linejoin="round">{bubble}{phone}</g>' + sharp + '</svg>')
+
+wa_mesa = f"""
+<div class="p1-ring">{wa_ring(3.2)}
+  <div class="p1-text"><div class="p1-a">Chame-nos</div><div class="p1-no">no</div><div class="wa1-word">WhatsApp</div></div></div>
+<div class="p1-bottom p1n-bottom">
+  <div class="p1-nfc">{WAVES}<div class="p1-nfclbl">NFC</div></div>
+</div>"""
+
+wa_opiniao = f"""
+<svg class="p3-bg" viewBox="0 0 150 180" preserveAspectRatio="none">
+  <defs><linearGradient id="rbw" x1="0" x2="1">
+    <stop offset="0" stop-color="#128C7E"/><stop offset=".5" stop-color="#25D366"/><stop offset="1" stop-color="#128C7E"/></linearGradient></defs>
+  <path d="M-10 -10 H160 V88 C120 70 95 96 75 92 C50 87 30 70 -10 86 Z" fill="#0d0d0d"/>
+  <path d="M-10 86 C30 70 50 87 75 92 C95 96 120 70 160 88" fill="none" stroke="url(#rbw)" stroke-width="7"/>
+</svg>
+<div class="wa3-tags">PEDIDOS &nbsp;•&nbsp; ORÇAMENTOS &nbsp;•&nbsp; DÚVIDAS</div>
+<div class="p3-title wa3-title">FALE COM A GENTE<br>NO WHATSAPP!</div>
+<div class="p3-gcircle wa3-circle">{WA_ICON}</div>
+<div class="p3-oval">{TAP}</div>
+<div class="p3-cta">Toque e fale com a gente agora</div>"""
+
+wa_cartao = f"""
+<div class="p2-notch wa2-notch">{WAVES}</div>
+<div class="p2-g wa2-icon">{wa_neon()}</div>
+<div class="wa2-txt"><b>CHAME NO WHATSAPP</b><span>e salve nosso contato</span></div>"""
+
 CSS = '''
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -309,6 +346,15 @@ body.print figcaption { display:none; }
 .lg-lbl { font-size:4.6mm; font-weight:500; line-height:1.15; letter-spacing:.03em; text-align:left; }
 .lg-lbl b { font-weight:800; }
 /* WhatsApp */
+.wa1-word { font-size:12mm; font-weight:700; color:#25D366; letter-spacing:-.02em; line-height:1.1; margin-top:1mm; }
+.wa3-tags { position:relative; margin-top:12mm; font-size:4.6mm; font-weight:600; letter-spacing:.12em; color:#25D366; }
+.wa3-title { margin-top:3mm; }
+.wa3-circle svg { width:26mm; height:26mm; }
+.wa2-notch { color:#25D366; }
+.wa2-icon { width:32mm; height:32mm; margin-top:17mm; }
+.wa2-txt { margin-top:auto; margin-bottom:10mm; display:flex; flex-direction:column; align-items:center; gap:.8mm; }
+.wa2-txt b { font-size:3.3mm; font-weight:700; letter-spacing:.14em; color:#25D366; }
+.wa2-txt span { font-size:2.9mm; font-weight:400; color:#ddd; letter-spacing:.03em; }
 .wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
 .wa4-icon svg { width:24mm; height:24mm; display:block; }
 .wa4-word { font-size:21mm; font-weight:700; letter-spacing:-.02em; line-height:1; }
@@ -336,6 +382,9 @@ html = f'''<!doctype html>
 {sheet("ig-quadrada-nfc-branca", 150, 150, "p4 light", ig_quadrada("igD"), "IG · PLACA QUADRADA BRANCA")}
 {sheet("ig-cartao", 54, 85.6, "p2", ig_cartao, "IG · CARTÃO NEON")}
 {sheet("wa-quadrada-nfc", 150, 150, "p4", wa_quadrada, "WA · PLACA QUADRADA")}
+{sheet("wa-opiniao", 150, 180, "p3", wa_opiniao, "WA · FALE COM A GENTE")}
+{sheet("wa-mesa-nfc", 100, 150, "p1", wa_mesa, "WA · DISPLAY DE MESA")}
+{sheet("wa-cartao", 54, 85.6, "p2", wa_cartao, "WA · CARTÃO NEON")}
 {sheet("google-logo-companhia-das-pizzas", 150, 150, "p4", logo_quadrada("companhia-das-pizzas"), "GOOGLE · COMPANHIA DAS PIZZAS")}
 {sheet("google-logo-pampa", 150, 150, "p4", logo_quadrada("pampa"), "GOOGLE · PAMPA")}
 {sheet("google-logo-yatta", 150, 150, "p4", logo_quadrada("yatta"), "GOOGLE · YATTA")}
