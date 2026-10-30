@@ -24,8 +24,9 @@ def g_neon():
     for p in G_PATHS.strip().split("\n"):
         col = p.split('fill="')[1][:7]
         d = p.split(' d="')[1].split('"')[0]
-        out.append(f'<path d="{d}" fill="{col}" fill-opacity=".05" stroke="{col}" stroke-width=".22" stroke-linejoin="round" '
-                   f'style="filter:drop-shadow(0 0 .3px {col}) drop-shadow(0 0 .9px {col}) drop-shadow(0 0 2px {col})"/>')
+        for w, o in ((1.5, .08), (1.0, .16), (.6, .32)):
+            out.append(f'<path d="{d}" fill="none" stroke="{col}" stroke-opacity="{o}" stroke-width="{w}" stroke-linejoin="round"/>')
+        out.append(f'<path d="{d}" fill="{col}" fill-opacity=".05" stroke="{col}" stroke-width=".22" stroke-linejoin="round"/>')
     return "\n".join(out)
 
 WORDMARK = ('<span style="color:#4285F4">G</span><span style="color:#EA4335">o</span><span style="color:#FBBC05">o</span>'
@@ -130,11 +131,12 @@ def ig_cam(gid, neon=False):
     defs = f'<defs><linearGradient id="{gid}" gradientUnits="userSpaceOnUse" x1="2" y1="22" x2="22" y2="2">{IG_STOPS}</linearGradient>'
     if not neon:
         return f'<svg viewBox="0 0 24 24">{defs}</defs><g stroke="url(#{gid})">{shapes}</g></svg>'
-    defs += f'<filter id="{gid}f" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter></defs>'
-    thin = shapes.replace('stroke-width="2.2"', 'stroke-width=".5"')
-    return (f'<svg viewBox="0 0 24 24" style="overflow:visible">{defs}'
-            f'<g stroke="url(#{gid})" filter="url(#{gid}f)" opacity=".9">{shapes}</g>'
-            f'<g stroke="url(#{gid})" style="filter:drop-shadow(0 0 .25px #fff)">{thin}</g></svg>')
+    defs += '</defs>'
+    layers = "".join(f'<g stroke="url(#{gid})" stroke-opacity="{o}">' + shapes.replace('stroke-width="2.2"', f'stroke-width="{w}"') + '</g>'
+                     for w, o in ((4.8, .08), (3.8, .16), (2.9, .32)))
+    thin = shapes.replace('stroke-width="2.2"', 'stroke-width=".45"')
+    return (f'<svg viewBox="0 0 24 24" style="overflow:visible">{defs}{layers}'
+            f'<g stroke="url(#{gid})">{shapes}</g><g stroke="#fff" stroke-opacity=".55">{thin}</g></svg>')
 
 def ig_text(text, gid, w, h, size, y, font="'Grand Hotel',cursive", weight=400, spacing=0):
     # texto com degradê feito em SVG (o background-clip:text deixa um contorno no PDF)
@@ -197,7 +199,7 @@ def logo_quadrada(logo):
 <div class="p4-top lg-top">AVALIE NOSSA EMPRESA NO</div>
 <div class="word lg-g">{WORDMARK}</div>
 {STARS()}
-<div class="lg-ring">{ring4(3.4)}<img class="lg-img" src="logos/{logo}.png" alt=""></div>
+<div class="lg-ring">{ring4(3.4)}<img class="lg-img" src="logos/{logo}-fundo.png" alt=""></div>
 <div class="lg-cta">{TAP}<div class="lg-lbl">APROXIME SEU<br>CELULAR <b>NO LOGO</b></div></div>
 <div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
 
@@ -207,10 +209,10 @@ WA_PATHS = ('<path d="M46 8 a38 38 0 1 1 -21 69.6 L8 84 l6.4 -16.6 A38 38 0 0 1 
 
 def wa_neon():
     bubble, phone = WA_PATHS
-    glow = (f'<g fill="none" stroke="{WA_GREEN}" stroke-width="7" stroke-linejoin="round" filter="url(#wablur)" opacity=".9">{bubble}{phone}</g>')
+    glow = "".join(f'<g fill="none" stroke="{WA_GREEN}" stroke-opacity="{o}" stroke-width="{w}" stroke-linejoin="round">{bubble}{phone}</g>'
+                   for w, o in ((14, .07), (10.5, .14), (7.5, .3)))
     sharp = (f'<g fill="none" stroke="#b9f5cf" stroke-width="2" stroke-linejoin="round">{bubble}{phone}</g>')
-    return ('<svg viewBox="0 0 92 92" style="overflow:visible"><defs><filter id="wablur" x="-50%" y="-50%" width="200%" height="200%">'
-            '<feGaussianBlur stdDeviation="3.5"/></filter></defs>' + glow +
+    return ('<svg viewBox="0 0 92 92" style="overflow:visible">' + glow +
             f'<g fill="none" stroke="{WA_GREEN}" stroke-width="5" stroke-linejoin="round">{bubble}{phone}</g>' + sharp + '</svg>')
 
 wa_mesa = f"""
@@ -273,7 +275,7 @@ body.print figcaption { display:none; }
 /* 2 */
 .p2 { background:#0b0b0b; }
 .p2-notch { margin-top:-3mm; width:34mm; height:13mm; border-radius:0 0 17mm 17mm / 0 0 13mm 13mm; background:#1b1b1b;
-            box-shadow:inset 0 -1px 2px rgba(255,255,255,.06), inset 0 2px 4px rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; color:#4caf50; padding-top:3mm; }
+            border-bottom:.3mm solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; color:#4caf50; padding-top:3mm; }
 .p2-notch .waves { width:7mm; height:7mm; transform:rotate(-90deg); }
 .p2-g { width:38mm; height:38mm; margin-top:14mm; }
 .p2-g svg { width:100%; height:100%; overflow:visible; }
@@ -286,8 +288,9 @@ body.print figcaption { display:none; }
 .p3 .stars { position:relative; margin-top:9mm; gap:2mm; }
 .p3 .stars svg { width:12mm; height:12mm; }
 .p3-title { position:relative; margin-top:3mm; color:#fff; font-size:12.5mm; font-weight:800; line-height:1.05; letter-spacing:-.01em; }
+/* sem box-shadow: no PDF a sombra vira uma imagem que alguns visualizadores mostram como um quadrado */
 .p3-gcircle { position:relative; margin-top:6mm; width:38mm; height:38mm; border-radius:50%; background:#fff;
-              box-shadow:0 1mm 3mm rgba(0,0,0,.25); display:flex; align-items:center; justify-content:center; }
+              border:.8mm solid #e3e3e3; display:flex; align-items:center; justify-content:center; }
 .p3-gcircle svg { width:25mm; height:25mm; }
 .p3-oval { position:relative; margin-top:12mm; width:104mm; height:44mm; border:1.3mm solid #111; border-radius:50%;
            display:flex; align-items:center; justify-content:center; gap:4mm; color:#111; }
@@ -349,6 +352,7 @@ body.print figcaption { display:none; }
 .wa1-word { font-size:12mm; font-weight:700; color:#25D366; letter-spacing:-.02em; line-height:1.1; margin-top:1mm; }
 .wa3-tags { position:relative; margin-top:12mm; font-size:4.6mm; font-weight:600; letter-spacing:.12em; color:#25D366; }
 .wa3-title { margin-top:3mm; }
+.wa3-circle { border:1.2mm solid #25D366; }
 .wa3-circle svg { width:26mm; height:26mm; }
 .wa2-notch { color:#25D366; }
 .wa2-icon { width:32mm; height:32mm; margin-top:17mm; }
@@ -359,8 +363,8 @@ body.print figcaption { display:none; }
 /* WhatsApp com fundo branco */
 .light .p3-bg path[fill="#0d0d0d"] { fill:#fff; }
 .light .p3-title { color:#1a1a1a; }
-.light .wa3-circle { box-shadow:none; border:1.2mm solid #25D366; }  /* sombra vira imagem cinza no PDF */
-.light .p2-notch { background:#ececec; box-shadow:inset 0 2px 4px rgba(0,0,0,.18); }
+
+.light .p2-notch { background:#ececec; border-bottom-color:rgba(0,0,0,.1); }
 .light .wa2-txt span { color:#555; }
 .wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
 .wa4-icon svg { width:24mm; height:24mm; display:block; }
