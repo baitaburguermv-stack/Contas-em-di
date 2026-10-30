@@ -191,6 +191,16 @@ wa_quadrada = f'''
 </div>
 <div class="p4-bar wa-bar"></div>'''
 
+# ---------- placa quadrada do Google com o logo da empresa no centro ----------
+def logo_quadrada(logo):
+    return f'''
+<div class="p4-top lg-top">AVALIE NOSSA EMPRESA NO</div>
+<div class="word lg-g">{WORDMARK}</div>
+{STARS()}
+<div class="lg-ring">{ring4(3.4)}<img class="lg-img" src="logos/{logo}.png" alt=""></div>
+<div class="lg-cta">{TAP}<div class="lg-lbl">APROXIME SEU<br>CELULAR <b>AQUI</b></div></div>
+<div class="p4-bar"><span style="background:#4285F4"></span><span style="background:#34A853"></span><span style="background:#FBBC05"></span><span style="background:#EA4335"></span></div>'''
+
 CSS = '''
 * { box-sizing:border-box; margin:0; padding:0; }
 body { background:#e8e8ea; font-family:"Outfit",system-ui,sans-serif; padding:30px 16px; }
@@ -287,6 +297,17 @@ body.print figcaption { display:none; }
 .ig2-cam { width:32mm; height:32mm; margin-top:17mm; }
 .ig2-txt { margin-top:auto; margin-bottom:11mm; width:30mm; height:4mm; }
 
+/* Google com logo da empresa */
+.lg-top { margin-top:7mm; font-size:5mm; }
+.lg-g { font-size:19mm; margin-top:.5mm; }
+.p4 .lg-g + .stars { margin-top:1mm; gap:2mm; }
+.p4 .lg-g + .stars svg { width:7.5mm; height:7.5mm; }
+.lg-ring { position:relative; width:72mm; height:72mm; margin-top:4mm; }
+.lg-img { position:absolute; inset:4mm; width:calc(100% - 8mm); height:calc(100% - 8mm); border-radius:50%; object-fit:cover; }
+.lg-cta { display:flex; align-items:center; gap:3mm; margin-top:4mm; }
+.lg-cta .tap { width:17mm; height:13mm; color:#fff; }
+.lg-lbl { font-size:4.6mm; font-weight:500; line-height:1.15; letter-spacing:.03em; text-align:left; }
+.lg-lbl b { font-weight:800; }
 /* WhatsApp */
 .wa4-head { display:flex; align-items:center; gap:5mm; margin-top:6mm; margin-bottom:2mm; }
 .wa4-icon svg { width:24mm; height:24mm; display:block; }
@@ -315,6 +336,9 @@ html = f'''<!doctype html>
 {sheet("ig-quadrada-nfc-branca", 150, 150, "p4 light", ig_quadrada("igD"), "IG · PLACA QUADRADA BRANCA")}
 {sheet("ig-cartao", 54, 85.6, "p2", ig_cartao, "IG · CARTÃO NEON")}
 {sheet("wa-quadrada-nfc", 150, 150, "p4", wa_quadrada, "WA · PLACA QUADRADA")}
+{sheet("google-logo-companhia-das-pizzas", 150, 150, "p4", logo_quadrada("companhia-das-pizzas"), "GOOGLE · COMPANHIA DAS PIZZAS")}
+{sheet("google-logo-pampa", 150, 150, "p4", logo_quadrada("pampa"), "GOOGLE · PAMPA")}
+{sheet("google-logo-yatta", 150, 150, "p4", logo_quadrada("yatta"), "GOOGLE · YATTA")}
 </div></body></html>'''
 
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "placas.html"), "w").write(html)
